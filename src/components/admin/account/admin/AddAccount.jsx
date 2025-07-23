@@ -1,0 +1,290 @@
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { Spin } from "antd";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  handleAddUser,
+  handleUpdateUser,
+  handleUploadImage,
+} from "../../../../controller/AccountController";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLoading } from "../../../../context/LoadingProvider";
+const AddAccount = ({ open, onClose, onSuccess, users }) => {
+  const { setLoading } = useLoading();
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const checkEdit = !!users?.id;
+  const [form, setForm] = useState({
+    id: users?.id || "",
+    username: users?.username || "",
+    password: "",
+    status: users?.status || "ACTIVE",
+    role: users?.role || "ADMIN",
+    image: users?.image || "",
+    imageFile: null,
+  });
+  useEffect(() => {
+    if (users?.id) {
+      setForm({
+        id: users.id || "",
+        username: users.username || "",
+        password: "",
+        status: users.status || "ACTIVE",
+        role: users.role || "ADMIN",
+        image: users.image || "",
+        imageFile: null,
+      });
+
+      if (users.image) {
+        setImagePreview(users.image);
+      }
+    } else {
+      setForm({
+        id: "",
+        username: "",
+        password: "",
+        status: "ACTIVE",
+        role: "ADMIN",
+        image: "",
+        imageFile: null,
+      });
+      setImagePreview(null);
+    }
+  }, [users]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setForm({ ...form, imageFile: file });
+      // Create preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!form.username || !form.password) {
+        toast.error("Vui lòng nhập đầy đủ thông tin");
+        return;
+      }
+      setLoading(true);
+      let accountId = form.id;
+
+      if (checkEdit) {
+        const reqEdit = await handleUpdateUser(form);
+
+        if (reqEdit.status === 204) {
+          if (form.imageFile) {
+            const imageForm = new FormData();
+            imageForm.append("file", form.imageFile);
+            await handleUploadImage(accountId, imageForm);
+          }
+          onSuccess();
+          toast.success(reqEdit.message || "Cập nhật tài khoản thành công");
+          onClose();
+        } else {
+          toast.error(reqEdit.message || "Cập nhật tài khoản thất bại 1111");
+        }
+      } else {
+        const response = await handleAddUser(form);
+
+        if (response.status === 201) {
+          const newAccountId = response.data?.id;
+
+          if (form.imageFile && newAccountId) {
+            const imageForm = new FormData();
+            imageForm.append("file", form.imageFile);
+            await handleUploadImage(newAccountId, imageForm);
+          }
+          onSuccess();
+          toast.success(response.message || "Thêm tài khoản thành công");
+          onClose();
+        } else {
+          toast.error(response.message || "Thêm tài khoản thất bại 1111");
+        }
+      }
+    } catch (error) {
+      if (error) {
+        toast.error(error.message || "Thêm tài khoản thất bại");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            {checkEdit ? (
+              <>
+                <DialogTitle>Cập nhật tài khoản</DialogTitle>
+                <DialogDescription>
+                  Cập nhật thông tin của tài khoản
+                </DialogDescription>
+              </>
+            ) : (
+              <>
+                <DialogTitle>Tạo tài khoản mới</DialogTitle>
+                <DialogDescription>
+                  Nhập thông tin chi tiết về tài khoản mới
+                </DialogDescription>
+              </>
+            )}
+          </DialogHeader>
+          <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div className="grid gap-4">
+              {checkEdit && (
+                <div className="grid gap-2">
+                  <Label htmlFor="id">ID</Label>
+                  <Input
+                    id="id"
+                    placeholder=""
+                    disabled={checkEdit}
+                    value={form.id}
+                    onChange={(e) => setForm({ ...form, id: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  placeholder=""
+                  value={form.username}
+                  disabled={checkEdit}
+                  onChange={(e) =>
+                    setForm({ ...form, username: e.target.value })
+                  }
+                />
+              </div>
+              {checkEdit ? (
+                <div className="grid gap-2"></div>
+              ) : (
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={form.password}
+                    disabled={checkEdit}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="grid gap-2 ">
+                <Label htmlFor="image">Ảnh</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  {imagePreview && (
+                    // <div className="mt-2">
+                    //   <img
+                    //     src={imagePreview}
+                    //     alt="Preview"
+                    //     className="w-20 h-20 object-cover rounded"
+                    //   />
+                    // </div>
+                    <Avatar className="rounded-lg">
+                      <AvatarImage src={imagePreview} alt={form.username} />
+                    </Avatar>
+                  )}
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Trạng thái</Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(value) => setForm({ ...form, status: value })}
+                >
+                  <SelectTrigger id="">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                    <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Role</Label>
+                <Select
+                  value={form.role}
+                  onValueChange={(value) => setForm({ ...form, role: value })}
+                  disabled={true}
+                >
+                  <SelectTrigger id="">
+                    <SelectValue placeholder="Chọn role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    {/* <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
+                    <SelectItem value="EMPLOYEE">Employee</SelectItem> */}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => {
+                onClose();
+                setForm({
+                  id: "",
+                  username: "",
+                  password: "",
+                  status: "ACTIVE",
+                  role: "ADMIN",
+                  image: "",
+                });
+                setImagePreview(null);
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              onClick={handleSubmit}
+            >
+              {checkEdit ? "Cập nhật" : "Thêm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+export default AddAccount;
