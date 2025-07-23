@@ -143,7 +143,14 @@ const AdminCreateNotification = () => {
     const req = await handleListClass(0, 10);
     console.log(req);
     if (req?.data) {
-      setAcademicYears(req.data.classes);
+      const uniqueYearsMap = new Map();
+
+      req.data.classes.forEach((cls) => {
+        if (!uniqueYearsMap.has(cls.academicYear)) {
+          uniqueYearsMap.set(cls.academicYear, cls); // lưu lớp đại diện cho năm đó
+        }
+      });
+      setAcademicYears(Array.from(uniqueYearsMap.values()));
     }
   };
 
