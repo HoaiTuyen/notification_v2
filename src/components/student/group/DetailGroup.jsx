@@ -112,12 +112,6 @@ const mockGroupData = {
 };
 const DetailGroupStudent = () => {
   const { connected, stompClient, error } = useWebSocket();
-
-  useEffect(() => {
-    if (connected) {
-      console.log("Kết nối WebSocket thành công!");
-    }
-  }, [connected]);
   const scrollRef = useRef(null);
   const pageRef = useRef(0);
   const messagesEndRef = useRef(null);
@@ -126,6 +120,107 @@ const DetailGroupStudent = () => {
   const { groupStudyId } = useParams();
   const token = localStorage.getItem("access_token");
   const { userId } = jwtDecode(token);
+  // useEffect(() => {
+  //   if (connected) {
+  //     console.log("Kết nối WebSocket thành công!");
+  //   }
+  // }, [connected]);
+  // useEffect(() => {
+  //   if (!stompClient?.current || !connected || !groupStudyId) return;
+
+  //   const sub = stompClient.current.subscribe(
+  //     `/notification/chat_message/${groupStudyId}`,
+  //     (message) => {
+  //       const parsed = JSON.parse(message.body);
+  //       const newMsg = {
+  //         id: parsed.messageId,
+  //         sender: parsed.fullName,
+  //         content: parsed.message,
+  //         timestamp: parsed.createdAt,
+  //         avatar: parsed.avatarUrl,
+  //         userId: parsed.userId,
+  //         isTeacher: parsed.isTeacher || false,
+  //       };
+
+  //       setMessages((prev) => {
+  //         const tempIndex = prev.findIndex(
+  //           (m) =>
+  //             m.id.startsWith("temp-") &&
+  //             m.content === newMsg.content &&
+  //             m.userId === newMsg.userId
+  //         );
+  //         if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+  //         if (tempIndex !== -1) {
+  //           const updated = [...prev];
+  //           updated[tempIndex] = newMsg;
+  //           return updated;
+  //         }
+
+  //         return [...prev, newMsg];
+  //       });
+
+  //       setTimeout(() => {
+  //         requestAnimationFrame(() => {
+  //           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  //         });
+  //       }, 100);
+  //     }
+  //   );
+
+  //   return () => sub.unsubscribe();
+  // }, [stompClient, connected, groupStudyId]);
+  useEffect(() => {
+    if (!stompClient?.current || !connected || !groupStudyId) return;
+
+    const sub = stompClient.current.subscribe(
+      `/notification/chat_message/${groupStudyId}`,
+      (message) => {
+        const parsed = JSON.parse(message.body);
+        console.log(parsed);
+        const newMsg = {
+          id: parsed.messageId,
+          sender: parsed.fullName,
+          content: parsed.message,
+          timestamp: parsed.createdAt || new Date().toISOString(),
+          avatar: parsed.avatarUrl,
+          userId: parsed.userId,
+          isTeacher: parsed.isTeacher || false,
+        };
+
+        setMessages((prev) => {
+          console.log(prev);
+          const tempIndex = prev.findIndex(
+            (m) =>
+              m.id.startsWith("temp-") &&
+              m.content === newMsg.content &&
+              m.userId === newMsg.userId
+          );
+
+          // Nếu đã có real message trùng id → bỏ qua
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+          if (tempIndex !== -1) {
+            const updated = [...prev];
+            updated[tempIndex] = newMsg; // 👈 Replace
+            return updated;
+          }
+
+          return [...prev, newMsg]; // 👈 Không tìm thấy temp → thêm mới
+        });
+
+        // ✅ Cuộn xuống cuối
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          });
+        }, 100);
+      }
+    );
+
+    return () => sub.unsubscribe();
+  }, [stompClient, connected, groupStudyId]);
+
   const [imageUser, setImageUser] = useState("");
   const [initialLoaded, setInitialLoaded] = useState(false);
 
@@ -410,39 +505,6 @@ const DetailGroupStudent = () => {
       };
     }
   }, [authorized]);
-  useEffect(() => {
-    if (!stompClient?.current || !connected || !groupStudyId || !initialLoaded)
-      return;
-
-    const sub = stompClient.current.subscribe(
-      `/notification/chat_message/${groupStudyId}`,
-      (message) => {
-        const parsed = JSON.parse(message.body);
-        const newMsg = {
-          id: parsed.messageId,
-          sender: parsed.fullName,
-          content: parsed.message,
-          timestamp: parsed.createdAt,
-          avatar: parsed.avatarUrl,
-          userId: parsed.userId,
-          isTeacher: parsed.isTeacher || false,
-        };
-
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === newMsg.id)) return prev;
-          return [...prev, newMsg];
-        });
-
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-          });
-        }, 100);
-      }
-    );
-
-    return () => sub.unsubscribe();
-  }, [stompClient, connected, groupStudyId]);
 
   if (loadingPage) {
     return (

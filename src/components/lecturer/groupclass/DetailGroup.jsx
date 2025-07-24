@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   ArrowLeft,
   FileText,
@@ -18,6 +19,8 @@ import {
   Trash2,
   LogOut,
   SendHorizontal,
+  Paperclip,
+  Smile,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
@@ -48,16 +51,30 @@ import {
   handleCreateReplyNotificationGroup,
   handleListReplyNotificationGroup,
 } from "../../../controller/GroupController";
+import {
+  handleListMessage,
+  handleSendMessage,
+} from "../../../controller/MessageController";
+import useWebSocket from "../../../config/Websorket";
+import { Badge } from "@/components/ui/badge";
 const DetailGroupLecturer = () => {
+  const { connected, stompClient, error } = useWebSocket();
+
+  useEffect(() => {
+    if (connected) {
+      console.log("Kết nối WebSocket thành công!");
+    }
+  }, [connected]);
+  const scrollRef = useRef(null);
+  const pageRef = useRef(0);
+  const messagesEndRef = useRef(null);
   const token = localStorage.getItem("access_token");
   const { userId } = jwtDecode(token);
-
   const location = useLocation();
   const navigate = useNavigate();
   const { groupId } = useParams();
   const [imageUser, setImageUser] = useState("");
   const [groupDetail, setGroupDetail] = useState({});
-
   const [selectTabs, setSelectTabs] = useState("home");
   const [members, setMembers] = useState([]);
   const [openModalCreate, setOpenModalCreate] = useState(false);
@@ -76,6 +93,13 @@ const DetailGroupLecturer = () => {
   const [comments, setComments] = useState({}); // { [notificationId]: [{id, content, sender, timestamp}] }
   const [userDetail, setUserDetail] = useState({});
   const [isSending, setIsSending] = useState(false);
+  const [initialLoaded, setInitialLoaded] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [activeTab, setActiveTab] = useState("home");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const backUrl = location.state?.from || "/giang-vien/group-class";
 
   const fetchDetailGroup = async () => {
@@ -161,6 +185,68 @@ const DetailGroupLecturer = () => {
       console.log(e);
     }
   };
+  const fetchMessages = async () => {
+    if (isFetching || !hasMore || pageRef.current < 0) return;
+    setIsFetching(true);
+
+    try {
+      const res = await handleListMessage(groupId, pageRef.current, 6);
+      if (res?.data) {
+        const newMessages = res.data.messages.map((m) => ({
+          id: m.messageId,
+          sender: m.fullName,
+          content: m.message,
+          timestamp: m.createdAt,
+          avatar: m.avatarUrl,
+          userId: m.userId,
+          isTeacher: false,
+        }));
+
+        setMessages((prev) => [...newMessages.reverse(), ...prev]);
+        pageRef.current -= 1;
+        setPage(pageRef.current);
+        setHasMore(pageRef.current >= 0);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy tin nhắn:", err);
+      setHasMore(false);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+  const handleSendMessageGroup = async () => {
+    const content = newMessage.trim();
+    if (content === "") return;
+
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
+      content,
+      timestamp: new Date().toISOString(),
+      avatar: imageUser,
+      isTeacher: userDetail?.role === "TEACHER",
+      userId,
+    };
+
+    setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
+    setNewMessage("");
+
+    // 👉 cuộn xuống dưới luôn
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      });
+    }, 100);
+
+    try {
+      await handleSendMessage(groupId, content);
+      // WebSocket sẽ update lại tin chính xác sau
+    } catch (err) {
+      toast.error("Gửi tin nhắn thất bại");
+    }
+  };
   const handleCommentChange = (id, value) => {
     setCommentInputs((prev) => ({ ...prev, [id]: value }));
   };
@@ -221,12 +307,169 @@ const DetailGroupLecturer = () => {
       setIsLoadingDetail(false);
     }
   };
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || activeTab !== "chat") return;
+
+    const onScroll = () => {
+      if (isFetching || !hasMore) return;
+
+      if (el.scrollTop <= 1) {
+        const prevScrollHeight = el.scrollHeight;
+
+        fetchMessages().then(() => {
+          setTimeout(() => {
+            const newScrollHeight = el.scrollHeight;
+            el.scrollTop = newScrollHeight - prevScrollHeight + el.scrollTop;
+          }, 50);
+        });
+      }
+    };
+
+    el.addEventListener("scroll", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [scrollRef.current, activeTab, isFetching, hasMore]);
+
+  useLayoutEffect(() => {
+    if (activeTab === "chat" && messages.length > 0 && !initialLoaded) {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        setInitialLoaded(true); // nên đặt trong animation frame luôn
+      });
+    }
+  }, [activeTab, messages]);
+
+  useEffect(() => {
+    if (activeTab === "chat") {
+      setHasMore(true);
+      setInitialLoaded(false);
+
+      // Gọi API 1 lần để lấy totalPages trước
+      handleListMessage(groupId, 0, 6).then((res) => {
+        if (res?.data) {
+          const totalPages = res.data.totalPages;
+          pageRef.current = totalPages - 1;
+          setPage(pageRef.current);
+
+          const newMessages = res.data.messages.map((m) => ({
+            id: m.messageId,
+            sender: m.fullName,
+            content: m.message,
+            timestamp: m.createdAt,
+            avatar: m.avatarUrl,
+            userId: m.userId,
+            isTeacher: false,
+          }));
+
+          setMessages(newMessages.reverse()); // Hiển thị mới nhất ở dưới
+          setHasMore(pageRef.current > 0);
+        }
+      });
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetchDetailGroup();
     fetchListNotificationGroup();
     fetchDetailUser();
   }, []);
+
+  // useEffect(() => {
+  //   if (!stompClient?.current || !connected || !groupId) return;
+
+  //   const sub = stompClient.current.subscribe(
+  //     `/notification/chat_message/${groupId}`,
+  //     (message) => {
+  //       const parsed = JSON.parse(message.body);
+  //       const newMsg = {
+  //         id: parsed.messageId,
+  //         sender: parsed.fullName,
+  //         content: parsed.message,
+  //         timestamp: parsed.createdAt,
+  //         avatar: parsed.avatarUrl,
+  //         userId: parsed.userId,
+  //         isTeacher: parsed.isTeacher || false,
+  //       };
+
+  //       setMessages((prev) => {
+  //         const tempIndex = prev.findIndex(
+  //           (m) =>
+  //             m.id.startsWith("temp-") &&
+  //             m.content === newMsg.content &&
+  //             m.userId === newMsg.userId
+  //         );
+  //         if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+  //         if (tempIndex !== -1) {
+  //           const updated = [...prev];
+  //           updated[tempIndex] = newMsg;
+  //           return updated;
+  //         }
+
+  //         return [...prev, newMsg];
+  //       });
+
+  //       setTimeout(() => {
+  //         requestAnimationFrame(() => {
+  //           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  //         });
+  //       }, 100);
+  //     }
+  //   );
+
+  //   return () => sub.unsubscribe();
+  // }, [stompClient, connected, groupId]);
+
+  useEffect(() => {
+    if (!stompClient?.current || !connected || !groupId) return;
+
+    const sub = stompClient.current.subscribe(
+      `/notification/chat_message/${groupId}`,
+      (message) => {
+        const parsed = JSON.parse(message.body);
+        console.log(parsed);
+        const newMsg = {
+          id: parsed.messageId,
+          sender: parsed.fullName,
+          content: parsed.message,
+          timestamp: parsed.createdAt || new Date().toISOString(),
+          avatar: parsed.avatarUrl,
+          userId: parsed.userId,
+        };
+
+        setMessages((prev) => {
+          const tempIndex = prev.findIndex(
+            (m) =>
+              m.id.startsWith("temp-") &&
+              m.content === newMsg.content &&
+              m.userId === newMsg.userId
+          );
+
+          // Nếu đã có real message trùng id → bỏ qua
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+          if (tempIndex !== -1) {
+            const updated = [...prev];
+            updated[tempIndex] = newMsg; // 👈 Replace
+            return updated;
+          }
+
+          return [...prev, newMsg]; // 👈 Không tìm thấy temp → thêm mới
+        });
+
+        // ✅ Cuộn xuống cuối
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          });
+        }, 100);
+      }
+    );
+
+    return () => sub.unsubscribe();
+  }, [stompClient, connected, groupId]);
 
   if (loading) {
     return (
@@ -263,9 +506,9 @@ const DetailGroupLecturer = () => {
         </div>
         <div className="min-h-screen pb-10">
           <Tabs
-            value={selectTabs}
-            onValueChange={setSelectTabs}
+            defaultValue="home"
             className="px-6 pt-8 pb-3"
+            onValueChange={(value) => setActiveTab(value)}
           >
             <TabsList>
               <TabsTrigger
@@ -273,6 +516,12 @@ const DetailGroupLecturer = () => {
                 className="data-[state=active]:text-blue-600 cursor-pointer"
               >
                 Bảng tin
+              </TabsTrigger>
+              <TabsTrigger
+                value="chat"
+                className="data-[state=active]:text-blue-600 cursor-pointer"
+              >
+                Nhắn tin
               </TabsTrigger>
               <TabsTrigger value="notification" className="cursor-pointer">
                 Thông báo
@@ -405,49 +654,44 @@ const DetailGroupLecturer = () => {
                         <div className="border-t pt-5">
                           {comments[notify.id]?.length > 0 && (
                             <div className="px-4 pb-2 space-y-2">
-                              {comments[notify.id].map(
-                                (comment) => (
-                                  console.log(comment),
-                                  (
-                                    <div
-                                      key={comment.id}
-                                      className="flex items-start space-x-3"
-                                    >
-                                      <div className="pt-3">
-                                        <Avatar className="h-8 w-8">
-                                          {comment.image ? (
-                                            <AvatarImage
-                                              src={comment.image}
-                                              alt="avatar"
-                                            />
-                                          ) : null}
-                                          <AvatarFallback className="bg-blue-500 text-white">
-                                            {getInitials(comment.sender)}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                      </div>
-                                      <div>
-                                        <div className="rounded-xl py-2 flex-1">
-                                          <div className="flex items-center space-x-2">
-                                            <div className="text-sm font-medium">
-                                              {comment.sender}
-                                            </div>
-                                            <div className="text-xs text-gray-500 ">
-                                              {dayjs(comment.timestamp).format(
-                                                "HH:mm - DD/MM/YYYY"
-                                              )}
-                                            </div>
-                                          </div>
-
-                                          <div className="text-sm text-gray-700">
-                                            {comment.content}
-                                          </div>
+                              {comments[notify.id].map((comment) => (
+                                <div
+                                  key={comment.id}
+                                  className="flex items-start space-x-3"
+                                >
+                                  <div className="pt-3">
+                                    <Avatar className="h-8 w-8">
+                                      {comment.image ? (
+                                        <AvatarImage
+                                          src={comment.image}
+                                          alt="avatar"
+                                        />
+                                      ) : null}
+                                      <AvatarFallback className="bg-blue-500 text-white">
+                                        {getInitials(comment.sender)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                  <div>
+                                    <div className="rounded-xl py-2 flex-1">
+                                      <div className="flex items-center space-x-2">
+                                        <div className="text-sm font-medium">
+                                          {comment.sender}
+                                        </div>
+                                        <div className="text-xs text-gray-500 ">
+                                          {dayjs(comment.timestamp).format(
+                                            "HH:mm - DD/MM/YYYY"
+                                          )}
                                         </div>
                                       </div>
+
+                                      <div className="text-sm text-gray-700">
+                                        {comment.content}
+                                      </div>
                                     </div>
-                                  )
-                                )
-                              )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
 
@@ -696,60 +940,227 @@ const DetailGroupLecturer = () => {
                     </span>
                   </div>
                   <div className="divide-y">
-                    {members.map(
-                      (member) => (
-                        console.log(member),
-                        (
-                          <div
-                            key={member.fullName}
-                            className="flex justify-between items-center space-x-3 py-2"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="h-10 w-10">
-                                {member.image ? (
-                                  <AvatarImage src={member.image} />
-                                ) : (
-                                  <AvatarFallback className="bg-gray-400 text-white">
-                                    {getInitials(member.fullName) ||
-                                      member.image}
-                                  </AvatarFallback>
-                                )}
-                              </Avatar>
-                              <span className="text-sm">{member.fullName}</span>
-                            </div>
-                            <div className="">
-                              <DropdownMenu asChild>
-                                <DropdownMenuTrigger
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Button
-                                    variant="ghost"
-                                    className="h-8 w-8 p-0 cursor-pointer"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                  <DropdownMenuItem
-                                    className="text-red-600 cursor-pointer"
-                                    onClick={() => {
-                                      setSelectedMember(member);
-                                      setOpenModalDeleteStudentOut(true);
-                                    }}
-                                  >
-                                    <LogOut className=" h-4 w-4" /> Xoá khỏi
-                                    nhóm
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </div>
-                        )
-                      )
-                    )}
+                    {members.map((member) => (
+                      <div
+                        key={member.fullName}
+                        className="flex justify-between items-center space-x-3 py-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="h-10 w-10">
+                            {member.image ? (
+                              <AvatarImage src={member.image} />
+                            ) : (
+                              <AvatarFallback className="bg-gray-400 text-white">
+                                {getInitials(member.fullName) || member.image}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <span className="text-sm">{member.fullName}</span>
+                        </div>
+                        <div className="">
+                          <DropdownMenu asChild>
+                            <DropdownMenuTrigger
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 cursor-pointer"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                className="text-red-600 cursor-pointer"
+                                onClick={() => {
+                                  setSelectedMember(member);
+                                  setOpenModalDeleteStudentOut(true);
+                                }}
+                              >
+                                <LogOut className=" h-4 w-4" /> Xoá khỏi nhóm
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
+            </TabsContent>
+            <TabsContent value="chat">
+              <Card className="flex flex-col">
+                {/* Chat Header */}
+                <CardHeader className="pb-3 border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Avatar>
+                        <AvatarImage
+                          src={groupDetail?.avatarUrl}
+                          alt={groupDetail?.name}
+                        />
+                        <AvatarFallback className="bg-blue-500 text-white">
+                          {getInitials(groupDetail?.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {groupDetail?.name}
+                        </h3>
+                        {/* <p className="text-sm text-gray-500">
+                          {groupData.members.filter((m) => m.isOnline).length}{" "}
+                          đang hoạt động
+                        </p> */}
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                {/* Messages */}
+                <CardContent className="flex-1 p-0">
+                  <div
+                    className="h-[400px] overflow-y-auto p-4"
+                    ref={scrollRef}
+                  >
+                    <div className="space-y-4">
+                      {isFetching && (
+                        <div className="flex justify-center my-2">
+                          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                      )}
+                      {[...messages]
+                        .sort(
+                          (a, b) =>
+                            new Date(a.timestamp) - new Date(b.timestamp)
+                        )
+                        .map((message, index) => {
+                          const showDate =
+                            index === 0 ||
+                            !dayjs(messages[index - 1]?.timestamp).isSame(
+                              dayjs(message.timestamp),
+                              "day"
+                            );
+                          const isOwnMessage = message?.userId === userId;
+                          return (
+                            <div key={index}>
+                              {showDate && (
+                                <div className="flex justify-center my-4">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {dayjs(message?.timestamp).isValid()
+                                      ? dayjs(message?.timestamp).format(
+                                          "DD/MM/YYYY"
+                                        )
+                                      : "Ngày không hợp lệ"}
+                                  </Badge>
+                                </div>
+                              )}
+
+                              <div
+                                className={`flex ${
+                                  isOwnMessage ? "justify-end" : "justify-start"
+                                }`}
+                              >
+                                <div
+                                  className={`flex ${
+                                    isOwnMessage
+                                      ? "flex-row-reverse"
+                                      : "flex-row"
+                                  } items-start space-x-2 max-w-[80%]`}
+                                >
+                                  {!isOwnMessage && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage
+                                        src={
+                                          message.avatar || "/placeholder.svg"
+                                        }
+                                      />
+                                      <AvatarFallback
+                                        className={
+                                          message.isTeacher
+                                            ? "bg-green-500"
+                                            : "bg-blue-500"
+                                        }
+                                      >
+                                        {getInitials(message.sender)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
+
+                                  <div
+                                    className={`space-y-1 ${
+                                      isOwnMessage ? "items-end" : "items-start"
+                                    }`}
+                                  >
+                                    {!isOwnMessage && (
+                                      <div className="flex items-center space-x-2">
+                                        <p className="text-sm font-medium text-gray-900">
+                                          {message.sender}
+                                        </p>
+                                        {message.isTeacher && (
+                                          <Badge
+                                            variant="secondary"
+                                            className="text-xs"
+                                          >
+                                            Giáo viên
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    )}
+                                    <div
+                                      className={`rounded-lg px-3 py-2 ${
+                                        isOwnMessage
+                                          ? "bg-blue-600 text-white"
+                                          : message.isTeacher
+                                          ? "bg-green-100 text-green-900"
+                                          : "bg-gray-100 text-gray-900"
+                                      }`}
+                                    >
+                                      <p className="text-sm">
+                                        {message.content}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                      {dayjs(message.timestamp).format("HH:mm")}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                </CardContent>
+
+                {/* Message Input */}
+                <div className="border-t p-4">
+                  <div className="flex items-center space-x-2">
+                    <Button variant="ghost" size="sm">
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      placeholder="Nhập tin nhắn..."
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      // onKeyDown={handleKeyDown}
+                      className="flex-1"
+                    />
+                    <Button variant="ghost" size="sm">
+                      <Smile className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={handleSendMessageGroup}
+                      disabled={newMessage.trim() === ""}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
