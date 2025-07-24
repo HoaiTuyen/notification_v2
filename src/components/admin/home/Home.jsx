@@ -102,13 +102,13 @@ const HomeAdmin = () => {
     }
   };
   const dailyNotifications = notificationData.map((item) => ({
-    date: dayjs(item.date).format("DD/MM/YYYY"),
-    totalNotificationDay: item.totalNotificationDay,
+    date: dayjs(item?.date).format("DD/MM/YYYY"),
+    totalNotificationDay: item?.totalNotificationDay,
   }));
   const transformedData = departmentData.map((item, index) => ({
-    id: item.departmentId,
-    name: item.departmentName,
-    value: item.totalStudent,
+    id: item?.departmentId,
+    name: item?.departmentName,
+    value: item?.totalStudent,
     color: COLORS[index % COLORS.length],
   }));
 

@@ -52,6 +52,7 @@ const Student = () => {
   const [notificationList, setNotificationList] = useState([]);
 
   const [groupStudents, setGroupStudents] = useState([]);
+  console.log(groupStudents);
   const [userImage, setUserImage] = useState("");
   const [userInfo, setUserInfo] = useState([]);
   const [selectedTab, setSelectedTab] = useState("home");
@@ -74,7 +75,7 @@ const Student = () => {
     try {
       const req = await handleUnreadCountNotificationUser(userId);
       console.log(req);
-      if (req.status === 200 && req.data) {
+      if (req?.status === 200 || req?.data) {
         setUnreadCount(req.data);
       } else {
         setUnreadCount(0);
@@ -91,7 +92,7 @@ const Student = () => {
 
   useEffect(() => {
     let subscriptions = [];
-    if (connected && stompClient.current) {
+    if (connected && stompClient.current && groupStudents.length > 0) {
       const generalSub = stompClient.current.subscribe(
         "/user/queue/notification",
         (message) => {
@@ -159,8 +160,37 @@ const Student = () => {
           setUnreadCount((prev) => prev + 1);
         }
       );
+      const chatMessageSub = stompClient.current.subscribe(
+        `/notification/chat_message/${groupStudents}`,
+        (message) => {
+          const parsed = JSON.parse(message.body);
+          console.log(parsed);
+          const newMsg = {
+            id: parsed.messageId,
+            sender: parsed.fullName,
+            content: parsed.message,
+            timestamp: parsed.createdAt,
+            avatar: parsed.avatarUrl,
+            userId: parsed.userId,
+            type: "CHAT_MESSAGE",
+            isTeacher: parsed.isTeacher || false,
+          };
+          console.log(newMsg);
 
-      subscriptions = [generalSub, scheduleSub, personalSub, groupSub];
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === newMsg.id)) return prev;
+            return [{ ...newMsg, isRead: false }, ...prev];
+          });
+          setUnreadCount((prev) => prev + 1);
+        }
+      );
+      subscriptions = [
+        generalSub,
+        scheduleSub,
+        personalSub,
+        groupSub,
+        chatMessageSub,
+      ];
     }
 
     return () => {

@@ -105,11 +105,10 @@ const NotificationDropdown = ({
   );
   const hasUnread = notificationList.some((n) => !n.isRead);
   const renderNotificationItem = (item) => {
-    console.log(item);
     const groupId = !!item.groupId || !!item.studyGroupId;
 
     const isTitleOnly = !item.type;
-
+    const isChat = item.type === "CHAT_MESSAGE";
     const typeIcon = groupId ? <Users size={15} /> : <BellRing size={15} />;
     const getInitials = (name) => {
       if (!name) return "";
@@ -119,6 +118,8 @@ const NotificationDropdown = ({
         : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     };
     const removeDuplicateLines = (text) => {
+      if (typeof text !== "string") return "";
+
       const seen = new Set();
       return text
         .split("\n")
@@ -144,6 +145,14 @@ const NotificationDropdown = ({
               {getInitials(groupTeacherMap[item.groupId || item.studyGroupId])}
             </AvatarFallback>
           </Avatar>
+        ) : item.avatar ? (
+          <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+            <AvatarImage
+              src={item.avatar}
+              alt="Logo"
+              className="object-contain w-full h-full scale-150"
+            />
+          </Avatar>
         ) : (
           <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
             <AvatarImage
@@ -168,7 +177,8 @@ const NotificationDropdown = ({
                     : "block max-w-[250px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
                 }
               >
-                {removeDuplicateLines(item.title)}
+                {removeDuplicateLines(item.title) ||
+                  `${item.sender} đã gửi: ${item.content}`}
               </span>
               <div className="flex items-center gap-1 shrink-0 mt-[2px]">
                 <span className="text-xl shrink-0 mt-[2px]">{typeIcon}</span>
@@ -199,12 +209,18 @@ const NotificationDropdown = ({
 
             {!item.notificationType &&
               !item.departmentName &&
-              !item.groupName && (
+              !item.groupName &&
+              item.type !== "CHAT_MESSAGE" && (
                 <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
                   Phòng đào tạo
                 </span>
               )}
           </div>
+          {isChat && (
+            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+              {item.type === "CHAT_MESSAGE" ? "Tin nhắn" : ""}
+            </span>
+          )}
         </div>
       </div>
     );

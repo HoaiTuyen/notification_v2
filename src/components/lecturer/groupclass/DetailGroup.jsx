@@ -77,6 +77,7 @@ const DetailGroupLecturer = () => {
   const [userDetail, setUserDetail] = useState({});
   const [isSending, setIsSending] = useState(false);
   const backUrl = location.state?.from || "/giang-vien/group-class";
+
   const fetchDetailGroup = async () => {
     try {
       const detailGroup = await handleDetailGroup(groupId);
@@ -166,8 +167,10 @@ const DetailGroupLecturer = () => {
   const handleSendComment = async (id) => {
     try {
       const content = commentInputs[id]?.trim();
-
       if (!content) return;
+      console.log(content);
+      console.log(id);
+      console.log(userId);
 
       const response = await handleCreateReplyNotificationGroup(
         userId,

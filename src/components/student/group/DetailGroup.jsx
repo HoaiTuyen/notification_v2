@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import useWebSocket from "@/config/Websorket";
 import { jwtDecode } from "jwt-decode";
@@ -43,6 +43,10 @@ import {
   handleCreateReplyNotificationGroup,
   handleListReplyNotificationGroup,
 } from "../../../controller/GroupController";
+import {
+  handleSendMessage,
+  handleListMessage,
+} from "../../../controller/MessageController";
 const mockMessages = [
   {
     id: "1",
@@ -107,21 +111,24 @@ const mockGroupData = {
   ],
 };
 const DetailGroupStudent = () => {
-  const { connected } = useWebSocket();
+  const { connected, stompClient, error } = useWebSocket();
 
   useEffect(() => {
     if (connected) {
       console.log("Kết nối WebSocket thành công!");
     }
   }, [connected]);
+  const scrollRef = useRef(null);
+  const pageRef = useRef(0);
+  const messagesEndRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { groupStudyId } = useParams();
   const token = localStorage.getItem("access_token");
   const { userId } = jwtDecode(token);
   const [imageUser, setImageUser] = useState("");
-  const [groupData, setGroupData] = useState(mockGroupData);
-  const [messages, setMessages] = useState(mockMessages);
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
   const [newMessage, setNewMessage] = useState("");
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
@@ -133,6 +140,11 @@ const DetailGroupStudent = () => {
   const [userDetail, setUserDetail] = useState({});
   const [isSending, setIsSending] = useState(false);
   const [imageTeacher, setImageTeacher] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [activeTab, setActiveTab] = useState("home");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const backUrl = location.state?.from || "/sinh-vien/group-study";
   const fetchDetailGroup = async () => {
     setLoadingPage(true);
@@ -171,7 +183,7 @@ const DetailGroupStudent = () => {
   const fetchDetailUser = async () => {
     try {
       const detailUser = await handleGetDetailUser(userId);
-      console.log(detailUser);
+
       setImageUser(detailUser.data.image);
       if (detailUser?.data?.studentId) {
         const detailStudent = await handleStudentDetail(
@@ -194,7 +206,7 @@ const DetailGroupStudent = () => {
       const listReplyNotificationGroup = await handleListReplyNotificationGroup(
         notificationId
       );
-      console.log(listReplyNotificationGroup);
+
       if (
         listReplyNotificationGroup?.data ||
         listReplyNotificationGroup?.status === 200
@@ -202,7 +214,7 @@ const DetailGroupStudent = () => {
         setComments((prev) => ({
           ...prev,
           [notificationId]: listReplyNotificationGroup.data.map((c) => ({
-            id: c.id,
+            id: `${c.userId + c.createdAt}`,
             sender: c.fullName,
             content: c.content,
             timestamp: c.createdAt,
@@ -214,35 +226,90 @@ const DetailGroupStudent = () => {
       console.log(e);
     }
   };
-  const getInitials = (name) => {
-    if (!name) return "";
-    const parts = name.trim().split(" ");
+  const fetchMessages = async () => {
+    if (isFetching || !hasMore || pageRef.current < 0) return;
+    setIsFetching(true);
 
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  };
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    try {
+      const res = await handleListMessage(groupStudyId, pageRef.current, 6);
+      if (res?.data) {
+        const newMessages = res.data.messages.map((m) => ({
+          id: m.messageId,
+          sender: m.fullName,
+          content: m.message,
+          timestamp: m.createdAt,
+          avatar: m.avatarUrl,
+          userId: m.userId,
+          isTeacher: false,
+        }));
+
+        setMessages((prev) => [...newMessages.reverse(), ...prev]);
+        pageRef.current -= 1;
+        setPage(pageRef.current);
+        setHasMore(pageRef.current >= 0);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy tin nhắn:", err);
+      setHasMore(false);
+    } finally {
+      setIsFetching(false);
     }
   };
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() === "") return;
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
 
-    const newMsg = {
-      id: (messages.length + 1).toString(),
-      sender: userDetail.fullName,
-      content: newMessage,
+    return parts
+      .map((part) =>
+        part[0]
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      )
+      .join("");
+  };
+  // const handleKeyDown = (e) => {
+  //   if (e.key === "Enter" && !e.shiftKey) {
+  //     e.preventDefault();
+  //     handleSendMessageGroup();
+  //   }
+  // };
+
+  const handleSendMessageGroup = async () => {
+    const content = newMessage.trim();
+    if (content === "") return;
+
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
+      content,
       timestamp: new Date().toISOString(),
-      avatar: "/placeholder.svg?height=40&width=40",
-      isTeacher: false,
+      avatar: imageUser,
+      isTeacher: userDetail?.role === "TEACHER",
+      userId,
     };
 
-    setMessages([...messages, newMsg]);
+    setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
     setNewMessage("");
+
+    // 👉 cuộn xuống dưới luôn
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      });
+    }, 100);
+
+    try {
+      await handleSendMessage(groupStudyId, content);
+      // WebSocket sẽ update lại tin chính xác sau
+    } catch (err) {
+      toast.error("Gửi tin nhắn thất bại");
+    }
   };
+
   const handleCommentChange = (id, value) => {
     setCommentInputs((prev) => ({ ...prev, [id]: value }));
   };
@@ -253,12 +320,8 @@ const DetailGroupStudent = () => {
 
       if (!content) return;
 
-      const response = await handleCreateReplyNotificationGroup(
-        userId,
-        id,
-        content
-      );
-      console.log(response);
+      await handleCreateReplyNotificationGroup(userId, id, content);
+
       await fetchListReplyNotificationGroup(id);
 
       setCommentInputs((prev) => ({ ...prev, [id]: "" }));
@@ -268,6 +331,68 @@ const DetailGroupStudent = () => {
       setIsSending(false);
     }
   };
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || activeTab !== "chat") return;
+
+    const onScroll = () => {
+      if (isFetching || !hasMore) return;
+
+      if (el.scrollTop <= 1) {
+        const prevScrollHeight = el.scrollHeight;
+
+        fetchMessages().then(() => {
+          setTimeout(() => {
+            const newScrollHeight = el.scrollHeight;
+            el.scrollTop = newScrollHeight - prevScrollHeight + el.scrollTop;
+          }, 50);
+        });
+      }
+    };
+
+    el.addEventListener("scroll", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [scrollRef.current, activeTab, isFetching, hasMore]);
+
+  useLayoutEffect(() => {
+    if (activeTab === "chat" && messages.length > 0 && !initialLoaded) {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        setInitialLoaded(true); // nên đặt trong animation frame luôn
+      });
+    }
+  }, [activeTab, messages]);
+
+  useEffect(() => {
+    if (activeTab === "chat") {
+      setHasMore(true);
+      setInitialLoaded(false);
+
+      // Gọi API 1 lần để lấy totalPages trước
+      handleListMessage(groupStudyId, 0, 6).then((res) => {
+        if (res?.data) {
+          const totalPages = res.data.totalPages;
+          pageRef.current = totalPages - 1;
+          setPage(pageRef.current);
+
+          const newMessages = res.data.messages.map((m) => ({
+            id: m.messageId,
+            sender: m.fullName,
+            content: m.message,
+            timestamp: m.createdAt,
+            avatar: m.avatarUrl,
+            userId: m.userId,
+            isTeacher: false,
+          }));
+
+          setMessages(newMessages.reverse()); // Hiển thị mới nhất ở dưới
+          setHasMore(pageRef.current > 0);
+        }
+      });
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetchDetailGroup();
@@ -285,6 +410,40 @@ const DetailGroupStudent = () => {
       };
     }
   }, [authorized]);
+  useEffect(() => {
+    if (!stompClient?.current || !connected || !groupStudyId || !initialLoaded)
+      return;
+
+    const sub = stompClient.current.subscribe(
+      `/notification/chat_message/${groupStudyId}`,
+      (message) => {
+        const parsed = JSON.parse(message.body);
+        const newMsg = {
+          id: parsed.messageId,
+          sender: parsed.fullName,
+          content: parsed.message,
+          timestamp: parsed.createdAt,
+          avatar: parsed.avatarUrl,
+          userId: parsed.userId,
+          isTeacher: parsed.isTeacher || false,
+        };
+
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          });
+        }, 100);
+      }
+    );
+
+    return () => sub.unsubscribe();
+  }, [stompClient, connected, groupStudyId]);
+
   if (loadingPage) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -320,8 +479,12 @@ const DetailGroupStudent = () => {
             </div>
           </div>
         </div>
-        <div className="min-h-screen ">
-          <Tabs defaultValue="home" className="px-6 pt-8 pb-3">
+        <div className="min-h-screen">
+          <Tabs
+            defaultValue="home"
+            className="px-6 pt-8 pb-3"
+            onValueChange={(value) => setActiveTab(value)}
+          >
             <TabsList>
               <TabsTrigger
                 value="home"
@@ -329,9 +492,9 @@ const DetailGroupStudent = () => {
               >
                 Bảng tin
               </TabsTrigger>
-              {/* <TabsTrigger value="chat" className="cursor-pointer">
+              <TabsTrigger value="chat" className="cursor-pointer">
                 Nhắn tin
-              </TabsTrigger> */}
+              </TabsTrigger>
               <TabsTrigger value="member" className="cursor-pointer">
                 Mọi người
               </TabsTrigger>
@@ -602,14 +765,18 @@ const DetailGroupStudent = () => {
                 <CardHeader className="pb-3 border-b">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">
-                          {getInitials(groupData.name)}
-                        </span>
-                      </div>
+                      <Avatar>
+                        <AvatarImage
+                          src={groupDetail?.avatarUrl}
+                          alt={groupDetail?.name}
+                        />
+                        <AvatarFallback className="bg-blue-500 text-white">
+                          {getInitials(groupDetail?.name)}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          {groupData.name}
+                          {groupDetail?.name}
                         </h3>
                         {/* <p className="text-sm text-gray-500">
                           {groupData.members.filter((m) => m.isOnline).length}{" "}
@@ -622,106 +789,121 @@ const DetailGroupStudent = () => {
 
                 {/* Messages */}
                 <CardContent className="flex-1 p-0">
-                  <ScrollArea className="h-[450px] p-4">
+                  <div
+                    className="h-[400px] overflow-y-auto p-4"
+                    ref={scrollRef}
+                  >
                     <div className="space-y-4">
-                      {messages.map((message, index) => {
-                        const showDate =
-                          index === 0 ||
-                          dayjs(messages[index - 1].timestamp).isSame(
-                            dayjs(message.timestamp),
-                            "day"
-                          );
-                        console.log(showDate);
+                      {isFetching && (
+                        <div className="flex justify-center my-2">
+                          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                      )}
+                      {[...messages]
+                        .sort(
+                          (a, b) =>
+                            new Date(a.timestamp) - new Date(b.timestamp)
+                        )
+                        .map((message, index) => {
+                          const showDate =
+                            index === 0 ||
+                            !dayjs(messages[index - 1]?.timestamp).isSame(
+                              dayjs(message.timestamp),
+                              "day"
+                            );
+                          const isOwnMessage = message?.userId === userId;
+                          return (
+                            <div key={index}>
+                              {showDate && (
+                                <div className="flex justify-center my-4">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {dayjs(message?.timestamp).isValid()
+                                      ? dayjs(message?.timestamp).format(
+                                          "DD/MM/YYYY"
+                                        )
+                                      : "Ngày không hợp lệ"}
+                                  </Badge>
+                                </div>
+                              )}
 
-                        return (
-                          <div key={message.id}>
-                            {showDate && (
-                              <div className="flex justify-center my-4">
-                                <Badge variant="secondary" className="text-xs">
-                                  {dayjs(message.timestamp).isValid()
-                                    ? dayjs(message.timestamp).format(
-                                        "DD/MM/YYYY"
-                                      )
-                                    : "Ngày không hợp lệ"}
-                                </Badge>
-                              </div>
-                            )}
-
-                            <div
-                              className={`flex ${
-                                message.sender === "Nguyễn Văn A"
-                                  ? "justify-end"
-                                  : "justify-start"
-                              }`}
-                            >
                               <div
                                 className={`flex ${
-                                  message.sender === "Nguyễn Văn A"
-                                    ? "flex-row-reverse"
-                                    : "flex-row"
-                                } items-start space-x-2 max-w-[80%]`}
+                                  isOwnMessage ? "justify-end" : "justify-start"
+                                }`}
                               >
-                                {message.sender !== "Nguyễn Văn A" && (
-                                  <Avatar className="h-8 w-8">
-                                    <AvatarImage
-                                      src={message.avatar || "/placeholder.svg"}
-                                    />
-                                    <AvatarFallback
-                                      className={
-                                        message.isTeacher
-                                          ? "bg-green-500"
-                                          : "bg-blue-500"
-                                      }
-                                    >
-                                      {getInitials(message.sender)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
                                 <div
-                                  className={`space-y-1 ${
-                                    message.sender === "Nguyễn Văn A"
-                                      ? "items-end"
-                                      : "items-start"
-                                  }`}
+                                  className={`flex ${
+                                    isOwnMessage
+                                      ? "flex-row-reverse"
+                                      : "flex-row"
+                                  } items-start space-x-2 max-w-[80%]`}
                                 >
-                                  {message.sender !== "Nguyễn Văn A" && (
-                                    <div className="flex items-center space-x-2">
-                                      <p className="text-sm font-medium text-gray-900">
-                                        {message.sender}
-                                      </p>
-                                      {message.isTeacher && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="text-xs"
-                                        >
-                                          Giáo viên
-                                        </Badge>
-                                      )}
-                                    </div>
+                                  {!isOwnMessage && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage
+                                        src={
+                                          message.avatar || "/placeholder.svg"
+                                        }
+                                      />
+                                      <AvatarFallback
+                                        className={
+                                          message.isTeacher
+                                            ? "bg-green-500"
+                                            : "bg-blue-500"
+                                        }
+                                      >
+                                        {getInitials(message.sender)}
+                                      </AvatarFallback>
+                                    </Avatar>
                                   )}
+
                                   <div
-                                    className={`rounded-lg px-3 py-2 ${
-                                      message.sender === "Nguyễn Văn A"
-                                        ? "bg-blue-600 text-white"
-                                        : message.isTeacher
-                                        ? "bg-green-100 text-green-900"
-                                        : "bg-gray-100 text-gray-900"
+                                    className={`space-y-1 ${
+                                      isOwnMessage ? "items-end" : "items-start"
                                     }`}
                                   >
-                                    <p className="text-sm">{message.content}</p>
+                                    {!isOwnMessage && (
+                                      <div className="flex items-center space-x-2">
+                                        <p className="text-sm font-medium text-gray-900">
+                                          {message.sender}
+                                        </p>
+                                        {message.isTeacher && (
+                                          <Badge
+                                            variant="secondary"
+                                            className="text-xs"
+                                          >
+                                            Giáo viên
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    )}
+                                    <div
+                                      className={`rounded-lg px-3 py-2 ${
+                                        isOwnMessage
+                                          ? "bg-blue-600 text-white"
+                                          : message.isTeacher
+                                          ? "bg-green-100 text-green-900"
+                                          : "bg-gray-100 text-gray-900"
+                                      }`}
+                                    >
+                                      <p className="text-sm">
+                                        {message.content}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                      {dayjs(message.timestamp).format("HH:mm")}
+                                    </p>
                                   </div>
-                                  <p className="text-xs text-gray-500">
-                                    {dayjs(message.timestamp).format("HH:mm")}
-                                  </p>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                      {/* <div ref={messagesEndRef} /> */}
+                          );
+                        })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </CardContent>
 
                 {/* Message Input */}
@@ -734,14 +916,14 @@ const DetailGroupStudent = () => {
                       placeholder="Nhập tin nhắn..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
+                      // onKeyDown={handleKeyDown}
                       className="flex-1"
                     />
                     <Button variant="ghost" size="sm">
                       <Smile className="h-4 w-4" />
                     </Button>
                     <Button
-                      onClick={handleSendMessage}
+                      onClick={handleSendMessageGroup}
                       disabled={newMessage.trim() === ""}
                       className="bg-blue-600 hover:bg-blue-700"
                     >

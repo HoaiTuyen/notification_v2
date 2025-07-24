@@ -123,13 +123,13 @@ const Account = () => {
 
       if (response?.status === 200 && response?.data) {
         setTotal(pagination.totalElements);
-        setUsers(response.data.users || []);
+        setUsers(response?.data?.users || []);
         setPagination({
           current: page,
-          pageSize: response.data.pageSize,
-          total: response.data.totalElements,
-          totalPages: response.data.totalPages,
-          totalElements: response.data.totalElements,
+          pageSize: response?.data?.pageSize,
+          total: response?.data?.totalElements,
+          totalPages: response?.data?.totalPages,
+          totalElements: response?.data?.totalElements,
         });
       } else {
         setUsers([]);

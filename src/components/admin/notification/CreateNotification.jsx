@@ -140,17 +140,39 @@ const AdminCreateNotification = () => {
     }
   };
   const fetchAcademicYear = async () => {
-    const req = await handleListClass(0, 10);
-    console.log(req);
-    if (req?.data) {
+    const pageSize = 10;
+    let allClasses = [];
+    let page = 0;
+    let totalPages = 1;
+
+    try {
+      do {
+        const req = await handleListClass(page, pageSize);
+        if (req?.data?.classes) {
+          allClasses = [...allClasses, ...req.data.classes];
+          totalPages = req.data.totalPages;
+          page++;
+        } else {
+          break;
+        }
+      } while (page < totalPages);
+
       const uniqueYearsMap = new Map();
 
-      req.data.classes.forEach((cls) => {
-        if (!uniqueYearsMap.has(cls.academicYear)) {
-          uniqueYearsMap.set(cls.academicYear, cls); // lưu lớp đại diện cho năm đó
+      allClasses.forEach((cls) => {
+        const key = cls.description?.trim().toLowerCase();
+        if (key && !uniqueYearsMap.has(key)) {
+          uniqueYearsMap.set(key, cls);
         }
       });
+
+      console.log("✅ allClasses:", allClasses);
+      console.log("🟢 uniqueYears:", Array.from(uniqueYearsMap.values()));
+
       setAcademicYears(Array.from(uniqueYearsMap.values()));
+    } catch (e) {
+      console.error("❌ Lỗi khi fetch all classes:", e);
+      setAcademicYears([]);
     }
   };
 
@@ -161,7 +183,6 @@ const AdminCreateNotification = () => {
         [field]: value,
       };
 
-      // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
       if (field === "studentCode" && !isValidStudentCode(value)) {
         updated.sendEmail = false;
       }
