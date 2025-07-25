@@ -219,11 +219,11 @@ const DetailGroupStudent = () => {
 
           if (tempIndex !== -1) {
             const updated = [...prev];
-            updated[tempIndex] = newMsg; // 👈 Replace
+            updated[tempIndex] = newMsg;
             return updated;
           }
 
-          return [...prev, newMsg]; // 👈 Không tìm thấy temp → thêm mới
+          return [...prev, newMsg];
         });
 
         // ✅ Cuộn xuống cuối
@@ -351,7 +351,11 @@ const DetailGroupStudent = () => {
           isTeacher: false,
         }));
 
-        setMessages((prev) => [...newMessages.reverse(), ...prev]);
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const uniqueNew = newMessages.filter((m) => !existingIds.has(m.id));
+          return [...uniqueNew.reverse(), ...prev];
+        });
         pageRef.current -= 1;
         setPage(pageRef.current);
         setHasMore(pageRef.current >= 0);
@@ -484,7 +488,7 @@ const DetailGroupStudent = () => {
       setHasMore(true);
       setInitialLoaded(false);
       pageRef.current = 0;
-
+      setMessages([]);
       handleListMessage(groupStudyId, 0, 6).then((res) => {
         if (res?.data) {
           const totalPages = res.data.totalPages;
@@ -731,7 +735,7 @@ const DetailGroupStudent = () => {
                                         </div>
                                         <div className="text-xs text-gray-500 ">
                                           {dayjs(comment.timestamp).format(
-                                            "HH:mm - DD/MM/YYYY"
+                                            "DD/MM/YYYY"
                                           )}
                                         </div>
                                       </div>

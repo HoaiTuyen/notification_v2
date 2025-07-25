@@ -206,7 +206,11 @@ const DetailGroupLecturer = () => {
           isTeacher: false,
         }));
 
-        setMessages((prev) => [...newMessages.reverse(), ...prev]);
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const uniqueNew = newMessages.filter((m) => !existingIds.has(m.id));
+          return [...uniqueNew.reverse(), ...prev];
+        });
         pageRef.current -= 1;
         setPage(pageRef.current);
         setHasMore(pageRef.current >= 0);
@@ -354,6 +358,7 @@ const DetailGroupLecturer = () => {
       setHasMore(true);
       setInitialLoaded(false);
       pageRef.current = 0;
+      setMessages([]);
 
       handleListMessage(groupId, 0, 6).then((res) => {
         if (res?.data) {
@@ -467,16 +472,15 @@ const DetailGroupLecturer = () => {
               m.userId === newMsg.userId
           );
 
-          // Nếu đã có real message trùng id → bỏ qua
           if (prev.some((m) => m.id === newMsg.id)) return prev;
 
           if (tempIndex !== -1) {
             const updated = [...prev];
-            updated[tempIndex] = newMsg; // 👈 Replace
+            updated[tempIndex] = newMsg;
             return updated;
           }
 
-          return [...prev, newMsg]; // 👈 Không tìm thấy temp → thêm mới
+          return [...prev, newMsg];
         });
       }
     );

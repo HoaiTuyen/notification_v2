@@ -227,7 +227,7 @@ const NotificationDropdown = ({
   };
 
   return (
-    <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
+    <div className="max-h-96 w-105 sbg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
       {loading ? (
         <Spin size="large" />
       ) : notificationList.length === 0 ? (

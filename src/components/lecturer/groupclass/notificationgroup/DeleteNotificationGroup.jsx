@@ -12,16 +12,22 @@ import { handleDeleteNotificationGroup } from "../../../../controller/Notificati
 import { useLoading } from "../../../../context/LoadingProvider";
 const DeleteNotificationGroup = ({ onOpen, onClose, notify, onSuccess }) => {
   const { setLoading } = useLoading();
+
   const handleDelete = async () => {
-    setLoading(true);
-    const response = await handleDeleteNotificationGroup(notify.id);
-    setLoading(false);
-    if (response?.status === 204) {
-      toast.success(response.message || "Xóa thông báo nhóm thành công");
-      onSuccess();
-      onClose();
-    } else {
-      toast.error(response?.message || "Xóa thông náo nhóm thất bại");
+    try {
+      setLoading(true);
+      const response = await handleDeleteNotificationGroup(notify.id);
+      setLoading(false);
+      if (response?.status === 204) {
+        toast.success(response.message || "Xóa thông báo nhóm thành công");
+        onSuccess();
+        onClose();
+      } else {
+        toast.error(response?.message || "Xóa thông báo nhóm thất bại");
+      }
+    } catch (e) {
+      setLoading(false);
+      toast.warning("Không thể xoá thông báo");
     }
   };
 
