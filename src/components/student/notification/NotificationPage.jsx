@@ -142,7 +142,7 @@ const NotificationsPage = () => {
           {/* LEFT: Title + Badge + Date */}
           <div className="flex items-center gap-3 flex-wrap">
             <CardTitle
-              className="text-base cursor-pointer hover:text-blue-500 max-w-[400px] truncate"
+              className="text-base cursor-pointer hover:text-blue-500 max-w-[700px] truncate"
               onClick={(e) => {
                 handleViewDetail(notification.id, e);
               }}

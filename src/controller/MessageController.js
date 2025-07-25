@@ -20,7 +20,7 @@ export const handleSendMessage = async (groupId, message) => {
 export const handleListMessage = async (groupId, page, size) => {
   try {
     const response = await list_message(groupId, page, size);
-
+    console.log(response);
     return response;
   } catch (error) {
     if (error) {

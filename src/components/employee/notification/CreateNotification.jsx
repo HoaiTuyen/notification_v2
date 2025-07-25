@@ -452,6 +452,9 @@ const EmployeeCreateNotification = () => {
                         )}
                       </div>
                     ))} */}
+                    {/* <span className="text-sm text-red-400 pb-2">
+                      Cho phép gửi file đính kèm đuổi .pdf (15MB)
+                    </span> */}
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}

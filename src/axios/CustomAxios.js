@@ -29,7 +29,7 @@ api.interceptors.request.use(
       const payload = jwtDecode(token);
 
       const now = Math.floor(Date.now() / 1000);
-      console.log(now);
+
       if (
         payload?.exp &&
         payload.exp - now < 60 &&

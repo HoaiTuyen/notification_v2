@@ -98,6 +98,9 @@ const DetailGroupLecturer = () => {
   const [messages, setMessages] = useState([]);
   const [activeTab, setActiveTab] = useState("home");
   const [page, setPage] = useState(0);
+
+  // Auto-scroll to bottom when chat tab is active or messages change
+
   const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const backUrl = location.state?.from || "/giang-vien/group-class";
@@ -186,11 +189,12 @@ const DetailGroupLecturer = () => {
     }
   };
   const fetchMessages = async () => {
-    if (isFetching || !hasMore || pageRef.current < 0) return;
+    if (isFetching || !hasMore) return;
     setIsFetching(true);
 
     try {
       const res = await handleListMessage(groupId, pageRef.current, 6);
+      console.log(res);
       if (res?.data) {
         const newMessages = res.data.messages.map((m) => ({
           id: m.messageId,
@@ -233,12 +237,12 @@ const DetailGroupLecturer = () => {
     setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
     setNewMessage("");
 
-    // 👉 cuộn xuống dưới luôn
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      });
-    }, 100);
+    // // 👉 cuộn xuống dưới luôn
+    // setTimeout(() => {
+    //   requestAnimationFrame(() => {
+    //     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    //   });
+    // }, 100);
 
     try {
       await handleSendMessage(groupId, content);
@@ -314,7 +318,7 @@ const DetailGroupLecturer = () => {
     const onScroll = () => {
       if (isFetching || !hasMore) return;
 
-      if (el.scrollTop <= 1) {
+      if (el.scrollTop <= 140) {
         const prevScrollHeight = el.scrollHeight;
 
         fetchMessages().then(() => {
@@ -333,20 +337,24 @@ const DetailGroupLecturer = () => {
   }, [scrollRef.current, activeTab, isFetching, hasMore]);
 
   useLayoutEffect(() => {
-    if (activeTab === "chat" && messages.length > 0 && !initialLoaded) {
+    if (activeTab === "chat" && !initialLoaded) {
       requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-        setInitialLoaded(true); // nên đặt trong animation frame luôn
+        if (messages.length === 0 && hasMore) {
+          fetchMessages(); // Gọi fetchMessages nếu messages rỗng
+        } else if (messages.length > 0) {
+          messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        }
+        setInitialLoaded(true);
       });
     }
-  }, [activeTab, messages]);
+  }, [activeTab, messages, hasMore]);
 
   useEffect(() => {
-    if (activeTab === "chat") {
+    if (activeTab === "chat" && groupId) {
       setHasMore(true);
       setInitialLoaded(false);
+      pageRef.current = 0;
 
-      // Gọi API 1 lần để lấy totalPages trước
       handleListMessage(groupId, 0, 6).then((res) => {
         if (res?.data) {
           const totalPages = res.data.totalPages;
@@ -363,12 +371,24 @@ const DetailGroupLecturer = () => {
             isTeacher: false,
           }));
 
-          setMessages(newMessages.reverse()); // Hiển thị mới nhất ở dưới
+          setMessages(newMessages.reverse());
+
+          setTimeout(() => {
+            const el = scrollRef.current;
+            if (
+              el &&
+              el.scrollHeight <= el.clientHeight + 10 &&
+              pageRef.current > 0
+            ) {
+              fetchMessages();
+            }
+          }, 100);
+
           setHasMore(pageRef.current > 0);
         }
       });
     }
-  }, [activeTab]);
+  }, [activeTab, groupId]); // Thêm groupId vào dependency
 
   useEffect(() => {
     fetchDetailGroup();
@@ -458,18 +478,33 @@ const DetailGroupLecturer = () => {
 
           return [...prev, newMsg]; // 👈 Không tìm thấy temp → thêm mới
         });
-
-        // ✅ Cuộn xuống cuối
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-          });
-        }, 100);
       }
     );
 
     return () => sub.unsubscribe();
   }, [stompClient, connected, groupId]);
+  // useEffect(() => {
+  //   if (activeTab === "chat" && scrollRef.current) {
+  //     // Use setTimeout to ensure the DOM has updated
+  //     setTimeout(() => {
+  //       if (scrollRef.current) {
+  //         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  //       }
+  //     }, 100);
+  //   }
+  // }, [activeTab, messages]);
+  useEffect(() => {
+    if (activeTab !== "chat") return;
+
+    const timeout = setTimeout(() => {
+      const el = messagesEndRef.current;
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    }, 100); // Safari cần delay > 50ms
+
+    return () => clearTimeout(timeout);
+  }, [messages.length, activeTab]);
 
   if (loading) {
     return (
@@ -872,8 +907,8 @@ const DetailGroupLecturer = () => {
                                           <FileText className="text-blue-600" />
                                           <div className="flex-1">
                                             {/* <p className="font-medium">
-                                              {file.displayName || "Không tên"}
-                                            </p> */}
+                                                {file.displayName || "Không tên"}
+                                              </p> */}
                                             <p className="text-sm text-gray-500">
                                               Tệp đính kèm
                                             </p>
@@ -1008,9 +1043,9 @@ const DetailGroupLecturer = () => {
                           {groupDetail?.name}
                         </h3>
                         {/* <p className="text-sm text-gray-500">
-                          {groupData.members.filter((m) => m.isOnline).length}{" "}
-                          đang hoạt động
-                        </p> */}
+                            {groupData.members.filter((m) => m.isOnline).length}{" "}
+                            đang hoạt động
+                          </p> */}
                       </div>
                     </div>
                   </div>
@@ -1028,109 +1063,95 @@ const DetailGroupLecturer = () => {
                           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                         </div>
                       )}
-                      {[...messages]
-                        .sort(
-                          (a, b) =>
-                            new Date(a.timestamp) - new Date(b.timestamp)
-                        )
-                        .map((message, index) => {
-                          const showDate =
-                            index === 0 ||
-                            !dayjs(messages[index - 1]?.timestamp).isSame(
-                              dayjs(message.timestamp),
-                              "day"
-                            );
-                          const isOwnMessage = message?.userId === userId;
-                          return (
-                            <div key={index}>
-                              {showDate && (
-                                <div className="flex justify-center my-4">
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {dayjs(message?.timestamp).isValid()
-                                      ? dayjs(message?.timestamp).format(
-                                          "DD/MM/YYYY"
-                                        )
-                                      : "Ngày không hợp lệ"}
-                                  </Badge>
-                                </div>
-                              )}
+                      {messages.map((message, index) => {
+                        const showDate =
+                          index === 0 ||
+                          !dayjs(messages[index - 1]?.timestamp).isSame(
+                            dayjs(message.timestamp),
+                            "day"
+                          );
+                        const isOwnMessage = message?.userId === userId;
 
+                        return (
+                          <div key={index}>
+                            {showDate && (
+                              <div className="flex justify-center my-4">
+                                <Badge variant="secondary" className="text-xs">
+                                  {dayjs(message?.timestamp).isValid()
+                                    ? dayjs(message?.timestamp).format(
+                                        "DD/MM/YYYY"
+                                      )
+                                    : "Ngày không hợp lệ"}
+                                </Badge>
+                              </div>
+                            )}
+
+                            <div
+                              className={`flex ${
+                                isOwnMessage ? "justify-end" : "justify-start"
+                              }`}
+                            >
                               <div
                                 className={`flex ${
-                                  isOwnMessage ? "justify-end" : "justify-start"
-                                }`}
+                                  isOwnMessage ? "flex-row-reverse" : "flex-row"
+                                } items-start space-x-2 max-w-[80%]`}
                               >
-                                <div
-                                  className={`flex ${
-                                    isOwnMessage
-                                      ? "flex-row-reverse"
-                                      : "flex-row"
-                                  } items-start space-x-2 max-w-[80%]`}
-                                >
+                                {!isOwnMessage && (
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage
+                                      src={message.avatar || "/placeholder.svg"}
+                                    />
+                                    <AvatarFallback
+                                      className={
+                                        message.isTeacher
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }
+                                    >
+                                      {getInitials(message.sender)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                )}
+
+                                <div className={`space-y-1`}>
                                   {!isOwnMessage && (
-                                    <Avatar className="h-8 w-8">
-                                      <AvatarImage
-                                        src={
-                                          message.avatar || "/placeholder.svg"
-                                        }
-                                      />
-                                      <AvatarFallback
-                                        className={
-                                          message.isTeacher
-                                            ? "bg-green-500"
-                                            : "bg-blue-500"
-                                        }
-                                      >
-                                        {getInitials(message.sender)}
-                                      </AvatarFallback>
-                                    </Avatar>
+                                    <div className="flex items-center space-x-2">
+                                      <p className="text-sm font-medium text-gray-900">
+                                        {message.sender}
+                                      </p>
+                                      {message.isTeacher && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          Giáo viên
+                                        </Badge>
+                                      )}
+                                    </div>
                                   )}
 
                                   <div
-                                    className={`space-y-1 ${
-                                      isOwnMessage ? "items-end" : "items-start"
+                                    className={`rounded-lg px-3 py-2 ${
+                                      isOwnMessage
+                                        ? "bg-blue-600 text-white"
+                                        : message.isTeacher
+                                        ? "bg-green-100 text-green-900"
+                                        : "bg-gray-100 text-gray-900"
                                     }`}
                                   >
-                                    {!isOwnMessage && (
-                                      <div className="flex items-center space-x-2">
-                                        <p className="text-sm font-medium text-gray-900">
-                                          {message.sender}
-                                        </p>
-                                        {message.isTeacher && (
-                                          <Badge
-                                            variant="secondary"
-                                            className="text-xs"
-                                          >
-                                            Giáo viên
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    )}
-                                    <div
-                                      className={`rounded-lg px-3 py-2 ${
-                                        isOwnMessage
-                                          ? "bg-blue-600 text-white"
-                                          : message.isTeacher
-                                          ? "bg-green-100 text-green-900"
-                                          : "bg-gray-100 text-gray-900"
-                                      }`}
-                                    >
-                                      <p className="text-sm">
-                                        {message.content}
-                                      </p>
-                                    </div>
-                                    <p className="text-xs text-gray-500">
-                                      {dayjs(message.timestamp).format("HH:mm")}
-                                    </p>
+                                    <p className="text-sm">{message.content}</p>
                                   </div>
+
+                                  <p className="text-xs text-gray-500">
+                                    {dayjs(message.timestamp).format("HH:mm")}
+                                  </p>
                                 </div>
                               </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        );
+                      })}
+                      <div key={messages.length} ref={messagesEndRef}></div>
                     </div>
                   </div>
                 </CardContent>

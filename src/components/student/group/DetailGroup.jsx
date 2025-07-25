@@ -110,6 +110,7 @@ const mockGroupData = {
     },
   ],
 };
+
 const DetailGroupStudent = () => {
   const { connected, stompClient, error } = useWebSocket();
   const scrollRef = useRef(null);
@@ -170,6 +171,22 @@ const DetailGroupStudent = () => {
 
   //   return () => sub.unsubscribe();
   // }, [stompClient, connected, groupStudyId]);
+  const scrollToBottom = (behavior = "smooth") => {
+    if (messagesEndRef.current && scrollRef.current) {
+      // Method 1: Scroll the container to bottom
+      const container = scrollRef.current;
+      container.scrollTop = container.scrollHeight;
+
+      // Method 2: Also use scrollIntoView as backup
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({
+          behavior,
+          block: "end",
+          inline: "nearest",
+        });
+      }, 50);
+    }
+  };
   useEffect(() => {
     if (!stompClient?.current || !connected || !groupStudyId) return;
 
@@ -210,11 +227,7 @@ const DetailGroupStudent = () => {
         });
 
         // ✅ Cuộn xuống cuối
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-          });
-        }, 100);
+        setTimeout(() => scrollToBottom(), 100);
       }
     );
 
@@ -322,7 +335,7 @@ const DetailGroupStudent = () => {
     }
   };
   const fetchMessages = async () => {
-    if (isFetching || !hasMore || pageRef.current < 0) return;
+    if (isFetching || !hasMore) return;
     setIsFetching(true);
 
     try {
@@ -391,17 +404,19 @@ const DetailGroupStudent = () => {
     setNewMessage("");
 
     // 👉 cuộn xuống dưới luôn
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      });
-    }, 100);
+    setTimeout(() => scrollToBottom(), 50);
 
     try {
       await handleSendMessage(groupStudyId, content);
       // WebSocket sẽ update lại tin chính xác sau
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
+    }
+  };
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessageGroup();
     }
   };
 
@@ -452,20 +467,24 @@ const DetailGroupStudent = () => {
   }, [scrollRef.current, activeTab, isFetching, hasMore]);
 
   useLayoutEffect(() => {
-    if (activeTab === "chat" && messages.length > 0 && !initialLoaded) {
+    if (activeTab === "chat" && !initialLoaded) {
       requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-        setInitialLoaded(true); // nên đặt trong animation frame luôn
+        if (messages.length === 0 && hasMore) {
+          fetchMessages(); // Gọi fetchMessages nếu messages rỗng
+        } else if (messages.length > 0) {
+          messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        }
+        setInitialLoaded(true);
       });
     }
-  }, [activeTab, messages]);
+  }, [activeTab, messages, hasMore]);
 
   useEffect(() => {
-    if (activeTab === "chat") {
+    if (activeTab === "chat" && groupStudyId) {
       setHasMore(true);
       setInitialLoaded(false);
+      pageRef.current = 0;
 
-      // Gọi API 1 lần để lấy totalPages trước
       handleListMessage(groupStudyId, 0, 6).then((res) => {
         if (res?.data) {
           const totalPages = res.data.totalPages;
@@ -482,12 +501,24 @@ const DetailGroupStudent = () => {
             isTeacher: false,
           }));
 
-          setMessages(newMessages.reverse()); // Hiển thị mới nhất ở dưới
+          setMessages(newMessages.reverse());
+
+          setTimeout(() => {
+            const el = scrollRef.current;
+            if (
+              el &&
+              el.scrollHeight <= el.clientHeight + 10 &&
+              pageRef.current > 0
+            ) {
+              fetchMessages();
+            }
+          }, 100);
+
           setHasMore(pageRef.current > 0);
         }
       });
     }
-  }, [activeTab]);
+  }, [activeTab, groupStudyId]);
 
   useEffect(() => {
     fetchDetailGroup();
@@ -822,7 +853,7 @@ const DetailGroupStudent = () => {
               </div>
             </TabsContent>
             <TabsContent value="chat">
-              <Card className="flex flex-col">
+              <Card className="flex flex-col h-full">
                 {/* Chat Header */}
                 <CardHeader className="pb-3 border-b">
                   <div className="flex items-center justify-between">
@@ -850,9 +881,9 @@ const DetailGroupStudent = () => {
                 </CardHeader>
 
                 {/* Messages */}
-                <CardContent className="flex-1 p-0">
+                <CardContent className="flex-1 p-0 h-full">
                   <div
-                    className="h-[400px] overflow-y-auto p-4"
+                    className="max-h-[450px] overflow-y-auto p-4"
                     ref={scrollRef}
                   >
                     <div className="space-y-4">
@@ -861,109 +892,96 @@ const DetailGroupStudent = () => {
                           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                         </div>
                       )}
-                      {[...messages]
-                        .sort(
-                          (a, b) =>
-                            new Date(a.timestamp) - new Date(b.timestamp)
-                        )
-                        .map((message, index) => {
-                          const showDate =
-                            index === 0 ||
-                            !dayjs(messages[index - 1]?.timestamp).isSame(
-                              dayjs(message.timestamp),
-                              "day"
-                            );
-                          const isOwnMessage = message?.userId === userId;
-                          return (
-                            <div key={index}>
-                              {showDate && (
-                                <div className="flex justify-center my-4">
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {dayjs(message?.timestamp).isValid()
-                                      ? dayjs(message?.timestamp).format(
-                                          "DD/MM/YYYY"
-                                        )
-                                      : "Ngày không hợp lệ"}
-                                  </Badge>
-                                </div>
-                              )}
 
+                      {messages.map((message, index) => {
+                        const showDate =
+                          index === 0 ||
+                          !dayjs(messages[index - 1]?.timestamp).isSame(
+                            dayjs(message.timestamp),
+                            "day"
+                          );
+                        const isOwnMessage = message?.userId === userId;
+                        const isLast = index === messages.length - 1;
+                        return (
+                          <div key={index}>
+                            {showDate && (
+                              <div className="flex justify-center my-4">
+                                <Badge variant="secondary" className="text-xs">
+                                  {dayjs(message?.timestamp).isValid()
+                                    ? dayjs(message?.timestamp).format(
+                                        "DD/MM/YYYY"
+                                      )
+                                    : "Ngày không hợp lệ"}
+                                </Badge>
+                              </div>
+                            )}
+
+                            <div
+                              className={`flex ${
+                                isOwnMessage ? "justify-end" : "justify-start"
+                              }`}
+                            >
                               <div
                                 className={`flex ${
-                                  isOwnMessage ? "justify-end" : "justify-start"
-                                }`}
+                                  isOwnMessage ? "flex-row-reverse" : "flex-row"
+                                } items-start space-x-2 max-w-[80%]`}
                               >
-                                <div
-                                  className={`flex ${
-                                    isOwnMessage
-                                      ? "flex-row-reverse"
-                                      : "flex-row"
-                                  } items-start space-x-2 max-w-[80%]`}
-                                >
+                                {!isOwnMessage && (
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage
+                                      src={message.avatar || "/placeholder.svg"}
+                                    />
+                                    <AvatarFallback
+                                      className={
+                                        message.isTeacher
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }
+                                    >
+                                      {getInitials(message.sender)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                )}
+
+                                <div className={`space-y-1`}>
                                   {!isOwnMessage && (
-                                    <Avatar className="h-8 w-8">
-                                      <AvatarImage
-                                        src={
-                                          message.avatar || "/placeholder.svg"
-                                        }
-                                      />
-                                      <AvatarFallback
-                                        className={
-                                          message.isTeacher
-                                            ? "bg-green-500"
-                                            : "bg-blue-500"
-                                        }
-                                      >
-                                        {getInitials(message.sender)}
-                                      </AvatarFallback>
-                                    </Avatar>
+                                    <div className="flex items-center space-x-2">
+                                      <p className="text-sm font-medium text-gray-900">
+                                        {message.sender}
+                                      </p>
+                                      {message.isTeacher && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          Giáo viên
+                                        </Badge>
+                                      )}
+                                    </div>
                                   )}
 
                                   <div
-                                    className={`space-y-1 ${
-                                      isOwnMessage ? "items-end" : "items-start"
+                                    className={`rounded-lg px-3 py-2 ${
+                                      isOwnMessage
+                                        ? "bg-blue-600 text-white"
+                                        : message.isTeacher
+                                        ? "bg-green-100 text-green-900"
+                                        : "bg-gray-100 text-gray-900"
                                     }`}
                                   >
-                                    {!isOwnMessage && (
-                                      <div className="flex items-center space-x-2">
-                                        <p className="text-sm font-medium text-gray-900">
-                                          {message.sender}
-                                        </p>
-                                        {message.isTeacher && (
-                                          <Badge
-                                            variant="secondary"
-                                            className="text-xs"
-                                          >
-                                            Giáo viên
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    )}
-                                    <div
-                                      className={`rounded-lg px-3 py-2 ${
-                                        isOwnMessage
-                                          ? "bg-blue-600 text-white"
-                                          : message.isTeacher
-                                          ? "bg-green-100 text-green-900"
-                                          : "bg-gray-100 text-gray-900"
-                                      }`}
-                                    >
-                                      <p className="text-sm">
-                                        {message.content}
-                                      </p>
-                                    </div>
-                                    <p className="text-xs text-gray-500">
-                                      {dayjs(message.timestamp).format("HH:mm")}
-                                    </p>
+                                    <p className="text-sm">{message.content}</p>
                                   </div>
+
+                                  <p className="text-xs text-gray-500">
+                                    {dayjs(message.timestamp).format("HH:mm")}
+                                  </p>
                                 </div>
                               </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        );
+                      })}
+                      <div ref={messagesEndRef} />
                     </div>
                   </div>
                 </CardContent>
@@ -978,7 +996,7 @@ const DetailGroupStudent = () => {
                       placeholder="Nhập tin nhắn..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      // onKeyDown={handleKeyDown}
+                      onKeyDown={handleKeyDown}
                       className="flex-1"
                     />
                     <Button variant="ghost" size="sm">
