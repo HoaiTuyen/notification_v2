@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 import { handleDeleteClass } from "../../../controller/ClassController";
 const DeleteClass = ({ onOpen, onClose, classRoom, onSuccess }) => {
+  console.log(classRoom);
   const handleDelete = async () => {
     const response = await handleDeleteClass(classRoom.id);
     if (response?.status === 204) {
@@ -40,10 +41,18 @@ const DeleteClass = ({ onOpen, onClose, classRoom, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            className="cursor-pointer"
+            onClick={handleDelete}
+          >
             Xóa lớp
           </Button>
         </DialogFooter>

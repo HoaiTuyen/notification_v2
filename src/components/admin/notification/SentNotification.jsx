@@ -150,14 +150,14 @@ const SentNotifications = () => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/admin/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
   const handleWapper = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/admin/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
 
@@ -168,7 +168,7 @@ const SentNotifications = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white p-0 ">
+      <div className="h-wull w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
           <div className="flex items-center justify-between">
             <div>
@@ -183,7 +183,7 @@ const SentNotifications = () => {
               onClick={() => setOpenReport(true)}
             >
               <FileText className="mr-2 h-4 w-4" />
-              Báo cáo
+              Xuất báo cáo
             </Button>
             {openReport && (
               <Reports open={openReport} onClose={() => setOpenReport(false)} />

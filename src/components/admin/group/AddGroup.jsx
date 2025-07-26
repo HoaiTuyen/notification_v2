@@ -27,17 +27,21 @@ import {
 import { toast } from "react-toastify";
 import { AwardIcon } from "lucide-react";
 import { useLoading } from "../../../context/LoadingProvider";
+import { jwtDecode } from "jwt-decode";
 const AddGroup = ({ open, onClose, onSuccess, group }) => {
+  const token = localStorage.getItem("access_token");
+  console.log(token);
+  const { userId } = jwtDecode(token);
+  console.log(userId);
   const checkEdit = !!group?.id;
-
   const { setLoading } = useLoading();
 
   const [listTeacher, setListTeacher] = useState([]);
   const [form, setForm] = useState({
     id: group?.id || "",
     name: group?.name || "",
-    teacherId: "",
-    code: "",
+    userId: userId,
+    code: group?.code || "",
   });
   const fetchTeacher = async () => {
     const pageSize = 10;
@@ -65,6 +69,30 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
     }
   };
   const handleSubmit = async () => {
+    const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
+
+    // Validate Tên nhóm
+    const trimmedName = form.name.trim();
+    if (!trimmedName) {
+      toast.error("Tên nhóm học tập không được để trống");
+      return;
+    }
+
+    if (trimmedName.length < 5) {
+      toast.error("Tên nhóm học tập ít nhất 5 ký tự");
+      return;
+    }
+
+    if (!nameRegex.test(trimmedName)) {
+      toast.error(
+        "Tên nhóm học tập phải bắt đầu bằng chữ, các kí tự còn lại chứa chữ, số hoặc khoảng trắng (không ký tự đặc biệt)"
+      );
+      return;
+    }
+    if (!checkEdit && !form.userId) {
+      toast.error("Vui lòng chọn giáo viên phụ trách");
+      return;
+    }
     if (checkEdit) {
       setLoading(true);
       const reqEdit = await handleUpdateGroup(form);
@@ -80,7 +108,8 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       setLoading(false);
     } else {
       setLoading(true);
-      const res = await handleAddGroup(form);
+      const res = await handleAddGroup(form.name, form.userId);
+      console.log(res);
       if (res?.data && res?.status === 201) {
         onSuccess();
         toast.success(res.message || "Tạo nhóm thành công");
@@ -96,14 +125,14 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       setForm({
         id: group?.id || "",
         name: group?.name || "",
-        teacherId: "",
-        code: "",
+        userId: group?.userId || "",
+        code: group?.code || "",
       });
     } else {
       setForm({
         id: "",
         name: "",
-        teacherId: "",
+        userId: "",
         code: "",
       });
     }
@@ -118,18 +147,18 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
           {checkEdit ? (
             <>
               <DialogHeader>
-                <DialogTitle>Cập nhật nhóm</DialogTitle>
+                <DialogTitle>Cập nhật nhóm học tập</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin cập nhật về nhóm
+                  Nhập thông tin cập nhật về nhóm học tập
                 </DialogDescription>
               </DialogHeader>
             </>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Thêm nhóm mới</DialogTitle>
+                <DialogTitle>Thêm nhóm học tập</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin chi tiết về nhóm mới
+                  Nhập thông tin về nhóm học tập mới
                 </DialogDescription>
               </DialogHeader>
             </>
@@ -138,16 +167,18 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
               {/* <div className="grid gap-2">
-                <Label htmlFor="groupId">Mã nhóm</Label>
-                <Input id="groupId" placeholder="VD: CNTT01" />
-              </div> */}
+                  <Label htmlFor="groupId">Mã nhóm</Label>
+                  <Input id="groupId" placeholder="VD: CNTT01" />
+                </div> */}
 
               <div className="grid gap-2">
-                <Label htmlFor="nameGroup">Tên nhóm</Label>
+                <Label htmlFor="nameGroup">
+                  Tên nhóm học tập <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="nameGroup"
                   type="text"
-                  placeholder="Nhập tên nhóm"
+                  placeholder="Nhập tên nhóm học tập"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
@@ -156,11 +187,13 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                 <div className="grid gap-2"></div>
               ) : (
                 <div className="grid gap-2">
-                  <Label htmlFor="teacher">Giáo viên</Label>
+                  <Label htmlFor="teacher">
+                    Giáo viên phụ trách <span className="text-red-500">*</span>
+                  </Label>
                   <Select
-                    value={form.teacherId}
+                    value={form.userId}
                     onValueChange={(value) =>
-                      setForm({ ...form, teacherId: value })
+                      setForm({ ...form, userId: value })
                     }
                   >
                     <SelectTrigger id="faculty">

@@ -26,6 +26,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     name: subject?.name || "",
     credit: subject?.credit || "",
   });
+  console.log(form);
   useEffect(() => {
     if (subject?.id) {
       setForm({
@@ -42,8 +43,49 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     }
   }, [subject]);
   const handleAdd = async () => {
-    if (!form.id || !form.name || !form.credit) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
+    const idRegex = /^[A-Za-z][A-Za-z0-9]*$/;
+    const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
+
+    // Validate mã môn học
+    if (!form.id.trim()) {
+      toast.error("Mã môn học không được để trống");
+      return;
+    }
+    if ((form.id || "").trim().length < 7) {
+      toast.error("Mã môn học ít nhất 7 ký tự");
+      return;
+    }
+    if (!idRegex.test(form.id)) {
+      toast.error("Mã môn học phải bắt đầu bằng chữ");
+      return;
+    }
+
+    // Validate tên môn học
+    if (!form.name.trim()) {
+      toast.error("Tên môn học không được để trống");
+      return;
+    }
+    if (form.name.trim().length < 3) {
+      toast.error("Tên môn học ít nhất 3 ký tự");
+      return;
+    }
+    if (!nameRegex.test(form.name.trim())) {
+      toast.error("Tên môn học phải bắt đầu bằng chữ");
+      return;
+    }
+
+    // Validate số tín chỉ
+    const creditNumber = parseInt(form.credit, 10);
+    if (isNaN(creditNumber)) {
+      toast.error("Số tín chỉ không hợp lệ");
+      return;
+    }
+    if (creditNumber < 1) {
+      toast.error("Số tín chỉ phải lớn hơn hoặc bằng 1");
+      return;
+    }
+    if (creditNumber > 15) {
+      toast.error("Số tín chỉ không được lớn hơn 15");
       return;
     }
 

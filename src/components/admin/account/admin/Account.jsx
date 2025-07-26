@@ -176,8 +176,8 @@ const Account = () => {
     fetchListUser(pageFromUrl);
   }, [debouncedSearchTerm, pageFromUrl, selectedRole]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
+    <div className="h-full w-full bg-white overflow-auto">
+      <div className="max-w-[1400px] mx-auto px-6 py-6 ">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           {/* <Button
             variant="outline"
@@ -200,7 +200,7 @@ const Account = () => {
               setSelectedUser(null);
             }}
           >
-            <Plus className="mr-2 h-4 w-4" /> Tạo tài khoản
+            <Plus className="h-4 w-4" /> Tạo tài khoản
           </Button>
           {openModal && (
             <AddAccount
@@ -216,12 +216,9 @@ const Account = () => {
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
+        <Card className="border border-gray-100">
           <CardHeader>
             <CardTitle>Danh sách tài khoản quản trị viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} tài khoản
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -229,26 +226,12 @@ const Account = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm tài khoản..."
+                  placeholder="Tìm kiếm tài khoản theo username..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              {/* <Select
-                value={selectedRole}
-                onValueChange={(value) => setSelectedRole(value)}
-              >
-                <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
-                  <SelectValue placeholder="Tất cả" />
-                </SelectTrigger>
-                <SelectContent className="bg-white rounded border border-gray-200">
-                  <SelectItem value="all">Tất cả </SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="STUDENT">Student</SelectItem>
-                  <SelectItem value="TEACHER">Teacher</SelectItem>
-                </SelectContent>
-              </Select> */}
             </div>
 
             {/* Table */}
@@ -276,7 +259,9 @@ const Account = () => {
                         colSpan={5}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy tài khoản phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy tài khoản phù hợp"
+                          : "Chưa có tài khoản nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -353,21 +338,24 @@ const Account = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              const params = new URLSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-              setSearchParams(params);
-            }}
-          />
-        </div>
+
+        {pagination.totalElements >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                const params = new URLSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+                setSearchParams(params);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -76,10 +76,28 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   }, [open, classRoom]);
   const handleSubmit = async () => {
     try {
-      if (!form.name || !form.description || !form.id) {
-        toast.error("Vui lòng nhập đầy đủ thông tin");
+      const isEmpty = (val) => !val || !val.trim();
+      const startsWithLetter = (val) => /^[A-Za-z]/.test(val.trim());
+      const isValidClassName = (val) =>
+        /^D\d{2}_[A-Z]{2}\d{2}$/.test(val.trim());
+
+      if (isEmpty(form.id)) {
+        toast.error("Mã lớp không được để trống");
         return;
       }
+      if (!startsWithLetter(form.id)) {
+        toast.error("Mã lớp phải bắt đầu bằng chữ cái");
+        return;
+      }
+      if (isEmpty(form.name)) {
+        toast.error("Tên lớp không được để trống");
+        return;
+      }
+      if (!isValidClassName(form.name)) {
+        toast.error("Tên lớp không đúng định dạng. VD: D21_TH12");
+        return;
+      }
+
       setLoading(true);
       if (checkEdit) {
         const resEdit = await handleUpdateClass(form);
@@ -129,25 +147,27 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
           ) : (
             <DialogHeader>
               <DialogTitle>Thêm lớp mới</DialogTitle>
-              <DialogDescription>
-                Nhập thông tin chi tiết về lớp mới
-              </DialogDescription>
+              <DialogDescription>Nhập thông tin về lớp mới</DialogDescription>
             </DialogHeader>
           )}
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="classId">Mã lớp</Label>
+                <Label htmlFor="classId">
+                  Mã lớp <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="classId"
-                  placeholder="VD: CNTT01"
+                  placeholder="VD: CNTT"
                   value={form.id}
                   onChange={(e) => setForm({ ...form, id: e.target.value })}
                   disabled={checkEdit}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="nameClass">Tên lớp</Label>
+                <Label htmlFor="nameClass">
+                  Tên lớp <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="nameClass"
                   type="text"
@@ -156,7 +176,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="nameDescription">Mô tả</Label>
+                <Label htmlFor="nameDescription">
+                  Mô tả <span className="text-red-500">*</span>
+                </Label>
                 <Textarea
                   id="nameDescription"
                   type="text"
@@ -164,6 +186,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
+                  className="max-h-[100px] overflow-y-auto"
                 />
               </div>
             </div>
@@ -220,11 +243,15 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={() => handleSubmit()}
             >
               {checkEdit ? "Cập nhật" : "Thêm lớp"}

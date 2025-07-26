@@ -28,6 +28,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useLoading } from "../../../../context/LoadingProvider";
 const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
   const { setLoading } = useLoading();
+
   const [imagePreview, setImagePreview] = useState(null);
 
   const checkEdit = !!users?.id;
@@ -80,11 +81,23 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
   };
 
   const handleSubmit = async () => {
-    try {
-      if (!form.username || !form.password) {
-        toast.error("Vui lòng nhập đầy đủ thông tin");
+    if (!form.username?.trim()) {
+      toast.error("Vui lòng nhập username");
+      return;
+    }
+
+    if (!checkEdit) {
+      if (!form.password?.trim()) {
+        toast.error("Vui lòng nhập mật khẩu");
         return;
       }
+
+      if (form.password.length < 6) {
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+      }
+    }
+    try {
       setLoading(true);
       let accountId = form.id;
 
@@ -118,7 +131,7 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
           toast.success(response.message || "Thêm tài khoản thành công");
           onClose();
         } else {
-          toast.error(response.message || "Thêm tài khoản thất bại 1111");
+          toast.error(response.message || "Thêm tài khoản thất bại");
         }
       }
     } catch (error) {
@@ -146,7 +159,7 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
               <>
                 <DialogTitle>Tạo tài khoản mới</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin chi tiết về tài khoản mới
+                  Nhập thông tin về tài khoản mới
                 </DialogDescription>
               </>
             )}
@@ -155,7 +168,9 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
             <div className="grid gap-4">
               {checkEdit && (
                 <div className="grid gap-2">
-                  <Label htmlFor="id">ID</Label>
+                  <Label htmlFor="id">
+                    ID <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="id"
                     placeholder=""
@@ -168,10 +183,13 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">
+                  Username <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="username"
                   placeholder=""
+                  required
                   value={form.username}
                   disabled={checkEdit}
                   onChange={(e) =>
@@ -183,10 +201,13 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
                 <div className="grid gap-2"></div>
               ) : (
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">
+                    Password <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="password"
                     type="password"
+                    required
                     value={form.password}
                     disabled={checkEdit}
                     onChange={(e) =>
@@ -197,31 +218,10 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
               )}
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2 ">
-                <Label htmlFor="image">Ảnh</Label>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                  {imagePreview && (
-                    // <div className="mt-2">
-                    //   <img
-                    //     src={imagePreview}
-                    //     alt="Preview"
-                    //     className="w-20 h-20 object-cover rounded"
-                    //   />
-                    // </div>
-                    <Avatar className="rounded-lg">
-                      <AvatarImage src={imagePreview} alt={form.username} />
-                    </Avatar>
-                  )}
-                </div>
-              </div>
               <div className="grid gap-2">
-                <Label htmlFor="">Trạng thái</Label>
+                <Label htmlFor="">
+                  Trạng thái <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={form.status}
                   onValueChange={(value) => setForm({ ...form, status: value })}
@@ -236,21 +236,39 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="">Role</Label>
-                <Select
-                  value={form.role}
-                  onValueChange={(value) => setForm({ ...form, role: value })}
-                  // disabled={true}
-                >
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Chọn role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="STUDENT">Student</SelectItem>
-                    <SelectItem value="TEACHER">Teacher</SelectItem>
-                    <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="">
+                  Role <span className="text-red-500">*</span>
+                </Label>
+                {checkEdit ? (
+                  <Select
+                    value={form.role}
+                    onValueChange={(value) => setForm({ ...form, role: value })}
+                    // disabled={true}
+                  >
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Chọn role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="STUDENT">Student</SelectItem>
+                      <SelectItem value="TEACHER">Teacher</SelectItem>
+                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Select
+                    value={form.role}
+                    onValueChange={(value) => setForm({ ...form, role: value })}
+                    disabled={true}
+                  >
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Chọn role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
           </div>

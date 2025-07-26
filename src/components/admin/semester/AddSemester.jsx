@@ -34,20 +34,61 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
   });
 
   const handleSubmit = async () => {
-    if (
-      !form.academicYear ||
-      !form.nameSemester ||
-      !form.startDate ||
-      !form.endDate
-    ) {
-      toast.error("Vui lòng điền đầy đủ các thông tin");
+    const idRegex = /^[0-9]+$/;
+    const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
+    const yearRegex = /^[0-9]{4}-[0-9]{4}$/;
+
+    if (!form.id.trim()) {
+      toast.error("Mã học kỳ không được để trống");
       return;
     }
+    if (form.id.length < 3) {
+      toast.error("Mã học kỳ ít nhất 3 ký tự");
+      return;
+    }
+    if (!idRegex.test(form.id)) {
+      toast.error("Mã học kỳ chỉ được chứa số");
+      return;
+    }
+
+    if (!form.nameSemester.trim()) {
+      toast.error("Tên học kỳ không được để trống");
+      return;
+    }
+    if (form.nameSemester.trim().length < 3) {
+      toast.error("Tên học kỳ ít nhất 3 ký tự");
+      return;
+    }
+    if (!nameRegex.test(form.nameSemester.trim())) {
+      toast.error(
+        "Tên học kỳ phải bắt đầu bằng chữ và chỉ được chứa chữ cái, số hoặc khoảng trắng"
+      );
+      return;
+    }
+
+    if (!form.academicYear.trim()) {
+      toast.error("Niên khóa không được để trống");
+      return;
+    }
+    if (form.academicYear.trim().length < 8) {
+      toast.error("Niên khóa ít nhất 8 ký tự");
+      return;
+    }
+    if (!yearRegex.test(form.academicYear.trim())) {
+      toast.error("Niên khóa phải có định dạng yyyy-yyyy, ví dụ: 2024-2025");
+      return;
+    }
+
+    if (!form.startDate || !form.endDate) {
+      toast.error("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc");
+      return;
+    }
+
     const start = new Date(form.startDate);
     const end = new Date(form.endDate);
 
     if (start >= end) {
-      toast.error("Ngày bắt đầu phải nhỏ hơn ngày kết thúc");
+      toast.error("Ngày kết thúc phải lớn hơn ngày bắt đầu");
       return;
     }
     if (checkEdit) {
@@ -100,24 +141,26 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
           {checkEdit ? (
             <>
               <DialogHeader>
-                <DialogTitle>Cập nhật nhóm</DialogTitle>
+                <DialogTitle>Cập nhật học kỳ</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin cập nhật nhóm
+                  Nhập thông tin cập nhật học kỳ
                 </DialogDescription>
               </DialogHeader>
             </>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Thêm nhóm mới</DialogTitle>
+                <DialogTitle>Thêm học kỳ mới</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin chi tiết về nhóm mới
+                  Nhập thông tin về học kỳ mới
                 </DialogDescription>
               </DialogHeader>
             </>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="semesterId">Mã học kỳ</Label>
+            <Label htmlFor="semesterId">
+              Mã học kỳ <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="semesterId"
               placeholder="VD: 211"
@@ -127,7 +170,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
           </div>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="nameSemester">Tên học kỳ</Label>
+              <Label htmlFor="nameSemester">
+                Tên học kỳ <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="nameSemester"
                 type="text"
@@ -139,7 +184,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="academicYear">Năm học</Label>
+              <Label htmlFor="academicYear">
+                Năm học <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="academicYear"
                 type="text"
@@ -153,7 +200,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
           </div>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="nameSemester">Ngày bắt đầu</Label>
+              <Label htmlFor="nameSemester">
+                Ngày bắt đầu <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="startDate"
                 type="date"
@@ -165,7 +214,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="endDate">Ngày kết thúc</Label>
+              <Label htmlFor="endDate">
+                Ngày kết thúc <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="endDate"
                 type="date"
@@ -177,11 +228,15 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="cursor-pointer bg-blue-600 hover:bg-blue-700"
               onClick={handleSubmit}
             >
               {checkEdit ? "Cập nhật" : "Thêm học kỳ"}

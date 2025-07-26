@@ -115,7 +115,7 @@ const ClassName = () => {
     fetchListClass(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
@@ -137,7 +137,7 @@ const ClassName = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm lớp
+            <Plus className="h-4 w-4" /> Thêm lớp
           </Button>
           {openModal && (
             <AddClass
@@ -155,7 +155,6 @@ const ClassName = () => {
         <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách lớp</CardTitle>
-            <CardDescription>Tổng số: {pagination.total} lớp</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -163,7 +162,7 @@ const ClassName = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm lớp..."
+                  placeholder="Tìm kiếm lớp theo tên lớp..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -210,7 +209,9 @@ const ClassName = () => {
                         colSpan={6}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy lớp học phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy lớp học phù hợp"
+                          : "Chưa có lớp học nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -281,7 +282,7 @@ const ClassName = () => {
 
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-red-600"
+                                className="text-red-600 cursor-pointer"
                                 onClick={() => {
                                   setOpenModalDelete(true);
                                   setSelectClass(item);
@@ -308,19 +309,21 @@ const ClassName = () => {
             onSuccess={() => fetchListClass(pageFromUrl)}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
       <Outlet />
     </div>

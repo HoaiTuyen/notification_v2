@@ -84,6 +84,7 @@ const Group = () => {
         res = await handleSearchGroup(keyword, page - 1, pagination.pageSize);
       } else {
         res = await handleListGroup(page - 1, pagination.pageSize);
+        console.log(res);
       }
       if (res?.data && res?.status === 200) {
         setGroups(res.data.studyGroups);
@@ -113,7 +114,7 @@ const Group = () => {
     fetchListGroup(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
@@ -125,7 +126,7 @@ const Group = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm nhóm
+            <Plus className=" h-4 w-4" /> Thêm nhóm
           </Button>
           {openModal && (
             <AddGroup
@@ -143,7 +144,6 @@ const Group = () => {
         <Card className="border border-gray-100">
           <CardHeader>
             <CardTitle>Danh sách nhóm</CardTitle>
-            <CardDescription>Tổng số: {pagination.total} nhóm</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -151,7 +151,7 @@ const Group = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm nhóm học tập..."
+                  placeholder="Tìm kiếm nhóm học tập theo tên nhóm..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -176,6 +176,7 @@ const Group = () => {
                   <TableRow className="border border-gray-200">
                     <TableHead>STT</TableHead>
                     <TableHead>Tên nhóm</TableHead>
+                    <TableHead>Giáo viên phụ trách</TableHead>
                     <TableHead>Mã code</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
@@ -211,6 +212,7 @@ const Group = () => {
                         >
                           <div className="flex items-center">{group.name}</div>
                         </TableCell>
+                        <TableCell className="">{group.userName}</TableCell>
                         <TableCell className="">{group.code}</TableCell>
 
                         <TableCell className="text-center align-middle">
@@ -271,19 +273,21 @@ const Group = () => {
             onSuccess={() => fetchListGroup(pageFromUrl)}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

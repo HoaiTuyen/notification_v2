@@ -16,8 +16,8 @@ const DeleteSubject = ({ onOpen, onClose, subject, onSuccess }) => {
     setLoading(true);
     const response = await handleDeleteSubject(subject.id);
     if (response?.status === 204) {
-      toast.success(response?.message || "Xóa môn học thành công");
       onSuccess();
+      toast.success(response?.message || "Xóa môn học thành công");
       onClose();
     } else {
       toast.error(response?.message || "Xóa môn học thất bại");
@@ -43,10 +43,18 @@ const DeleteSubject = ({ onOpen, onClose, subject, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            className="cursor-pointer"
+            variant="destructive"
+            onClick={handleDelete}
+          >
             Xóa môn học
           </Button>
         </DialogFooter>

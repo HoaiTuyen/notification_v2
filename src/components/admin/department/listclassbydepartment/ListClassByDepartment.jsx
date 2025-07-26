@@ -93,7 +93,7 @@ const ListClassOfDepartment = () => {
   }, [pagination.current]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-10 ">
+    <div className="h-full w-full bg-white p-10 overflow-auto">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -101,12 +101,13 @@ const ListClassOfDepartment = () => {
               variant="outline"
               size="sm"
               onClick={() => navigate(backUrl)}
+              className="cursor-pointer"
             >
-              <div className="flex items-center">
+              <div className="flex items-center cursor-pointer">
                 <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
               </div>
             </Button>
-            <h2 className="text-2xl font-bold">Danh sách lớp</h2>
+            <h2 className="text-2xl font-bold">Danh sách lớp thuộc khoa</h2>
           </div>
           <div>
             {[
@@ -125,13 +126,13 @@ const ListClassOfDepartment = () => {
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <CardTitle>Danh sách lớp</CardTitle>
+                <CardTitle>Danh sách lớp thuộc khoa</CardTitle>
                 <CardDescription>Tổng số: {totalClass} lớp</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
-                  className="flex items-center"
+                  className="flex items-center cursor-pointer"
                   onClick={() => setOpenUpload(true)}
                 >
                   <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
@@ -230,20 +231,21 @@ const ListClassOfDepartment = () => {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) =>
+                setPagination((prev) => ({
+                  ...prev,
+                  current: page,
+                }))
+              }
+            />
+          </div>
+        )}
       </div>
     </div>
   );

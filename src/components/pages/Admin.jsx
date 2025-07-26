@@ -217,7 +217,14 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <Layout style={{ minHeight: "150vh", width: "100vw" }}>
+      <Layout
+        style={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Header
           style={{
             backgroundColor: "#fff",
@@ -307,9 +314,10 @@ const AdminDashboard = () => {
           {/* NỘI DUNG */}
           <Content
             style={{
-              padding: 0,
               height: "100%",
-              overflow: "auto",
+              overflowY: "auto",
+              backgroundColor: "#fff",
+              padding: 0,
               width: shouldHideSidebar ? "100%" : "auto",
             }}
           >

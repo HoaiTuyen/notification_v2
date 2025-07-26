@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pagination, Spin } from "antd";
 import {
@@ -59,7 +59,10 @@ import ImportLecturerModal from "./ImportLecturer";
 
 const LecturerAccount = () => {
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [users, setUsers] = useState([]);
@@ -151,10 +154,10 @@ const LecturerAccount = () => {
 
   useEffect(() => {
     setAllTeachers([]);
-    fetchListUser(pagination.current);
-  }, [debouncedSearchTerm, selectedRole]);
+    fetchListUser(pageFromUrl);
+  }, [debouncedSearchTerm, selectedRole, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           <Button
@@ -162,13 +165,16 @@ const LecturerAccount = () => {
             className="flex items-center cursor-pointer"
             onClick={() => setOpenUpload(true)}
           >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
+            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản giảng
+            viên
           </Button>
           {openUpload && (
             <ImportLecturerModal
               open={openUpload}
               onClose={() => setOpenUpload(false)}
-              onSuccess={fetchListUser}
+              onSuccess={() => {
+                fetchListUser(pageFromUrl);
+              }}
             />
           )}
           <Button
@@ -187,7 +193,9 @@ const LecturerAccount = () => {
                 setOpenModal(false);
                 setSelectedUser(null);
               }}
-              onSuccess={fetchListUser}
+              onSuccess={() => {
+                fetchListUser(pageFromUrl);
+              }}
               users={selectedUser}
             />
           )}
@@ -197,9 +205,6 @@ const LecturerAccount = () => {
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách tài khoản nhân viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} tài khoản
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -207,7 +212,7 @@ const LecturerAccount = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm tài khoản..."
+                  placeholder="Tìm kiếm tài khoản theo username..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -257,7 +262,9 @@ const LecturerAccount = () => {
                         colSpan={5}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy tài khoản phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy tài khoản phù hợp"
+                          : "Chưa có tài khoản nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -334,6 +341,7 @@ const LecturerAccount = () => {
             </div>
           </CardContent>
         </Card>
+
         <div className="flex justify-center mt-4">
           <Pagination
             current={pagination.current}
@@ -341,7 +349,11 @@ const LecturerAccount = () => {
             total={pagination.total}
             showSizeChanger={false}
             onChange={(page) => {
-              fetchListUser(page);
+              const params = new URLSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+              setSearchParams(params);
             }}
           />
         </div>

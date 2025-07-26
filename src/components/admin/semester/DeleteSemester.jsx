@@ -45,10 +45,18 @@ const DeleteSemester = ({ onOpen, onClose, semester, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            className="cursor-pointer"
+            variant="destructive"
+            onClick={handleDelete}
+          >
             Xóa
           </Button>
         </DialogFooter>

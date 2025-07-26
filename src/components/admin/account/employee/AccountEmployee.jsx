@@ -105,10 +105,14 @@ const EmployeeAccount = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(response);
       }
 
       if (response?.status === 200 && response?.data) {
-        setUsers(response.data.users);
+        const filteredUsers = (response.data.users || []).filter(
+          (user) => user.role === "EMPLOYEE"
+        );
+        setUsers(filteredUsers);
         setPagination({
           current: page,
           pageSize: response.data.pageSize,
@@ -159,23 +163,23 @@ const EmployeeAccount = () => {
     fetchListUser(pageFromUrl);
   }, [debouncedSearchTerm, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           {/* <Button
-            variant="outline"
-            className="flex items-center cursor-pointer"
-            onClick={() => setOpenUpload(true)}
-          >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
-          </Button>
-          {openUpload && (
-            <ImportAccountModal
-              open={openUpload}
-              onClose={() => setOpenUpload(false)}
-              onSuccess={fetchListUser}
-            />
-          )} */}
+              variant="outline"
+              className="flex items-center cursor-pointer"
+              onClick={() => setOpenUpload(true)}
+            >
+              <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
+            </Button>
+            {openUpload && (
+              <ImportAccountModal
+                open={openUpload}
+                onClose={() => setOpenUpload(false)}
+                onSuccess={fetchListUser}
+              />
+            )} */}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
@@ -202,9 +206,6 @@ const EmployeeAccount = () => {
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách tài khoản nhân viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} tài khoản
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -212,26 +213,26 @@ const EmployeeAccount = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm tài khoản..."
+                  placeholder="Tìm kiếm tài khoản theo username..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               {/* <Select
-                value={selectedRole}
-                onValueChange={(value) => setSelectedRole(value)}
-              >
-                <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
-                  <SelectValue placeholder="Tất cả" />
-                </SelectTrigger>
-                <SelectContent className="bg-white rounded border border-gray-200">
-                  <SelectItem value="all">Tất cả </SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="STUDENT">Student</SelectItem>
-                  <SelectItem value="TEACHER">Teacher</SelectItem>
-                </SelectContent>
-              </Select> */}
+                  value={selectedRole}
+                  onValueChange={(value) => setSelectedRole(value)}
+                >
+                  <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
+                    <SelectValue placeholder="Tất cả" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white rounded border border-gray-200">
+                    <SelectItem value="all">Tất cả </SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
+                  </SelectContent>
+                </Select> */}
             </div>
 
             {/* Table */}
@@ -262,7 +263,9 @@ const EmployeeAccount = () => {
                         colSpan={5}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy tài khoản phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy tài khoản phù hợp"
+                          : "Chưa có tài khoản nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -339,21 +342,23 @@ const EmployeeAccount = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              const params = new URLSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-              setSearchParams(params);
-            }}
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                const params = new URLSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+                setSearchParams(params);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

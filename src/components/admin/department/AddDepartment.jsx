@@ -26,6 +26,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
     name: department?.name || "",
     description: department?.description || "",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (department?.id) {
@@ -44,11 +45,34 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
   }, [department]);
   const handleSubmitAdd = async () => {
     try {
-      if (!form.name || !form.description || !form.id) {
-        toast.error("Vui lòng nhập đầy đủ thông tin");
+      setLoading(true);
+      if (!form.id.trim()) {
+        toast.error("Mã khoa không được để trống");
+        setLoading(false);
         return;
       }
-      setLoading(true);
+      if (!/^[A-Za-z]/.test(form.id)) {
+        toast.error("Mã khoa phải bắt đầu bằng chữ cái");
+        setLoading(false);
+        return;
+      }
+      if (form.id.length > 10) {
+        toast.error("Mã khoa không được quá 10 ký tự");
+        setLoading(false);
+        return;
+      }
+
+      // Validate tên khoa
+      if (!form.name.trim()) {
+        toast.error("Tên khoa không được để trống");
+        setLoading(false);
+        return;
+      }
+      if (!/^[\p{L}\s]+$/u.test(form.name)) {
+        toast.error("Tên khoa chỉ được chứa chữ cái");
+        setLoading(false);
+        return;
+      }
       if (checkEdit) {
         const reqEdit = await handleUpdateDepartment(form);
         console.log(reqEdit);
@@ -97,7 +121,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
               <>
                 <DialogTitle>Thêm khoa mới</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin chi tiết về khoa mới
+                  Nhập thông tin về khoa mới
                 </DialogDescription>
               </>
             )}
@@ -105,7 +129,9 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="departmentId">Mã khoa</Label>
+                <Label htmlFor="departmentId">
+                  Mã khoa <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="departmentId"
                   placeholder="VD: CNTT01"
@@ -116,7 +142,9 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="nameDepartment">Tên khoa</Label>
+                <Label htmlFor="nameDepartment">
+                  Tên khoa <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="nameDepartment"
                   type="text"
@@ -134,17 +162,22 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
+                  className="max-h-[100px] overflow-y-auto"
                 />
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={() => handleSubmitAdd()}
             >
               {checkEdit ? "Cập nhật" : "Thêm khoa"}

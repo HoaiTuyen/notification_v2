@@ -28,6 +28,7 @@ import StudyModuleAdmin from "../components/admin/section/StudyModule";
 import AdminCreateNotification from "../components/admin/notification/CreateNotification";
 import AdminCreateNotificationStudent from "../components/admin/notification/CreateNotificationStudent";
 import SentNotifications from "../components/admin/notification/SentNotification";
+import AdminNotificationDetail from "../components/admin/notification/DetailNotification";
 //student
 import NotificationsPage from "../components/student/notification/NotificationPage";
 import StudentProfilePage from "../components/student/ProfileStudent";
@@ -127,6 +128,10 @@ function AppRoutes() {
               element={<AdminCreateNotificationStudent />}
             />
             <Route path="sent-notification" element={<SentNotifications />} />
+            <Route
+              path="sent-notification/:notificationId"
+              element={<AdminNotificationDetail />}
+            />
           </Route>
           <Route
             path="/giang-vien"

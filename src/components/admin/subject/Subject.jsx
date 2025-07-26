@@ -119,14 +119,17 @@ const Subject = () => {
     fetchListSubject(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           <Button
             variant="outline"
             className="flex items-center cursor-pointer"
-            onClick={() => setOpenUpload(true)}
+            onClick={() => {
+              setSelectSubject(null);
+              setOpenUpload(true);
+            }}
           >
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách môn học
           </Button>
@@ -141,13 +144,14 @@ const Subject = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm môn học
+            <Plus className=" h-4 w-4" /> Thêm môn học
           </Button>
           {openModal && (
             <AddSubject
               open={openModal}
               onClose={() => {
-                setOpenModal(false), setSelectSubject(null);
+                setSelectSubject(null);
+                setOpenModal(false);
               }}
               onSuccess={() => fetchListSubject(pageFromUrl)}
               subject={selectSubject}
@@ -158,10 +162,7 @@ const Subject = () => {
         {/* Card */}
         <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
-            <CardTitle>Danh sách lớp</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.total} môn học
-            </CardDescription>
+            <CardTitle>Danh sách môn học</CardTitle>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -169,7 +170,7 @@ const Subject = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm môn học..."
+                  placeholder="Tìm kiếm môn học theo tên..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -214,7 +215,9 @@ const Subject = () => {
                         colSpan={4}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy môn học phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy môn học phù hợp"
+                          : "Chưa có môn học nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -259,7 +262,7 @@ const Subject = () => {
 
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-red-600"
+                                className="text-red-600 cursor-pointer "
                                 onClick={() => {
                                   setSelectSubject(subject),
                                     setOpenModalDelete(true);
@@ -281,24 +284,32 @@ const Subject = () => {
         {openModalDelete && (
           <DeleteSubject
             onOpen={openModalDelete}
-            onClose={() => setOpenModalDelete(false)}
-            onSuccess={() => fetchListSubject(pageFromUrl)}
+            onClose={() => {
+              setOpenModalDelete(false);
+              setSelectSubject(null);
+            }}
+            onSuccess={() => {
+              fetchListSubject(pageFromUrl);
+              setSelectSubject(null);
+            }}
             subject={selectSubject}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
