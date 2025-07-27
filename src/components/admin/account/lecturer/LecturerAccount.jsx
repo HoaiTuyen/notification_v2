@@ -341,22 +341,23 @@ const LecturerAccount = () => {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              const params = new URLSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-              setSearchParams(params);
-            }}
-          />
-        </div>
+        {pagination.totalElements >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                const params = new URLSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+                setSearchParams(params);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

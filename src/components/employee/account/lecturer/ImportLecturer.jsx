@@ -17,7 +17,7 @@ import {
 } from "../../../../controller/AccountController";
 import { toast } from "react-toastify";
 import PreviewLecturer from "./PreviewLecturer";
-
+import { useLoading } from "../../../../context/LoadingProvider";
 import * as XLSX from "xlsx";
 
 const generateSampleExcel = () => {
@@ -54,7 +54,7 @@ const generateSampleExcel = () => {
       "exemple@gamil.com",
       "Nữ",
       "13/01/200",
-      "CHUYỂN_CÔNG_TÁC",
+      "ĐANG_CÔNG_TÁC",
       "DH52113550",
       "DH52113550",
     ],
@@ -66,10 +66,10 @@ const generateSampleExcel = () => {
   XLSX.writeFile(wb, "file_mau.xlsx");
 };
 const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
+  const { setLoading } = useLoading();
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const inputRef = useRef(null);
@@ -138,81 +138,84 @@ const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-      <Spin spinning={loading} className="fixed inset-0 z-50 bg-black/50">
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Nhập danh sách tài khoản</DialogTitle>
-            <DialogDescription>
-              Nhập danh sách tài khoản từ file CSV hoặc Excel
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-8">
-              <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="text-sm font-medium mb-1"></p>
-              <Button
-                onClick={() => inputRef.current?.click()}
-                disabled={loading}
-              >
-                Chọn file
-              </Button>
-              <input
-                type="file"
-                accept=".csv, .xlsx, .xls"
-                ref={inputRef}
-                style={{ display: "none" }}
-                onChange={handleFileSelect}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                Chỉ hỗ trợ định dạng: Excel (.xlsx)
-              </p>
-              {file && (
-                <div className="mt-2 text-sm text-center text-muted-foreground">
-                  Đã chọn: <strong>{file.name}</strong>
-                </div>
-              )}
-              <div className="mt-4">
-                <Button onClick={handleReview} disabled={!file || loading}>
-                  {loading ? "Đang xử lý..." : "Xem trước dữ liệu"}
-                </Button>
-              </div>
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground">
-                Lưu ý: File nhập vào cần có các cột: STT, Mã, Tên, email , trạng
-                thái, giới tính, tên đăng nhập, mật khẩu
-              </p>
-            </div>
-            <div className="mt-4">
-              <Button
-                onClick={() => generateSampleExcel()}
-                className="bg-green-500 hover:bg-green-600"
-              >
-                Tải file mẫu
-              </Button>
-            </div>
-            {showPreviewModal && (
-              <PreviewLecturer
-                open={showPreviewModal}
-                onClose={() => setShowPreviewModal(false)}
-                data={previewData}
-              />
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
-              Hủy
-            </Button>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Nhập danh sách tài khoản của giảng viên</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-8">
+            <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+            <p className="text-sm font-medium mb-1"></p>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
-              disabled={errors.length > 0 || previewData.length === 0}
-              onClick={() => handleCreateLecturer(previewData)}
+              className="cursor-pointer"
+              onClick={() => inputRef.current?.click()}
             >
-              Nhập danh sách
+              Chọn file
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Spin>
+            <input
+              type="file"
+              accept=".xlsx"
+              ref={inputRef}
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Chỉ hỗ trợ định dạng: Excel (.xlsx)
+            </p>
+            {file && (
+              <div className="mt-2 text-sm text-center text-muted-foreground">
+                Đã chọn: <strong>{file.name}</strong>
+              </div>
+            )}
+            <div className="mt-4">
+              <Button
+                className="cursor-pointer"
+                onClick={handleReview}
+                disabled={!file}
+              >
+                Xem trước dữ liệu
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground">
+              Lưu ý: File nhập vào cần có các cột: STT, Mã GV, Họ, Tên, Email ,
+              Trạng thái, Giới tính, Tên đăng nhập, Mật khẩu
+            </p>
+          </div>
+          <div className="mt-4">
+            <Button
+              onClick={() => generateSampleExcel()}
+              className="bg-green-500 hover:bg-green-600 cursor-pointer"
+            >
+              Tải file mẫu
+            </Button>
+          </div>
+          {showPreviewModal && (
+            <PreviewLecturer
+              open={showPreviewModal}
+              onClose={() => setShowPreviewModal(false)}
+              data={previewData}
+            />
+          )}
+        </div>
+        <DialogFooter>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => onClose()}
+          >
+            Hủy
+          </Button>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            disabled={errors.length > 0 || previewData.length === 0}
+            onClick={() => handleCreateLecturer(previewData)}
+          >
+            Nhập danh sách
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 };

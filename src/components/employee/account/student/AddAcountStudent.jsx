@@ -80,6 +80,22 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
   };
 
   const handleSubmit = async () => {
+    if (!form.username?.trim()) {
+      toast.error("Vui lòng nhập username");
+      return;
+    }
+
+    if (!checkEdit) {
+      if (!form.password?.trim()) {
+        toast.error("Vui lòng nhập mật khẩu");
+        return;
+      }
+
+      if (form.password.length < 6) {
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+      }
+    }
     try {
       setLoading(true);
       let accountId = form.id;
@@ -193,7 +209,7 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
               )}
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2 ">
+              {/* <div className="grid gap-2 ">
                 <Label htmlFor="image">Ảnh</Label>
                 <div className="flex items-center gap-4">
                   <Input
@@ -215,7 +231,7 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
                     </Avatar>
                   )}
                 </div>
-              </div>
+              </div> */}
               <div className="grid gap-2">
                 <Label htmlFor="">Trạng thái</Label>
                 <Select

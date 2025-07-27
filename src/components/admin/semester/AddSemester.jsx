@@ -158,6 +158,12 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             </>
           )}
           <div className="grid gap-2">
+            <p className="text-xs text-red-500 font-medium mb-1">
+              Hướng dẫn đặt mã học kỳ: gồm 3 chữ số. Ví dụ:
+              <br />• <strong>151</strong>: năm học 2015–2016 học kỳ 1<br />•{" "}
+              <strong>152</strong>: năm học 2015–2016 học kỳ 2<br />•{" "}
+              <strong>153</strong>: năm học 2015–2016 học kỳ hè
+            </p>
             <Label htmlFor="semesterId">
               Mã học kỳ <span className="text-red-500">*</span>
             </Label>

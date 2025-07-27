@@ -167,7 +167,7 @@ const EmployeeSentNotifications = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white p-0 ">
+      <div className="h-full w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
           <div className="flex items-center justify-between">
             <div>
@@ -182,7 +182,7 @@ const EmployeeSentNotifications = () => {
               onClick={() => setOpenReport(true)}
             >
               <FileText className="mr-2 h-4 w-4" />
-              Báo cáo
+              Xuất báo cáo
             </Button>
             {openReport && (
               <Reports open={openReport} onClose={() => setOpenReport(false)} />
@@ -239,9 +239,6 @@ const EmployeeSentNotifications = () => {
           <Card className="overflow-x-auto max-h-[800px]">
             <CardHeader>
               <CardTitle>Danh sách thông báo</CardTitle>
-              <CardDescription>
-                Hiển thị {pagination.totalElements} thông báo
-              </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto max-h-[400px]">
               <div className="space-y-4 cursor-pointer">
@@ -284,7 +281,7 @@ const EmployeeSentNotifications = () => {
                                 <Calendar className="h-4 w-4" />
                                 <span>
                                   {dayjs(notification.createdAt).format(
-                                    "DD/MM/YYYY HH:mm"
+                                    "DD/MM/YYYY"
                                   )}
                                 </span>
                               </div>

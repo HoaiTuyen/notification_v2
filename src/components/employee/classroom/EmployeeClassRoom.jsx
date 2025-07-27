@@ -119,7 +119,7 @@ const EmployeeClassName = () => {
   }, [searchFromUrl, pageFromUrl]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
@@ -141,7 +141,7 @@ const EmployeeClassName = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm lớp
+            <Plus className="h-4 w-4" /> Thêm lớp
           </Button>
           {openModal && (
             <AddClass
@@ -159,7 +159,6 @@ const EmployeeClassName = () => {
         <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách lớp</CardTitle>
-            <CardDescription>Tổng số: {pagination.total} lớp</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -167,7 +166,7 @@ const EmployeeClassName = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm lớp..."
+                  placeholder="Tìm kiếm lớp theo tên lớp..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -211,7 +210,9 @@ const EmployeeClassName = () => {
                         colSpan={6}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy lớp học phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy lớp học phù hợp"
+                          : "Chưa có lớp học nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -222,25 +223,30 @@ const EmployeeClassName = () => {
                             index +
                             1}
                         </TableCell>
-                        <TableCell
-                          className="max-w-[180px] truncate"
-                          title={item.name}
-                        >
-                          <div className="flex items-center">{item.name}</div>
+                        <TableCell title={item.name}>
+                          <div className="max-w-[180px] truncate">
+                            {item.name}
+                          </div>
                         </TableCell>
-                        <TableCell className="">{item?.description}</TableCell>
-                        <TableCell className="">
-                          {item.teacherName === null
-                            ? "Trống"
-                            : item.teacherName}
-                          {/* {getTeacherName(item.teacherName)} */}
+                        <TableCell title={item.description}>
+                          <div className="max-w-[180px] truncate">
+                            {item?.description}
+                          </div>
+                        </TableCell>
+                        <TableCell title={item.teacherName}>
+                          <div className="max-w-[180px] truncate">
+                            {item.teacherName === null
+                              ? "Trống"
+                              : item.teacherName}
+                          </div>
                         </TableCell>
 
-                        <TableCell className="">
-                          {item.departmentName === null
-                            ? "Trống"
-                            : item.departmentName}
-                          {/* {item.departmentName} */}
+                        <TableCell title={item.departmentName}>
+                          <div className="max-w-[180px] truncate">
+                            {item.departmentName === null
+                              ? "Trống"
+                              : item.departmentName}
+                          </div>
                         </TableCell>
 
                         <TableCell className="text-center align-middle">
@@ -306,22 +312,27 @@ const EmployeeClassName = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             classRoom={selectClass}
-            onSuccess={() => fetchListClass(pageFromUrl)}
-          />
-        )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
+            onSuccess={() => {
+              selectClass(null);
+              fetchListClass(pageFromUrl);
             }}
           />
-        </div>
+        )}
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
       <Outlet />
     </div>

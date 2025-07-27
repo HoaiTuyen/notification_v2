@@ -116,6 +116,21 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     if (!validateForm(form)) {
       return;
     }
+    if (!checkEdit) {
+      if (!form.username?.trim()) {
+        toast.error("Vui lòng nhập username");
+        return;
+      }
+      if (!form.password?.trim()) {
+        toast.error("Vui lòng nhập mật khẩu");
+        return;
+      }
+
+      if (form.password.length < 6) {
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+      }
+    }
     try {
       setLoading(true);
 
@@ -166,13 +181,15 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
             <DialogDescription>
               {checkEdit
                 ? "Cập nhật thông tin sinh viên"
-                : "Nhập thông tin chi tiết về sinh viên mới"}
+                : "Nhập thông tin sinh viên mới"}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="studentId">Mã sinh viên</Label>
+                <Label htmlFor="studentId">
+                  Mã sinh viên <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="studentId"
                   placeholder="VD: SV001"
@@ -181,7 +198,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+                <Label htmlFor="dateOfBirth">
+                  Ngày sinh <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
@@ -198,7 +217,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="lastName">Họ</Label>
+                <Label htmlFor="lastName">
+                  Họ <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="lastName"
                   placeholder="Nhập họ sinh viên"
@@ -209,7 +230,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="firstName">Tên</Label>
+                <Label htmlFor="firstName">
+                  Tên <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="firstName"
                   placeholder="Nhập tên sinh viên"
@@ -222,7 +245,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">
+                  Email <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -232,7 +257,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 />
               </div>
               <div className="grid gap-2 justify-center">
-                <Label htmlFor="gender">Giới tính</Label>
+                <Label htmlFor="gender">
+                  Giới tính <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={form.gender}
                   onValueChange={(value) => setForm({ ...form, gender: value })}
@@ -248,7 +275,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="status">Trạng thái</Label>
+                <Label htmlFor="status">
+                  Trạng thái <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={form.status}
                   onValueChange={(value) => setForm({ ...form, status: value })}
@@ -267,7 +296,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
             </div>
             <div className={checkEdit ? "hidden" : "grid grid-cols-2 gap-4"}>
               <div className="grid gap-2">
-                <Label htmlFor="lastName">Username</Label>
+                <Label htmlFor="lastName">
+                  Username <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="lastName"
                   placeholder="Nhập username"
@@ -278,9 +309,12 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">
+                  Password <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="password"
+                  type="password"
                   placeholder="Nhập mật khẩu"
                   value={form.password}
                   onChange={(e) =>

@@ -186,7 +186,7 @@ const HomePageEmployee = () => {
     );
   }
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">
         <Card className="">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">

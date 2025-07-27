@@ -193,6 +193,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchUserDetail();
   }, []);
+  useEffect(() => {
+    const path = location.pathname;
+    const matched = path.split("/")[2]; // Lấy phần sau /admin/
+    if (matched) {
+      setSelectedTab(matched);
+    }
+  }, [location.pathname]);
   const SidebarMenu = (
     <Menu
       mode="inline"
@@ -256,20 +263,10 @@ const AdminDashboard = () => {
                 <Menu
                   items={[
                     {
-                      key: "userInfo",
-                      label: (
-                        <div style={{ padding: "", textAlign: "start" }}>
-                          <div style={{ fontWeight: "bold" }}>
-                            {userInfo.firstName || "Anonymous"}
-                            {userInfo.lastName}
-                          </div>
-                          <div style={{ fontSize: "12px", color: "#888" }}>
-                            {userInfo.email || "exp@gmai  l.com"}
-                          </div>
-                        </div>
-                      ),
+                      key: "setting",
+                      label: "Cài đặt",
+                      icon: <SettingOutlined />,
                     },
-
                     {
                       key: "logout",
                       label: "Đăng xuất",
@@ -279,6 +276,7 @@ const AdminDashboard = () => {
                   ]}
                   onClick={(e) => {
                     if (e.key === "logout") handleLogoutUser();
+                    if (e.key === "setting") navigate("/admin/setting");
                   }}
                 />
               }

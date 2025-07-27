@@ -66,15 +66,12 @@ const EmployeeCreateNotification = () => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const hanndleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title) {
-      toast.error("Vui lòng nhập tiêu đề và nội dung");
-      return;
-    }
+
     // if (!formData.title) {
     //   toast.error("Vui lòng nhập tiêu đề và nội dung");
     //   return;
     // }
-    if (!validateForm) return;
+    if (!validateForm()) return;
 
     // Kiểm tra file + tên hiển thị
     // const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
@@ -198,11 +195,16 @@ const EmployeeCreateNotification = () => {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     }
 
-    if (!formData.notificationType) {
-      newErrors.notificationType = "Vui lòng chọn loại thông báo";
-    }
+    fileDisplayNames.forEach((name, index) => {
+      if (files[index] && !name.trim()) {
+        newErrors[`fileDisplayName-${index}`] =
+          "Vui lòng nhập tên hiển thị cho file";
+      }
+    });
 
     setErrors(newErrors);
+
+    // Trả về true nếu không có lỗi
     return Object.keys(newErrors).length === 0;
   };
   const fetchListDepartment = async () => {
@@ -225,7 +227,7 @@ const EmployeeCreateNotification = () => {
     fetchAcademicYear();
   }, []);
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
@@ -237,13 +239,17 @@ const EmployeeCreateNotification = () => {
                     Nội dung thông báo
                   </CardTitle>
                   <CardDescription className="text-red-400">
-                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa
+                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa,
+                    từng niên khoá
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Tiêu đề thông báo *</Label>
+                      <Label htmlFor="title">
+                        Tiêu đề thông báo{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="title"
                         placeholder="Nhập tiêu đề thông báo..."
@@ -259,7 +265,7 @@ const EmployeeCreateNotification = () => {
                     </div>
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="type">Loại thông báo *</Label>
+                        <Label htmlFor="type">Loại thông báo</Label>
                         <Select
                           value={formData.notificationType}
                           onValueChange={(value) =>
@@ -288,7 +294,7 @@ const EmployeeCreateNotification = () => {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="type">Khoa *</Label>
+                        <Label htmlFor="type">Khoa </Label>
                         <Select
                           value={formData.departmentId}
                           onValueChange={(value) =>
@@ -320,7 +326,7 @@ const EmployeeCreateNotification = () => {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="type">Niên khoá *</Label>
+                        <Label htmlFor="type">Niên khoá</Label>
                         <Select
                           value={formData.academicYear}
                           onValueChange={(value) =>
@@ -396,89 +402,61 @@ const EmployeeCreateNotification = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">Nội dung thông báo *</Label>
+                      <Label htmlFor="content">Nội dung</Label>
                       <Textarea
                         id="content"
-                        placeholder="Nhập nội dung chi tiết thông báo..."
+                        placeholder="Nhập nội dung chi tiết..."
                         value={formData.content}
                         onChange={(e) =>
                           handleInputChange("content", e.target.value)
                         }
                         rows={6}
-                        className={errors.content ? "border-red-500" : ""}
                       />
-                      {errors.content && (
-                        <p className="text-sm text-red-600">{errors.content}</p>
-                      )}
                     </div>
 
-                    {/* {fileDisplayNames.map((name, index) => (
-                      <div key={index} className="flex items-center gap-2 mb-2">
-                        <Input
-                          type="text"
-                          placeholder="Tên hiển thị file (VD: Đề cương gì đó...)"
-                          value={name}
-                          onChange={(e) => {
-                            const newNames = [...fileDisplayNames];
-                            newNames[index] = e.target.value;
-                            setFileDisplayNames(newNames);
-                          }}
-                        />
-                        <Input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => {
-                            const newFiles = [...files];
-                            newFiles[index] = e.target.files[0];
-                            setFiles(newFiles);
-                          }}
-                        />
-                        {fileDisplayNames.length > 1 && (
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              const newNames = [...fileDisplayNames];
-                              const newFiles = [...files];
-                              newNames.splice(index, 1);
-                              newFiles.splice(index, 1);
-                              setFileDisplayNames(newNames);
-                              setFiles(newFiles);
-                            }}
-                          >
-                            <X className="w-4 h-4 text-red-500" />
-                          </Button>
-                        )}
-                      </div>
-                    ))} */}
-                    {/* <span className="text-sm text-red-400 pb-2">
-                      Cho phép gửi file đính kèm đuổi .pdf (15MB)
-                    </span> */}
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}
-                        className="flex items-center gap-2 mb-2"
+                        className="flex items-start gap-2 mb-2"
                       >
-                        <Input
-                          type="text"
-                          placeholder="Tên hiển thị file..."
-                          value={name}
-                          onChange={(e) => {
-                            const newNames = [...fileDisplayNames];
-                            newNames[index] = e.target.value;
-                            setFileDisplayNames(newNames);
-                          }}
-                        />
-                        <Input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => {
-                            const newFiles = [...files];
-                            newFiles[index] = e.target.files[0];
-                            setFiles(newFiles);
-                          }}
-                        />
+                        {/* Cột input tên + lỗi */}
+                        <div className="flex flex-col flex-1">
+                          <Input
+                            type="text"
+                            placeholder="Tên hiển thị file."
+                            value={name}
+                            onChange={(e) => {
+                              const newNames = [...fileDisplayNames];
+                              newNames[index] = e.target.value;
+                              setFileDisplayNames(newNames);
+                            }}
+                            className={
+                              errors[`fileDisplayName-${index}`]
+                                ? "border-red-500"
+                                : ""
+                            }
+                          />
+                          {errors[`fileDisplayName-${index}`] && (
+                            <p className="text-sm text-red-600 mt-1">
+                              {errors[`fileDisplayName-${index}`]}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Cột input file */}
+                        <div className="flex flex-col">
+                          <Input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={(e) => {
+                              const newFiles = [...files];
+                              newFiles[index] = e.target.files[0];
+                              setFiles(newFiles);
+                            }}
+                          />
+                        </div>
+
+                        {/* Nút xoá */}
                         {fileDisplayNames.length > 1 && (
                           <Button
                             type="button"

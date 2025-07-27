@@ -144,9 +144,6 @@ const AdminCreateNotificationStudent = () => {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     }
 
-    if (!formData.content.trim()) {
-      newErrors.content = "Vui lòng nhập nội dung thông báo";
-    }
     if (formData.studentIds.length === 0) {
       newErrors.studentIds = "Vui lòng chọn ít nhất 1 sinh viên";
     }
@@ -311,10 +308,7 @@ const AdminCreateNotificationStudent = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">
-                        Nội dung thông báo{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
+                      <Label htmlFor="content">Nội dung</Label>
                       <Textarea
                         id="content"
                         placeholder="Nhập nội dung chi tiết thông báo..."
@@ -323,11 +317,7 @@ const AdminCreateNotificationStudent = () => {
                           handleInputChange("content", e.target.value)
                         }
                         rows={6}
-                        className={errors.content ? "border-red-500" : ""}
                       />
-                      {errors.content && (
-                        <p className="text-sm text-red-600">{errors.content}</p>
-                      )}
                     </div>
 
                     {/* {fileDisplayNames.map((name, index) => (

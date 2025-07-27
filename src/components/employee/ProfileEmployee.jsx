@@ -172,16 +172,13 @@ const EmployeeProfilePage = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white p-0 ">
+      <div className="h-full w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-10">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-3xl font-bold tracking-tight">
                 Thông tin cá nhân
               </h2>
-              <p className="text-muted-foreground">
-                Quản lý thông tin cá nhân và học tập của bạn
-              </p>
             </div>
             <Button
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -219,9 +216,9 @@ const EmployeeProfilePage = () => {
                   <Avatar className="h-32 w-32">
                     <AvatarImage
                       src={tempImage || userImage}
-                      alt={profileData.firstName}
+                      alt={profileData.firstName + " " + profileData.lastName}
                     />
-                    <AvatarFallback>{profileData.lastName}</AvatarFallback>
+                    <AvatarFallback>No Image</AvatarFallback>
                   </Avatar>
                   {isEditing && (
                     <>

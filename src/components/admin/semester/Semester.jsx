@@ -124,7 +124,7 @@ const Semester = () => {
     fetchListSemester(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">

@@ -18,11 +18,11 @@ const DeleteStudent = ({ open, onClose, student, onSuccess }) => {
     setLoading(true);
     const response = await handleDeleteStudent(student.id);
     if (response?.status === 204) {
-      toast.success("Xóa khoa thành công");
+      toast.success(response?.message || "Xóa sinh viên thành công");
       onSuccess();
       onClose();
     } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+      toast.error(response?.message || "Xóa sinh viên thất bại");
     }
     setLoading(false);
   };

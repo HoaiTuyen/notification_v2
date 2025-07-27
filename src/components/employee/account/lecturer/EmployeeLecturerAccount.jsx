@@ -161,7 +161,7 @@ const EmployeeLecturerAccount = () => {
     fetchListUser(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full  w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           <Button
@@ -169,7 +169,8 @@ const EmployeeLecturerAccount = () => {
             className="flex items-center cursor-pointer"
             onClick={() => setOpenUpload(true)}
           >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
+            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản của
+            giảng viên
           </Button>
           {openUpload && (
             <ImportLecturerModal
@@ -178,7 +179,7 @@ const EmployeeLecturerAccount = () => {
               onSuccess={fetchListUser}
             />
           )}
-          <Button
+          {/* <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
               setOpenModal(true);
@@ -186,7 +187,7 @@ const EmployeeLecturerAccount = () => {
             }}
           >
             <Plus className="h-4 w-4" /> Tạo tài khoản
-          </Button>
+          </Button> */}
           {openModal && (
             <AddAccountLecturer
               open={openModal}
@@ -204,9 +205,6 @@ const EmployeeLecturerAccount = () => {
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách tài khoản giảng viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} tài khoản
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -214,7 +212,7 @@ const EmployeeLecturerAccount = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm tài khoản..."
+                  placeholder="Tìm kiếm tài khoản theo username..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -338,20 +336,22 @@ const EmployeeLecturerAccount = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.totalElements >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

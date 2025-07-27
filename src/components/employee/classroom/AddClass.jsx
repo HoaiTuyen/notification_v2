@@ -75,6 +75,39 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     }
   }, [open, classRoom]);
   const handleSubmit = async () => {
+    const isEmpty = (val) => !val || !val.trim();
+
+    // Validate mã lớp
+    if (isEmpty(form.id)) {
+      toast.error("Mã lớp không được để trống");
+      return;
+    }
+    if (form.id.length < 5) {
+      toast.error("Mã lớp ít nhất 5 ký tự");
+      return;
+    }
+    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(form.id.trim())) {
+      toast.error(
+        "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái hoặc số"
+      );
+      return;
+    }
+
+    // Validate tên lớp
+    if (isEmpty(form.name)) {
+      toast.error("Tên lớp không được để trống");
+      return;
+    }
+    if (form.name.length < 5) {
+      toast.error("Tên lớp ít nhất 5 ký tự");
+      return;
+    }
+    if (!/^[A-Za-z][A-Za-z0-9 ]*$/.test(form.name.trim())) {
+      toast.error(
+        "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc khoảng trắng"
+      );
+      return;
+    }
     if (checkEdit) {
       setLoading(true);
       const resEdit = await handleUpdateClass(form);
@@ -121,15 +154,15 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
           ) : (
             <DialogHeader>
               <DialogTitle>Thêm lớp mới</DialogTitle>
-              <DialogDescription>
-                Nhập thông tin chi tiết về lớp mới
-              </DialogDescription>
+              <DialogDescription>Nhập thông tin về lớp mới</DialogDescription>
             </DialogHeader>
           )}
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="classId">Mã lớp</Label>
+                <Label htmlFor="classId">
+                  Mã lớp <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="classId"
                   placeholder="VD: CNTT01"
@@ -139,7 +172,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="nameClass">Tên lớp</Label>
+                <Label htmlFor="nameClass">
+                  Tên lớp <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="nameClass"
                   type="text"
@@ -156,6 +191,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
+                  className="max-h-[150px] overflow-y-auto"
                 />
               </div>
             </div>
@@ -212,11 +248,15 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="cursor-pointer bg-blue-600 hover:bg-blue-700"
               onClick={() => handleSubmit()}
             >
               {checkEdit ? "Cập nhật" : "Thêm lớp"}

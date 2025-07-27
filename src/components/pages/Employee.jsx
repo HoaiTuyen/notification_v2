@@ -79,7 +79,7 @@ const EmployeeDashboard = () => {
     {
       key: "study-module",
       icon: <BookOpen size={16} />,
-      label: "Học phần",
+      label: "Quản lý lớp học phần",
     },
     {
       key: "employee-account",
@@ -199,7 +199,14 @@ const EmployeeDashboard = () => {
     fetchUserDetail();
   }, []);
   return (
-    <Layout style={{ minHeight: "150vh", width: "100vw" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Header
         style={{
           backgroundColor: "#fff",
@@ -297,10 +304,10 @@ const EmployeeDashboard = () => {
         {/* NỘI DUNG */}
         <Content
           style={{
-            padding: 0,
-            // height: "100%",
-            overflow: "auto",
+            height: "100%",
+            overflowY: "auto",
             backgroundColor: "#fff",
+            padding: 0,
           }}
         >
           {/* {selectedTab === "notification" && <CreateNotification />} */}

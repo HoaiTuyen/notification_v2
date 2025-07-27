@@ -18,11 +18,11 @@ const DeleteTeacher = ({ onOpen, onClose, teacher, onSuccess }) => {
     setLoading(true);
     const response = await handleDeleteTeacher(teacher.id);
     if (response?.status === 204) {
-      toast.success("Xóa khoa thành công");
+      toast.success(response?.message || "Xóa giảng viên thành công");
       onSuccess();
       onClose();
     } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+      toast.error(response?.message || "Xóa giảng viên thất bại");
     }
     setLoading(false);
   };
@@ -47,10 +47,18 @@ const DeleteTeacher = ({ onOpen, onClose, teacher, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            className="cursor-pointer"
+            variant="destructive"
+            onClick={handleDelete}
+          >
             Xóa
           </Button>
         </DialogFooter>

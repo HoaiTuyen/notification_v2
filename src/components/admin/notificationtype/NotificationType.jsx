@@ -116,7 +116,7 @@ const NotificationType = () => {
     fetchNotificationType(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
@@ -166,7 +166,7 @@ const NotificationType = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm loại thông báo theo tên..."
+                  placeholder="Tìm kiếm loại thông báo theo tên loại thông báo..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}

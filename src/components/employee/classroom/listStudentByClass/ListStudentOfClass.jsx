@@ -142,12 +142,15 @@ const ListStudentOfClass = () => {
               variant="outline"
               size="sm"
               onClick={() => navigate(backUrl)}
+              className="cursor-pointer"
             >
               <div className="flex items-center">
                 <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
               </div>
             </Button>
-            <h2 className="text-2xl font-bold">Danh sách sinh viên</h2>
+            <h2 className="text-2xl font-bold">
+              Danh sách sinh viên thuộc lớp
+            </h2>
           </div>
           <div>
             {[...new Set(studentByClass.map((item) => item.className))].map(
@@ -165,18 +168,16 @@ const ListStudentOfClass = () => {
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <CardTitle>Danh sách sinh viên đăng ký</CardTitle>
-                <CardDescription>
-                  Tổng số: {pagination.totalElements} sinh viên
-                </CardDescription>
+                <CardTitle>Danh sách sinh viên đăng ký thuộc lớp</CardTitle>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
-                  className="flex items-center"
+                  className="flex items-center cursor-pointer"
                   onClick={() => setOpenUpload(true)}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách sinh viên
+                  thuộc lớp
                 </Button>
                 {openUpload && (
                   <ImportStudentOfClassModal
@@ -209,6 +210,7 @@ const ListStudentOfClass = () => {
                     <TableHead className="w-1/6">Mã SV</TableHead>
                     <TableHead className="w-1/6">Họ và tên</TableHead>
                     <TableHead className="w-1/6">Email</TableHead>
+                    <TableHead className="w-1/6">Lớp</TableHead>
                     <TableHead className="w-1/6 text-center">
                       Giới tính
                     </TableHead>
@@ -233,10 +235,12 @@ const ListStudentOfClass = () => {
                   ) : studentByClass.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className="text-center h-24 text-muted-foreground"
                       >
-                        Không có sinh viên nào trong lớp học này
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy sinh viên phù hợp"
+                          : "Chưa có sinh viên trong lớp học này"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -249,6 +253,7 @@ const ListStudentOfClass = () => {
                           {student.firstName} {student.lastName}
                         </TableCell>
                         <TableCell>{student.email}</TableCell>
+                        <TableCell>{student.className}</TableCell>
                         <TableCell className="text-center">
                           {renderGender(student.gender)}
                         </TableCell>
@@ -277,20 +282,21 @@ const ListStudentOfClass = () => {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) =>
+                setPagination((prev) => ({
+                  ...prev,
+                  current: page,
+                }))
+              }
+            />
+          </div>
+        )}
       </div>
     </div>
   );

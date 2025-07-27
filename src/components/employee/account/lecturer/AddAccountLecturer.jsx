@@ -193,7 +193,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
               )}
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2 ">
+              {/* <div className="grid gap-2 ">
                 <Label htmlFor="image">Ảnh</Label>
                 <div className="flex items-center gap-4">
                   <Input
@@ -215,7 +215,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                     </Avatar>
                   )}
                 </div>
-              </div>
+              </div> */}
               <div className="grid gap-2">
                 <Label htmlFor="">Trạng thái</Label>
                 <Select
@@ -236,7 +236,6 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                 <Select
                   value={form.role}
                   onValueChange={(value) => setForm({ ...form, role: value })}
-                  disabled={true}
                 >
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Chọn role" />

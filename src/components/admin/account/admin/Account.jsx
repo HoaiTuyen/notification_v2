@@ -340,7 +340,7 @@ const Account = () => {
         </Card>
 
         {pagination.totalElements >= 10 && (
-          <div className="flex justify-center mt-4">
+          <div classNa me="flex justify-center mt-4">
             <Pagination
               current={pagination.current}
               pageSize={pagination.pageSize}

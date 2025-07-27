@@ -138,16 +138,16 @@ const LecturerEmployee = () => {
     fetchListTeacher(pageFromUrl);
   }, [searchFromUrl, pageFromUrl, selectStatus]);
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
           <Button
             variant="outline"
-            className="flex items-center"
+            className="flex items-center cursor-pointer"
             onClick={() => setOpenModalUpdate(true)}
           >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách giảng viên
           </Button>
           {openModalUpdate && (
             <ImportTeacherModal
@@ -157,7 +157,7 @@ const LecturerEmployee = () => {
             />
           )}
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center cursor-pointer"
             onClick={() => setShowModal(true)}
           >
             <Plus className="h-4 w-4" /> Thêm giảng viên
@@ -179,9 +179,6 @@ const LecturerEmployee = () => {
         <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách giảng viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.total} giảng viên
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -189,7 +186,7 @@ const LecturerEmployee = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm sinh viên..."
+                  placeholder="Tìm kiếm giảng viên theo tên..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -265,7 +262,9 @@ const LecturerEmployee = () => {
                         colSpan={7}
                         className="text-center justify-center py-6 text-gray-500"
                       >
-                        Không tìm thấy giảng viên phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy giảng viên phù hợp"
+                          : "Chưa có giảng viên nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -277,29 +276,25 @@ const LecturerEmployee = () => {
                         <TableCell className="font-medium">
                           {teacher.id}
                         </TableCell>
-                        <TableCell
-                          className="max-w-[150px] truncate"
-                          title={teacher.firstName}
-                        >
-                          <div className="flex items-center gap-2">
-                            {/* <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/placeholder.svg" />
-                                    <AvatarFallback>
-                                    {student.name
-                                        .split(" ")
-                                        .map((w) => w[0])
-                                        .join("")
-                                        .toUpperCase()
-                                        .slice(0, 2)}
-                                    </AvatarFallback>
-                                </Avatar> */}
+                        <TableCell title={teacher.firstName}>
+                          <div className="max-w-[150px] truncate ">
                             {teacher.firstName} {teacher.lastName}
                           </div>
                         </TableCell>
-                        <TableCell>{teacher.email}</TableCell>
-                        <TableCell>{teacher.departmentName}</TableCell>
+                        <TableCell title={teacher.email}>
+                          <div className="max-w-[150px] truncate ">
+                            {teacher.email}
+                          </div>
+                        </TableCell>
+                        <TableCell title={teacher.departmentName}>
+                          <div className="max-w-[150px] truncate ">
+                            {teacher.departmentName || "Trống"}
+                          </div>
+                        </TableCell>
 
-                        <TableCell>{renderGender(teacher.gender)}</TableCell>
+                        <TableCell title={teacher.gender}>
+                          {renderGender(teacher.gender)}
+                        </TableCell>
                         {teacher.status == "ĐANG_CÔNG_TÁC" ? (
                           <TableCell>Đang công tác</TableCell>
                         ) : (
@@ -316,7 +311,7 @@ const LecturerEmployee = () => {
                                 <Ellipsis className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent side="left">
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -351,23 +346,28 @@ const LecturerEmployee = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             teacher={selectTeacher}
-            onSuccess={() => fetchListTeacher(pageFromUrl)}
-          />
-        )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
+            onSuccess={() => {
+              fetchListTeacher(pageFromUrl);
+              setOpenModalDelete(false);
             }}
           />
-        </div>
+        )}
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -64,11 +64,7 @@ const EmployeeCreateNotificationStudent = () => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const hanndleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title) {
-      toast.error("Vui lòng nhập tiêu đề và nội dung");
-      return;
-    }
-    if (!validateForm) return;
+    if (!validateForm()) return;
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
@@ -146,7 +142,19 @@ const EmployeeCreateNotificationStudent = () => {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     }
 
+    if (formData.studentIds.length === 0) {
+      newErrors.studentIds = "Vui lòng chọn ít nhất 1 sinh viên";
+    }
+    fileDisplayNames.forEach((name, index) => {
+      if (files[index] && !name.trim()) {
+        newErrors[`fileDisplayName-${index}`] =
+          "Vui lòng nhập tên hiển thị cho file";
+      }
+    });
+
     setErrors(newErrors);
+
+    // Trả về true nếu không có lỗi
     return Object.keys(newErrors).length === 0;
   };
 
@@ -200,7 +208,7 @@ const EmployeeCreateNotificationStudent = () => {
     isValidStudentCode(formData.studentIds[0]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
@@ -218,7 +226,10 @@ const EmployeeCreateNotificationStudent = () => {
                 <CardContent>
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Tiêu đề thông báo *</Label>
+                      <Label htmlFor="title">
+                        Tiêu đề thông báo{" "}
+                        <span className="text-red-500">*</span>{" "}
+                      </Label>
                       <Input
                         id="title"
                         placeholder="Nhập tiêu đề thông báo..."
@@ -235,7 +246,8 @@ const EmployeeCreateNotificationStudent = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="studentIds">
-                          Mã sinh viên (nếu gửi cho 1 sinh viên)
+                          Mã sinh viên (nếu gửi cho 1 sinh viên){" "}
+                          <span className="text-red-500">*</span>{" "}
                         </Label>
                         {/* <Input
                           id="studentId"
@@ -280,55 +292,77 @@ const EmployeeCreateNotificationStudent = () => {
                             Gửi email đến sinh viên có mã trên
                           </label>
                         </div>
-                        {formData.studentId && !isSingleValidStudent && (
+                        {formData.studentIds.length > 0 &&
+                          !isSingleValidStudent && (
+                            <p className="text-sm text-red-600">
+                              Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
+                            </p>
+                          )}
+                        {errors.studentIds && (
                           <p className="text-sm text-red-600">
-                            Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
+                            {errors.studentIds}
                           </p>
                         )}
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">Nội dung thông báo *</Label>
+                      <Label htmlFor="content">Nội dung</Label>
                       <Textarea
                         id="content"
-                        placeholder="Nhập nội dung chi tiết thông báo..."
+                        placeholder="Nhập nội dung chi tiết..."
                         value={formData.content}
                         onChange={(e) =>
                           handleInputChange("content", e.target.value)
                         }
                         rows={6}
-                        className={errors.content ? "border-red-500" : ""}
+                        className="max-h-[150px] overflow-y-auto"
                       />
-                      {errors.content && (
-                        <p className="text-sm text-red-600">{errors.content}</p>
-                      )}
                     </div>
 
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}
-                        className="flex items-center gap-2 mb-2"
+                        className="flex items-start gap-2 mb-2"
                       >
-                        <Input
-                          type="text"
-                          placeholder="Tên hiển thị file..."
-                          value={name}
-                          onChange={(e) => {
-                            const newNames = [...fileDisplayNames];
-                            newNames[index] = e.target.value;
-                            setFileDisplayNames(newNames);
-                          }}
-                        />
-                        <Input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => {
-                            const newFiles = [...files];
-                            newFiles[index] = e.target.files[0];
-                            setFiles(newFiles);
-                          }}
-                        />
+                        {/* Cột input tên + lỗi */}
+                        <div className="flex flex-col flex-1">
+                          <Input
+                            type="text"
+                            placeholder="Tên hiển thị file."
+                            value={name}
+                            onChange={(e) => {
+                              const newNames = [...fileDisplayNames];
+                              newNames[index] = e.target.value;
+                              setFileDisplayNames(newNames);
+                            }}
+                            className={
+                              errors[`fileDisplayName-${index}`]
+                                ? "border-red-500"
+                                : ""
+                            }
+                          />
+                          {errors[`fileDisplayName-${index}`] && (
+                            <p className="text-sm text-red-600 mt-1">
+                              {errors[`fileDisplayName-${index}`]}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Cột input file */}
+                        <div className="flex flex-col">
+                          <Input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={(e) => {
+                              const newFiles = [...files];
+                              newFiles[index] = e.target.files[0];
+                              setFiles(newFiles);
+                            }}
+                          />
+                        </div>
+
+                        {/* Nút xoá */}
                         {fileDisplayNames.length > 1 && (
                           <Button
                             type="button"
