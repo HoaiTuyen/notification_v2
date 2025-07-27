@@ -1,50 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import {
-  Camera,
-  Save,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  GraduationCap,
-  Award,
-  User,
-  School,
-} from "lucide-react";
+import { Camera } from "lucide-react";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import {
   handleGetDetailUser,
   handleUploadImage,
 } from "../../../controller/AccountController";
-import { handleUpdateStudent } from "../../../controller/StudentController";
 import { Spin } from "antd";
 import ChangePasswordDialog from "../ChangePass";
+
 const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
   const [openChangePass, setOpenChangePass] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -58,7 +29,6 @@ const ProfilePage = () => {
       const data = jwtDecode(token);
       const userId = data.userId;
       const req = await handleGetDetailUser(userId);
-      console.log(req);
       if (req?.data) {
         const userData = req.data;
         setUserImage(req.data.image);
@@ -67,7 +37,6 @@ const ProfilePage = () => {
         } else if (userData.teacher) {
           setProfileData(userData.teacher);
         } else {
-          console.log("Lỗi");
           setLoading(false);
         }
       }
@@ -81,6 +50,7 @@ const ProfilePage = () => {
   useEffect(() => {
     fetchUserDetail();
   }, []);
+
   const handleImageUpload = async () => {
     if (!file) {
       toast.error("Vui lòng chọn ảnh trước khi tải lên.");
@@ -92,10 +62,9 @@ const ProfilePage = () => {
 
     try {
       const res = await handleUploadImage(userImage.data.id, formData);
-      console.log(res);
-
       if (res?.data) {
-        setUserImage(res.data.image); // Update image preview
+        setUserImage(res.data.image);
+        setTempImage(null);
         toast.success("Ảnh đại diện đã được cập nhật.");
       }
     } catch (error) {
@@ -109,34 +78,6 @@ const ProfilePage = () => {
     setTempImage(URL.createObjectURL(selectedFile));
   };
 
-  const handleCancel = () => {
-    setIsEditing(false); // Exit editing mode
-    setTempImage(null); // Clear selected image
-    setFile(null); // Clear file state
-  };
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      if (file) {
-        await handleImageUpload(); // Only upload image if there's a new one selected
-      }
-
-      // Save other updated information (like name, email, etc.)
-      const res = await handleUpdateStudent(profileData);
-      console.log(res);
-      if (res?.data || res?.status === 204) {
-        toast.success("Thông tin cá nhân đã được cập nhật.");
-      } else {
-        toast.error(res.message || "Lỗi khi cập nhật thông tin.");
-      }
-
-      setIsEditing(false); // Disable editing after saving
-    } catch (error) {
-      console.error("Error saving user detail:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
@@ -144,48 +85,23 @@ const ProfilePage = () => {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="space-y-6 p-10">
         <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">
-              Thông tin cá nhân
-            </h2>
-            <p className="text-muted-foreground">
-              Quản lý thông tin cá nhân và học tập của bạn
-            </p>
-          </div>
-          <div>
-            <Button
-              className="mr-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              onClick={() => setOpenChangePass(true)}
-            >
-              Đổi mật khẩu
-            </Button>
-            {openChangePass && (
-              <ChangePasswordDialog
-                open={openChangePass}
-                onClose={() => setOpenChangePass(false)}
-              />
-            )}
-            <Button
-              onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-              className={
-                isEditing
-                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
-                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              }
-            >
-              {isEditing ? (
-                <>
-                  <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
-                </>
-              ) : (
-                "Chỉnh sửa"
-              )}
-            </Button>
-          </div>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            onClick={() => setOpenChangePass(true)}
+          >
+            Đổi mật khẩu
+          </Button>
+          {openChangePass && (
+            <ChangePasswordDialog
+              open={openChangePass}
+              onClose={() => setOpenChangePass(false)}
+            />
+          )}
         </div>
 
         <Tabs defaultValue="personal" className="space-y-4">
@@ -210,45 +126,33 @@ const ProfilePage = () => {
                     />
                     <AvatarFallback>{profileData.lastName}</AvatarFallback>
                   </Avatar>
-                  {isEditing && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => inputRef.current.click()}
-                      >
-                        <Camera className="mr-2 h-4 w-4" />
-                        Thay đổi ảnh
-                      </Button>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={inputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileSelect}
-                      />
-                      {file && (
-                        <div className="flex">
-                          <Button
-                            className="mr-2"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSave}
-                          >
-                            Lưu ảnh
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600"
-                            onClick={handleCancel}
-                          >
-                            Hủy
-                          </Button>
-                        </div>
-                      )}
-                    </>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => inputRef.current.click()}
+                  >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Thay đổi ảnh
+                  </Button>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={inputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileSelect}
+                  />
+
+                  {file && (
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={handleImageUpload}
+                    >
+                      Lưu ảnh
+                    </Button>
                   )}
+
                   <div className="text-center">
                     <h3 className="font-semibold">
                       {profileData.firstName} {profileData.lastName}
@@ -262,157 +166,6 @@ const ProfilePage = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Thông tin chi tiết</CardTitle>
-                  <CardDescription>
-                    Thông tin cá nhân và liên hệ
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="studentId">Mã</Label>
-                      <Input
-                        id="studentId"
-                        value={profileData.id || "Trống"}
-                        disabled
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileData.email || "Trống"}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              email: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Họ</Label>
-                      <Input
-                        id="firstName"
-                        value={profileData.firstName || "Trống"}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            firstName: e.target.value,
-                          })
-                        }
-                        disabled
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Tên</Label>
-                      <Input
-                        id="firstName"
-                        value={profileData.lastName || "Trống"}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            lastName: e.target.value,
-                          })
-                        }
-                        disabled
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth">Ngày sinh</Label>
-                      <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="dateOfBirth"
-                          type="date"
-                          value={profileData.dateOfBirth || "Trống"}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              dateOfBirth: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-8"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="gender">Giới tính</Label>
-                      <Select
-                        value={profileData.gender}
-                        onValueChange={(value) =>
-                          setProfileData({ ...profileData, gender: value })
-                        }
-                        disabled
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="NAM">Nam</SelectItem>
-                          <SelectItem value="NỮ">Nữ</SelectItem>
-                          <SelectItem value="KHÁC">Khác</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Lớp</Label>
-                      <div className="relative">
-                        <School className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="address"
-                          value={
-                            profileData?.className
-                              ? profileData?.className
-                              : "Trống"
-                          }
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              className: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-8"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Tài khoản</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="address"
-                          value={profileData?.userName || "Trống"}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              userName: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-8"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
         </Tabs>
@@ -420,4 +173,5 @@ const ProfilePage = () => {
     </div>
   );
 };
+
 export default ProfilePage;

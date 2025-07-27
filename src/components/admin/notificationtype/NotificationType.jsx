@@ -156,9 +156,9 @@ const NotificationType = () => {
         <Card className="border border-gray-100">
           <CardHeader>
             <CardTitle>Danh sách loại thông báo</CardTitle>
-            <CardDescription>
+            {/* <CardDescription>
               Tổng số: {pagination.total} loại thông báo
-            </CardDescription>
+            </CardDescription> */}
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -166,7 +166,7 @@ const NotificationType = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm khoa..."
+                  placeholder="Tìm kiếm loại thông báo theo tên..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -208,7 +208,9 @@ const NotificationType = () => {
                         colSpan={4}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy khoa phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy loại thông báo phù hợp"
+                          : "Chưa có loại thông báo nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -284,19 +286,21 @@ const NotificationType = () => {
             onSuccess={() => fetchNotificationType(pageFromUrl)}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

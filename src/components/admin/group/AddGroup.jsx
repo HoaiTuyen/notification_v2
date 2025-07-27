@@ -38,10 +38,8 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
 
   const [listTeacher, setListTeacher] = useState([]);
   const [form, setForm] = useState({
-    id: group?.id || "",
     name: group?.name || "",
     userId: userId,
-    code: group?.code || "",
   });
   const fetchTeacher = async () => {
     const pageSize = 10;
@@ -89,10 +87,6 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       );
       return;
     }
-    if (!checkEdit && !form.userId) {
-      toast.error("Vui lòng chọn giáo viên phụ trách");
-      return;
-    }
     if (checkEdit) {
       setLoading(true);
       const reqEdit = await handleUpdateGroup(form);
@@ -108,7 +102,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       setLoading(false);
     } else {
       setLoading(true);
-      const res = await handleAddGroup(form.name, form.userId);
+      const res = await handleAddGroup(form);
       console.log(res);
       if (res?.data && res?.status === 201) {
         onSuccess();
@@ -123,17 +117,13 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
   useEffect(() => {
     if (open && group?.id) {
       setForm({
-        id: group?.id || "",
         name: group?.name || "",
-        userId: group?.userId || "",
-        code: group?.code || "",
+        userId: userId || "",
       });
     } else {
       setForm({
-        id: "",
         name: "",
-        userId: "",
-        code: "",
+        userId: userId || "",
       });
     }
   }, [group, open]);
@@ -183,7 +173,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
-              {checkEdit ? (
+              {/* {checkEdit ? (
                 <div className="grid gap-2"></div>
               ) : (
                 <div className="grid gap-2">
@@ -208,16 +198,20 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                     </SelectContent>
                   </Select>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={() => handleSubmit()}
             >
               {checkEdit ? "Cập nhật" : "Thêm nhóm"}

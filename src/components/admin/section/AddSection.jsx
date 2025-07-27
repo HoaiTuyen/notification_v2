@@ -55,6 +55,92 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
+    // Validate môn học
+    if (!form.subjectId) {
+      toast.error("Vui lòng chọn môn học.");
+      return;
+    }
+
+    // Validate giảng viên
+    if (!form.teacherId) {
+      toast.error("Vui lòng chọn giảng viên.");
+      return;
+    }
+
+    // Validate học kỳ
+    if (!form.semesterId) {
+      toast.error("Vui lòng chọn học kỳ.");
+      return;
+    }
+
+    const groupId = form.groupId.trim();
+    const groupNumber = Number(groupId);
+
+    if (!groupId) {
+      toast.error("Vui lòng nhập mã nhóm.");
+      return;
+    }
+
+    if (!/^\d+$/.test(groupId)) {
+      toast.error(
+        "Mã nhóm chỉ được chứa số, không có chữ hoặc ký tự đặc biệt."
+      );
+      return;
+    }
+
+    if (groupNumber < 1 || groupNumber > 15) {
+      toast.error("Mã nhóm phải là số từ 1 đến 15.");
+      return;
+    }
+
+    // Validate ngày bắt đầu và kết thúc
+    if (!form.startDate || !form.endDate) {
+      toast.error("Vui lòng nhập ngày bắt đầu và kết thúc.");
+      return;
+    }
+    if (new Date(form.startDate) > new Date(form.endDate)) {
+      toast.error("Ngày bắt đầu không được sau ngày kết thúc.");
+      return;
+    }
+
+    // Validate lịch học
+    if (form.courseSchedules.length === 0) {
+      toast.error("Vui lòng thêm ít nhất một lịch học.");
+      return;
+    }
+
+    for (let i = 0; i < form.courseSchedules.length; i++) {
+      const s = form.courseSchedules[i];
+
+      if (!s.room || !s.room.trim()) {
+        toast.error(`Lịch học ${i + 1}: Vui lòng nhập tên phòng.`);
+        return;
+      }
+
+      if (typeof s.day !== "number" || s.day < 2 || s.day > 7) {
+        toast.error(`Lịch học ${i + 1}: Thứ phải từ 2 đến 7.`);
+        return;
+      }
+
+      if (typeof s.startPeriod !== "number" || s.startPeriod < 1) {
+        toast.error(`Lịch học ${i + 1}: Tiết bắt đầu phải ≥ 1.`);
+        return;
+      }
+
+      if (typeof s.endPeriod !== "number" || s.endPeriod < 1) {
+        toast.error(`Lịch học ${i + 1}: Tiết kết thúc phải ≥ 1.`);
+        return;
+      }
+
+      if (s.startPeriod >= s.endPeriod) {
+        toast.error(
+          `Lịch học ${i + 1}: Tiết bắt đầu phải nhỏ hơn tiết kết thúc.`
+        );
+        return;
+      }
+    }
+
+    // Nếu tất cả hợp lệ, gửi dữ liệu
     try {
       const payload = {
         ...form,
@@ -64,8 +150,8 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
           validPeriodRange: true,
         })),
       };
+
       const res = await handleCreateClassSection(payload);
-      console.log(res);
       if (res?.data && res?.status === 201) {
         toast.success(res.message || "Thêm lớp học phần thành công!");
         onSuccess();
@@ -77,6 +163,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
       toast.error(e.message || "Thêm lớp học phần thất bại!");
     }
   };
+
   const fetchSubject = async () => {
     const pageSize = 10;
     let allSubjects = [];
@@ -178,7 +265,9 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
 
         <div className="grid gap-4">
           <div>
-            <Label>Môn học</Label>
+            <Label>
+              Môn học <span className="text-red-500">*</span>
+            </Label>
             <Select
               options={subjectOptions}
               value={subjectOptions.find((opt) => opt.value === form.subjectId)}
@@ -195,7 +284,9 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
             />
           </div>
           <div>
-            <Label>Giảng viên</Label>
+            <Label>
+              Giảng viên <span className="text-red-500">*</span>
+            </Label>
             <Select
               options={teacherOptions}
               value={teacherOptions.find((opt) => opt.value === form.teacherId)}
@@ -212,7 +303,9 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
             />
           </div>
           <div>
-            <Label>Học kỳ</Label>
+            <Label>
+              Học kỳ <span className="text-red-500">*</span>
+            </Label>
             <Select
               options={semesterOptions}
               value={semesterOptions.find(
@@ -231,88 +324,49 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
             />
           </div>
           <div>
-            <Label>Nhóm</Label>
+            <Label>
+              Nhóm <span className="text-red-500">*</span>
+            </Label>
             <Input
               value={form.groupId}
               onChange={(e) => setForm({ ...form, groupId: e.target.value })}
               placeholder="Nhập mã nhóm"
+              required
             />
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1">
-                Ngày bắt đầu
+                Ngày bắt đầu <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.startDate}
                 onChange={(e) =>
                   setForm({ ...form, startDate: e.target.value })
                 }
-                className="w-full border rounded px-3 py-2"
+                required
               />
             </div>
 
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1">
-                Ngày kết thúc
+                Ngày kết thúc <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.endDate}
                 onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                className="w-full border rounded px-3 py-2"
+                required
               />
             </div>
           </div>
 
           <div>
-            <Label>Lịch học</Label>
-            {/* {form.courseSchedules.map((item, index) => (
-              <div key={index} className="flex gap-2 items-end mb-2">
-                <Input
-                  placeholder="Phòng"
-                  value={item.room}
-                  onChange={(e) =>
-                    updateSchedule(index, "room", e.target.value)
-                  }
-                />
-                <Input
-                  type="number"
-                  placeholder="Thứ"
-                  value={item.day}
-                  onChange={(e) =>
-                    updateSchedule(index, "day", Number(e.target.value))
-                  }
-                  className="w-20"
-                />
-                <Input
-                  type="number"
-                  placeholder="Tiết bắt đầu"
-                  value={item.startPeriod}
-                  onChange={(e) =>
-                    updateSchedule(index, "startPeriod", Number(e.target.value))
-                  }
-                  className="w-24"
-                />
-                <Input
-                  type="number"
-                  placeholder="Tiết kết thúc"
-                  value={item.endPeriod}
-                  onChange={(e) =>
-                    updateSchedule(index, "endPeriod", Number(e.target.value))
-                  }
-                  className="w-24"
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => removeSchedule(index)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))} */}
+            <Label>
+              Lịch học <span className="text-red-500">*</span>
+            </Label>
+
             {form.courseSchedules.map((item, index) => (
               <div
                 key={index}
@@ -320,18 +374,23 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
               >
                 <div className="flex flex-wrap gap-2 items-end">
                   <div className="flex flex-col gap-1">
-                    <Label>Phòng</Label>
+                    <Label>
+                      Phòng <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       placeholder="Phòng"
                       value={item.room}
                       onChange={(e) =>
                         updateSchedule(index, "room", e.target.value)
                       }
+                      required
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <Label>Thứ</Label>
+                    <Label>
+                      Thứ <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       type="number"
                       min={2}
@@ -340,12 +399,14 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                       onChange={(e) =>
                         updateSchedule(index, "day", Number(e.target.value))
                       }
-                      className="w-20"
+                      required
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <Label>Tiết bắt đầu</Label>
+                    <Label>
+                      Tiết bắt đầu <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       type="number"
                       min={1}
@@ -357,12 +418,14 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                           Number(e.target.value)
                         )
                       }
-                      className="w-24"
+                      required
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <Label>Tiết kết thúc</Label>
+                    <Label>
+                      Tiết kết thúc <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       type="number"
                       min={1}
@@ -374,7 +437,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                           Number(e.target.value)
                         )
                       }
-                      className="w-24"
+                      required
                     />
                   </div>
 
@@ -409,10 +472,16 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button onClick={handleSubmit}>Tạo lớp học phần</Button>
+          <Button className="cursor-pointer" onClick={handleSubmit}>
+            Tạo lớp học phần
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -153,16 +153,16 @@ const Student = () => {
     setShowModal(true);
   };
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
           <Button
             variant="outline"
-            className="flex items-center"
+            className="flex items-center cursor-pointer"
             onClick={() => setOpenUpload(true)}
           >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách sinh viên
           </Button>
           {openUpload && (
             <ImportStudentModal
@@ -172,16 +172,17 @@ const Student = () => {
             />
           )}
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center cursor-pointer"
             onClick={() => setShowModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm sinh viên
+            <Plus className="h-4 w-4" /> Thêm sinh viên
           </Button>
           {showModal && (
             <AddStudent
               open={showModal}
               onClose={() => {
-                setShowModal(false), setSelectedStudent(null);
+                setSelectedStudent(null);
+                setShowModal(false);
               }}
               onSuccess={() => fetchStudents(pageFromUrl)}
               student={selectedStudent}
@@ -196,9 +197,6 @@ const Student = () => {
         >
           <CardHeader>
             <CardTitle>Danh sách sinh viên</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.total} sinh viên
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -257,7 +255,7 @@ const Student = () => {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">
+                      <TableCell colSpan={8} className="text-center">
                         <Spin size="large" />
                       </TableCell>
                     </TableRow>
@@ -267,37 +265,52 @@ const Student = () => {
                         colSpan={8}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy sinh viên phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy sinh viên phù hợp"
+                          : "Không có sinh viên nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
                     students.map((student) => (
                       <TableRow
                         className="border border-gray-200"
-                        key={student.id}
+                        key={student?.id}
                       >
-                        <TableCell className="font-medium">
-                          {student.id}
+                        <TableCell className="font-medium" title={student?.id}>
+                          {student?.id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[100px] truncate"
-                          title={student.name}
+                          title={student?.firstName + " " + student?.lastName}
                         >
-                          <div className="flex items-center gap-2">
-                            {student.firstName} {student.lastName}
+                          <div className="max-w-[160px] truncate">
+                            {student?.firstName} {student?.lastName}
                           </div>
                         </TableCell>
-                        <TableCell>{student.email}</TableCell>
-                        <TableCell>{student.className || "Trống"}</TableCell>
-                        <TableCell>
-                          {student.departmentName || "Trống"}
+                        <TableCell title={student?.email}>
+                          <div className="max-w-[100px] truncate">
+                            {student?.email}
+                          </div>
                         </TableCell>
-                        <TableCell>{renderGender(student.gender)}</TableCell>
-                        <TableCell>
+                        <TableCell title={student?.className}>
+                          <div className="max-w-[100px] truncate">
+                            {student?.className || "Trống"}
+                          </div>
+                        </TableCell>
+                        <TableCell title={student?.departmentName}>
+                          <div className="max-w-[100px] truncate">
+                            {student?.departmentName || "Trống"}
+                          </div>
+                        </TableCell>
+                        <TableCell title={student?.gender}>
+                          {renderGender(student?.gender)}
+                        </TableCell>
+                        <TableCell title={student?.status}>
                           <Badge
-                            className={filterStudents(student.status).className}
+                            className={
+                              filterStudents(student?.status).className
+                            }
                           >
-                            {filterStudents(student.status).label}
+                            {filterStudents(student?.status).label}
                           </Badge>
                         </TableCell>
                         <TableCell className="pl-4">
@@ -346,24 +359,27 @@ const Student = () => {
             onClose={() => setOpenModalDelete(false)}
             student={selectedStudent}
             onSuccess={() => {
+              setSelectedStudent(null);
               fetchStudents(pageFromUrl);
             }}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            showSizeChanger={false}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination?.total >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              showSizeChanger={false}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

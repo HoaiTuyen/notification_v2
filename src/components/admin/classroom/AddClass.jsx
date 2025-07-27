@@ -77,27 +77,38 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   const handleSubmit = async () => {
     try {
       const isEmpty = (val) => !val || !val.trim();
-      const startsWithLetter = (val) => /^[A-Za-z]/.test(val.trim());
-      const isValidClassName = (val) =>
-        /^D\d{2}_[A-Z]{2}\d{2}$/.test(val.trim());
 
+      // Validate mã lớp
       if (isEmpty(form.id)) {
         toast.error("Mã lớp không được để trống");
         return;
       }
-      if (!startsWithLetter(form.id)) {
-        toast.error("Mã lớp phải bắt đầu bằng chữ cái");
+      if (form.id.length < 5) {
+        toast.error("Mã lớp ít nhất 5 ký tự");
         return;
       }
+      if (!/^[A-Za-z][A-Za-z0-9]*$/.test(form.id.trim())) {
+        toast.error(
+          "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái hoặc số"
+        );
+        return;
+      }
+
+      // Validate tên lớp
       if (isEmpty(form.name)) {
         toast.error("Tên lớp không được để trống");
         return;
       }
-      if (!isValidClassName(form.name)) {
-        toast.error("Tên lớp không đúng định dạng. VD: D21_TH12");
+      if (form.name.length < 5) {
+        toast.error("Tên lớp ít nhất 5 ký tự");
         return;
       }
-
+      if (!/^[A-Za-z][A-Za-z0-9 ]*$/.test(form.name.trim())) {
+        toast.error(
+          "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc khoảng trắng"
+        );
+        return;
+      }
       setLoading(true);
       if (checkEdit) {
         const resEdit = await handleUpdateClass(form);

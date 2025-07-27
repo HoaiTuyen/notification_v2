@@ -46,13 +46,21 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
   const handleSubmitAdd = async () => {
     try {
       setLoading(true);
+      // Validate mã khoa
       if (!form.id.trim()) {
         toast.error("Mã khoa không được để trống");
         setLoading(false);
         return;
       }
-      if (!/^[A-Za-z]/.test(form.id)) {
-        toast.error("Mã khoa phải bắt đầu bằng chữ cái");
+      if (form.id.length < 4) {
+        toast.error("Mã khoa ít nhất 4 ký tự");
+        setLoading(false);
+        return;
+      }
+      if (!/^[A-Za-z][A-Za-z0-9]*$/.test(form.id)) {
+        toast.error(
+          "Mã khoa phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái hoặc số"
+        );
         setLoading(false);
         return;
       }
@@ -68,11 +76,19 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
         setLoading(false);
         return;
       }
-      if (!/^[\p{L}\s]+$/u.test(form.name)) {
-        toast.error("Tên khoa chỉ được chứa chữ cái");
+      if (form.name.length < 5) {
+        toast.error("Tên khoa ít nhất 5 ký tự");
         setLoading(false);
         return;
       }
+      if (!/^[\p{L} ]+$/u.test(form.name)) {
+        toast.error(
+          "Tên khoa chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt"
+        );
+        setLoading(false);
+        return;
+      }
+
       if (checkEdit) {
         const reqEdit = await handleUpdateDepartment(form);
         console.log(reqEdit);

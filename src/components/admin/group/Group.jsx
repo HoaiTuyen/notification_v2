@@ -185,7 +185,7 @@ const Group = () => {
                   {loading ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={5}
                         className="text-center py-6 text-gray-500"
                       >
                         <Spin size="large" />
@@ -194,10 +194,12 @@ const Group = () => {
                   ) : groups.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={5}
                         className="text-center py-6 text-gray-500"
                       >
-                        Không tìm thấy khoa phù hợp
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy nhóm học tập phù hợp"
+                          : "Chưa có nhóm học tập nào"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -228,7 +230,7 @@ const Group = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
+                              {/* <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
                               >
@@ -236,7 +238,7 @@ const Group = () => {
                                   <FileText className="h-4 w-4" />
                                   Xem chi tiết
                                 </Link>
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openEditGroup(group)}

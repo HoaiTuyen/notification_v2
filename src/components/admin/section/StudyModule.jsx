@@ -249,7 +249,7 @@ const StudyModuleAdmin = () => {
   };
 
   return (
-    <div className="w-full bg-white p-10 overflow-y-auto max-h-[750px] ">
+    <div className="w-full h-full bg-white p-10 overflow-auto ">
       <div className="space-y-6">
         <Card className="p-4  w-full md:w-fit">
           <CardTitle className="text-base mb-2">Nhập dữ liệu từ file</CardTitle>

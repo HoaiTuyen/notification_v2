@@ -54,34 +54,70 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
   }, [notification, open]);
 
   const handleSubmit = async () => {
-    if (!form.name || !form.description) {
-      toast.error("Vui lòng điền đầy đủ các trường");
+    const nameRegex = /^[\p{L}0-9 ]+$/u;
+
+    const trimmedName = form.name.trim();
+    const trimmedDescription = form.description.trim();
+
+    // Validate name
+    if (!trimmedName) {
+      toast.error("Tên loại thông báo không được để trống");
       return;
     }
-    if (checkEdit) {
-      setLoading(true);
-      const reqEdit = await handleUpdateNotificationType(form);
-      if (reqEdit?.data || reqEdit?.status === 204) {
-        onSuccess();
-        toast.success(reqEdit.message || "Cập nhật loại thông báo thành công");
-        onClose();
-      } else {
-        toast.error(reqEdit.message || "Lỗi");
-      }
-      setLoading(false);
-    } else {
-      setLoading(true);
-      const reqAdd = await handleAddNotificationType(form);
-      if (reqAdd?.data) {
-        onSuccess();
-        toast.success(reqAdd.message || "Thêm loại thông báo thành công");
-        onClose();
-      } else {
-        toast.error(reqAdd.message || "Lỗi");
-      }
-      setLoading(false);
+
+    if (trimmedName.length < 3) {
+      toast.error("Tên loại thông báo phải có ít nhất 3 ký tự");
+      return;
     }
+
+    if (!nameRegex.test(trimmedName)) {
+      toast.error(
+        "Tên loại thông báo chỉ được chứa chữ, số và khoảng trắng (không chứa ký tự đặc biệt)"
+      );
+      return;
+    }
+
+    const requestData = {
+      ...form,
+      name: trimmedName,
+      description: trimmedDescription,
+    };
+
+    setLoading(true);
+
+    try {
+      let response;
+
+      if (checkEdit) {
+        response = await handleUpdateNotificationType(requestData);
+        if (response?.data || response?.status === 204) {
+          toast.success(
+            response.message || "Cập nhật loại thông báo thành công"
+          );
+        } else {
+          toast.error(response.message || "Cập nhật thất bại");
+        }
+      } else {
+        response = await handleAddNotificationType(requestData);
+        if (response?.data) {
+          toast.success(response.message || "Thêm loại thông báo thành công");
+        } else {
+          toast.error(response.message || "Thêm thất bại");
+        }
+      }
+
+      if (response?.data || response?.status === 204) {
+        onSuccess();
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.");
+    }
+
+    setLoading(false);
   };
+
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
@@ -100,7 +136,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
               <DialogHeader>
                 <DialogTitle>Thêm loại thông báo mới</DialogTitle>
                 <DialogDescription>
-                  Nhập thông tin chi tiết về loại thông báo mới
+                  Nhập thông tin về loại thông báo mới
                 </DialogDescription>
               </DialogHeader>
             </>
@@ -109,12 +145,14 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
               {/* <div className="grid gap-2">
-                <Label htmlFor="groupId">Mã nhóm</Label>
-                <Input id="groupId" placeholder="VD: CNTT01" />
-              </div> */}
+                  <Label htmlFor="groupId">Mã nhóm</Label>
+                  <Input id="groupId" placeholder="VD: CNTT01" />
+                </div> */}
 
               <div className="grid gap-2">
-                <Label htmlFor="nameGroup">Tên loại thông báo</Label>
+                <Label htmlFor="nameGroup">
+                  Tên loại thông báo <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="nameGroup"
                   type="text"
@@ -134,6 +172,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
+                  className="max-h-[100px] overflow-y-auto"
                 />
               </div>
             </div>
