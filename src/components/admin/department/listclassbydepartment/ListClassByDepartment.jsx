@@ -127,7 +127,6 @@ const ListClassOfDepartment = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <CardTitle>Danh sách lớp thuộc khoa</CardTitle>
-                <CardDescription>Tổng số: {totalClass} lớp</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button

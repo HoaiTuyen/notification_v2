@@ -30,6 +30,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
   const { setLoading } = useLoading();
 
   const checkEdit = !!notification?.id;
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     id: notification?.id || "",
@@ -52,6 +53,20 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
       });
     }
   }, [notification, open]);
+  const validateField = (field, value) => {
+    const trimmed = value.trim();
+    let error = "";
+
+    if (field === "name") {
+      if (!trimmed) error = "Tên loại thông báo không được để trống";
+      else if (trimmed.length < 3) error = "Phải có ít nhất 3 ký tự";
+      else if (!/^[\p{L}0-9 ]+$/u.test(trimmed))
+        error = "Chỉ được chứa chữ, số và khoảng trắng";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+    return !error;
+  };
 
   const handleSubmit = async () => {
     const nameRegex = /^[\p{L}0-9 ]+$/u;
@@ -121,7 +136,10 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent
+          className="sm:max-w-[550px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           {checkEdit ? (
             <>
               <DialogHeader>
@@ -142,57 +160,66 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
             </>
           )}
 
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-4">
-              {/* <div className="grid gap-2">
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-4">
+                {/* <div className="grid gap-2">
                   <Label htmlFor="groupId">Mã nhóm</Label>
                   <Input id="groupId" placeholder="VD: CNTT01" />
                 </div> */}
 
-              <div className="grid gap-2">
-                <Label htmlFor="nameGroup">
-                  Tên loại thông báo <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="nameGroup"
-                  type="text"
-                  placeholder="Nhập tên loại thông báo"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                />
-              </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="nameGroup">
+                    Tên loại thông báo <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="nameGroup"
+                    type="text"
+                    placeholder="Nhập tên loại thông báo"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onBlur={(e) => validateField("name", e.target.value)}
+                    required
+                    pattern="^[\p{L}0-9 ]+$"
+                    title="Tên loại thông báo phải có ít nhất 3 ký tự, chỉ chứa chữ, số và khoảng trắng"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm">{errors.name}</p>
+                  )}
+                </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="description">Mô tả</Label>
-                <Textarea
-                  id="description"
-                  type="text"
-                  placeholder="Nhập mô tả..."
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  className="max-h-[100px] overflow-y-auto"
-                />
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Mô tả</Label>
+                  <Textarea
+                    id="description"
+                    type="text"
+                    placeholder="Nhập mô tả..."
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    className="max-h-[100px] overflow-y-auto"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => onClose()}
-              className="cursor-pointer"
-            >
-              Hủy
-            </Button>
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              onClick={() => handleSubmit()}
-            >
-              {checkEdit ? "Cập nhật" : "Thêm loại thông báo"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => onClose()}
+                className="cursor-pointer"
+              >
+                Hủy
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                type="submit"
+              >
+                {checkEdit ? "Cập nhật" : "Thêm loại thông báo"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>

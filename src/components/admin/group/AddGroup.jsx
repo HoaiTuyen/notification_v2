@@ -35,6 +35,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
   console.log(userId);
   const checkEdit = !!group?.id;
   const { setLoading } = useLoading();
+  const [errors, setErrors] = useState({});
 
   const [listTeacher, setListTeacher] = useState([]);
   const [form, setForm] = useState({
@@ -114,6 +115,21 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       setLoading(false);
     }
   };
+  const validateField = (field, value) => {
+    let error = "";
+
+    if (field === "name") {
+      const trimmed = value.trim();
+      if (!trimmed) error = "Tên nhóm học tập không được để trống";
+      else if (trimmed.length < 5) error = "Tên nhóm học tập ít nhất 5 ký tự";
+      else if (!/^[\p{L}][\p{L}0-9 ]*$/u.test(trimmed))
+        error =
+          "Tên nhóm học tập phải bắt đầu bằng chữ và chỉ chứa chữ, số, hoặc khoảng trắng";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
   useEffect(() => {
     if (open && group?.id) {
       setForm({
@@ -133,7 +149,10 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent
+          className="sm:max-w-[550px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           {checkEdit ? (
             <>
               <DialogHeader>
@@ -171,7 +190,11 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                   placeholder="Nhập tên nhóm học tập"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onBlur={(e) => validateField("name", e.target.value)}
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-sm">{errors.name}</p>
+                )}
               </div>
               {/* {checkEdit ? (
                 <div className="grid gap-2"></div>

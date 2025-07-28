@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Spin } from "antd";
 import {
   Dialog,
   DialogContent,
@@ -24,22 +23,40 @@ import {
   handleUpdateUser,
   handleUploadImage,
 } from "../../../../controller/AccountController";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLoading } from "../../../../context/LoadingProvider";
+
 const AddAccount = ({ open, onClose, onSuccess, users }) => {
   const { setLoading } = useLoading();
   const [imagePreview, setImagePreview] = useState(null);
-
+  const [errors, setErrors] = useState({});
   const checkEdit = !!users?.id;
+
   const [form, setForm] = useState({
-    id: users?.id || "",
-    username: users?.username || "",
+    id: "",
+    username: "",
     password: "",
-    status: users?.status || "ACTIVE",
-    role: users?.role || "ADMIN",
-    image: users?.image || "",
+    status: "ACTIVE",
+    role: "ADMIN",
+    image: "",
     imageFile: null,
   });
+  const validateField = (field, value) => {
+    let error = "";
+
+    if (field === "username") {
+      if (!value.trim()) error = "Username không được để trống";
+      else if (!/^[A-Za-z][A-Za-z0-9]{4,}$/.test(value))
+        error = "Phải bắt đầu bằng chữ, ít nhất 5 ký tự";
+    }
+
+    if (field === "password" && !checkEdit) {
+      if (!value.trim()) error = "Mật khẩu không được để trống";
+      else if (value.length < 6) error = "Mật khẩu ít nhất 6 ký tự";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
   useEffect(() => {
     if (users?.id) {
       setForm({
@@ -51,10 +68,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         image: users.image || "",
         imageFile: null,
       });
-
-      if (users.image) {
-        setImagePreview(users.image);
-      }
+      setImagePreview(users.image || null);
     } else {
       setForm({
         id: "",
@@ -73,114 +87,107 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
     const file = e.target.files[0];
     if (file) {
       setForm({ ...form, imageFile: file });
-      // Create preview URL for the selected image
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      if (!form.username?.trim()) {
-        toast.error("Vui lòng nhập username");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.username?.trim()) {
+      toast.error("Vui lòng nhập username");
+      return;
+    }
+
+    if (!checkEdit) {
+      if (!form.password?.trim()) {
+        toast.error("Vui lòng nhập mật khẩu");
         return;
       }
 
-      if (!checkEdit) {
-        if (!form.password?.trim()) {
-          toast.error("Vui lòng nhập mật khẩu");
-          return;
-        }
-
-        if (form.password.length < 6) {
-          toast.error("Mật khẩu phải có ít nhất 6 ký tự");
-          return;
-        }
+      if (form.password.length < 6) {
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
       }
+    }
 
+    try {
       setLoading(true);
       let accountId = form.id;
 
       if (checkEdit) {
         const reqEdit = await handleUpdateUser(form);
-
         if (reqEdit.status === 204) {
           if (form.imageFile) {
             const imageForm = new FormData();
             imageForm.append("file", form.imageFile);
             await handleUploadImage(accountId, imageForm);
           }
-          onSuccess();
           toast.success(reqEdit.message || "Cập nhật tài khoản thành công");
+          onSuccess();
           onClose();
         } else {
-          toast.error(reqEdit.message || "Cập nhật tài khoản thất bại 1111");
+          toast.error(reqEdit.message || "Cập nhật tài khoản thất bại");
         }
       } else {
         const response = await handleAddUser(form);
-
         if (response.status === 201) {
           const newAccountId = response.data?.id;
-
           if (form.imageFile && newAccountId) {
             const imageForm = new FormData();
             imageForm.append("file", form.imageFile);
             await handleUploadImage(newAccountId, imageForm);
           }
-          onSuccess();
           toast.success(response.message || "Thêm tài khoản thành công");
+          onSuccess();
           onClose();
         } else {
-          toast.error(response.message || "Thêm tài khoản thất bại 1111");
+          toast.error(response.message || "Thêm tài khoản thất bại");
         }
       }
     } catch (error) {
-      if (error) {
-        toast.error(error.message || "Thêm tài khoản thất bại");
-      }
+      toast.error(error.message || "Đã xảy ra lỗi khi xử lý tài khoản");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            {checkEdit ? (
-              <>
-                <DialogTitle>Cập nhật tài khoản</DialogTitle>
-                <DialogDescription>
-                  Cập nhật thông tin của tài khoản
-                </DialogDescription>
-              </>
-            ) : (
-              <>
-                <DialogTitle>Tạo tài khoản mới</DialogTitle>
-                <DialogDescription>
-                  Nhập thông tin về tài khoản mới
-                </DialogDescription>
-              </>
-            )}
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+      <DialogContent
+        className="sm:max-w-[600px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <DialogHeader>
+          {checkEdit ? (
+            <>
+              <DialogTitle>Cập nhật tài khoản</DialogTitle>
+              <DialogDescription>
+                Cập nhật thông tin của tài khoản
+              </DialogDescription>
+            </>
+          ) : (
+            <>
+              <DialogTitle>Tạo tài khoản mới</DialogTitle>
+              <DialogDescription>
+                Nhập thông tin về tài khoản mới
+              </DialogDescription>
+            </>
+          )}
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-            <div className="grid gap-4">
-              {checkEdit && (
-                <div className="grid gap-2">
-                  <Label htmlFor="id">
-                    ID <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="id"
-                    placeholder=""
-                    disabled={checkEdit}
-                    value={form.id}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
-                  />
-                </div>
-              )}
-            </div>
+            {checkEdit && (
+              <div className="grid gap-2">
+                <Label htmlFor="id">
+                  ID <span className="text-red-500">*</span>
+                </Label>
+                <Input id="id" value={form.id} disabled />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="username">
@@ -188,17 +195,21 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                 </Label>
                 <Input
                   id="username"
-                  placeholder=""
                   value={form.username}
                   disabled={checkEdit}
                   onChange={(e) =>
                     setForm({ ...form, username: e.target.value })
                   }
+                  onBlur={() => validateField("username", form.username)}
+                  required
+                  pattern="^[A-Za-z][A-Za-z0-9]{4,}$"
+                  title="Username phải bắt đầu bằng chữ, tối thiểu 5 ký tự (gồm chữ hoặc số)"
                 />
+                {errors.username && (
+                  <p className="text-red-500 text-sm">{errors.username}</p>
+                )}
               </div>
-              {checkEdit ? (
-                <div className="grid gap-2"></div>
-              ) : (
+              {!checkEdit && (
                 <div className="grid gap-2">
                   <Label htmlFor="password">
                     Password <span className="text-red-500">*</span>
@@ -207,24 +218,31 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                     id="password"
                     type="password"
                     value={form.password}
-                    disabled={checkEdit}
                     onChange={(e) =>
                       setForm({ ...form, password: e.target.value })
                     }
+                    onBlur={() => validateField("password", form.password)}
+                    required
+                    minLength={6}
+                    title="Mật khẩu phải có ít nhất 6 ký tự"
                   />
+                  {errors.password && (
+                    <p className="text-red-500 text-sm">{errors.password}</p>
+                  )}
                 </div>
               )}
             </div>
+
             <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="">
+                <Label>
                   Trạng thái <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={form.status}
                   onValueChange={(value) => setForm({ ...form, status: value })}
                 >
-                  <SelectTrigger id="">
+                  <SelectTrigger>
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
@@ -233,47 +251,34 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="">
+                <Label>
                   Role <span className="text-red-500">*</span>
                 </Label>
-                {checkEdit ? (
-                  <Select
-                    value={form.role}
-                    onValueChange={(value) => setForm({ ...form, role: value })}
-                  >
-                    <SelectTrigger id="">
-                      <SelectValue placeholder="Chọn role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="STUDENT">Student</SelectItem>
-                      <SelectItem value="TEACHER">Teacher</SelectItem>
-                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Select
-                    value={form.role}
-                    onValueChange={(value) => setForm({ ...form, role: value })}
-                    disabled={true}
-                  >
-                    <SelectTrigger id="">
-                      <SelectValue placeholder="Chọn role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                <Select
+                  value={form.role}
+                  onValueChange={(value) => setForm({ ...form, role: value })}
+                  disabled={!checkEdit}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
+                    <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
 
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
-              className="cursor-pointer"
               onClick={() => {
                 onClose();
                 setForm({
@@ -283,22 +288,25 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   status: "ACTIVE",
                   role: "ADMIN",
                   image: "",
+                  imageFile: null,
                 });
                 setImagePreview(null);
               }}
+              className="cursor-pointer"
             >
               Hủy
             </Button>
             <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              onClick={handleSubmit}
             >
               {checkEdit ? "Cập nhật" : "Thêm"}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
+
 export default AddAccount;

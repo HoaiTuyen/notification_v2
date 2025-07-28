@@ -29,6 +29,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
   const { validateForm, formatDate, minBirthDate, maxBirthDate } =
     useValidateLecturerForm();
   const [listDepartment, setListDepartment] = useState([]);
+  const [errors, setErrors] = useState({});
+
   const checkEdit = !!teacher?.id;
   const { setLoading } = useLoading();
   const [form, setForm] = useState({
@@ -134,9 +136,47 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
   useEffect(() => {
     fetchListDepartment();
   }, []);
+  const validateField = (field, value) => {
+    let message = "";
+    const trimmed = value.trim();
+
+    switch (field) {
+      case "id":
+        if (!trimmed) message = "Mã giảng viên không được để trống";
+        else if (!/^[A-Z0-9_]+$/.test(trimmed))
+          message = "Chỉ bao gồm chữ in hoa, số hoặc dấu gạch dưới";
+        break;
+      case "firstName":
+      case "lastName":
+        if (!trimmed) message = "Trường này không được để trống";
+        break;
+      case "email":
+        if (!trimmed) message = "Email không được để trống";
+        else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(trimmed))
+          message = "Email không hợp lệ";
+        break;
+      case "username":
+        if (!trimmed) message = "Username không được để trống";
+        break;
+      case "password":
+        if (!trimmed) message = "Password không được để trống";
+        else if (trimmed.length < 6)
+          message = "Mật khẩu phải có ít nhất 6 ký tự";
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: message }));
+    return !message;
+  };
+
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent
+        className="sm:max-w-[600px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           {checkEdit ? (
             <>
@@ -163,39 +203,57 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </Label>
                 <Input
                   id="teacherId"
-                  placeholder="VD: GV001"
+                  placeholder="Nhập mã giảng viên..."
                   value={form.id}
                   onChange={(e) => setForm({ ...form, id: e.target.value })}
+                  onBlur={(e) => validateField("id", e.target.value)}
                   required
+                  pattern="^[A-Z0-9_]+$"
+                  title="Chỉ bao gồm chữ in hoa, số hoặc dấu gạch dưới"
                 />
+                {errors.id && (
+                  <p className="text-red-500 text-sm">{errors.id}</p>
+                )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="name">
+                <Label htmlFor="firstName">
                   Họ <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="name"
+                  id="firstName"
                   type="text"
                   value={form.firstName}
                   onChange={(e) =>
                     setForm({ ...form, firstName: e.target.value })
                   }
+                  onBlur={(e) => validateField("firstName", e.target.value)}
                   required
+                  pattern="^[\p{L} ]+$"
+                  title="Họ chỉ được chứa chữ cái và khoảng trắng"
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm">{errors.firstName}</p>
+                )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="name">
+                <Label htmlFor="lastName">
                   Tên <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="name"
+                  id="lastName"
                   type="text"
                   value={form.lastName}
                   onChange={(e) =>
                     setForm({ ...form, lastName: e.target.value })
                   }
+                  onBlur={(e) => validateField("lastName", e.target.value)}
                   required
+                  pattern="^[\p{L}]+$"
+                  title="Tên chỉ được chứa chữ cái, không có số hoặc ký tự đặc biệt"
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm">{errors.lastName}</p>
+                )}
               </div>
 
               <div className="grid gap-2">
@@ -208,7 +266,13 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
+                  onBlur={(e) => validateField("email", e.target.value)}
+                  pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$"
+                  title="Email phải đúng định dạng: example@domain.com"
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="dateOfBirth">
@@ -224,7 +288,11 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     setForm({ ...form, dateOfBirth: e.target.value })
                   }
                   required
+                  onBlur={(e) => validateField("dateOfBirth", e.target.value)}
                 />
+                {errors.dateOfBirth && (
+                  <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="faculty">Khoa</Label>
@@ -282,21 +350,28 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className={checkEdit ? "hidden" : "grid gap-2"}>
-                <Label htmlFor="lastName">
-                  Username <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="lastName"
-                  placeholder="Nhập username"
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm({ ...form, username: e.target.value })
-                  }
-                  required
-                />
-              </div>
+              {!checkEdit && (
+                <div className="grid gap-2">
+                  <Label htmlFor="username">
+                    Username <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="username"
+                    placeholder="Nhập username"
+                    value={form.username}
+                    onChange={(e) =>
+                      setForm({ ...form, username: e.target.value })
+                    }
+                    required
+                    onBlur={(e) => validateField("username", e.target.value)}
+                    pattern="^[a-zA-Z0-9._-]{4,}$"
+                    title="Username phải có ít nhất 4 ký tự, không có dấu hoặc ký tự đặc biệt lạ"
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm">{errors.username}</p>
+                  )}
+                </div>
+              )}
               <div className={checkEdit ? "hidden" : "grid gap-2"}>
                 <Label htmlFor="password">
                   Password <span className="text-red-500">*</span>
@@ -309,7 +384,13 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     setForm({ ...form, password: e.target.value })
                   }
                   required
+                  onBlur={(e) => validateField("password", e.target.value)}
+                  pattern=".{6,}"
+                  title="Mật khẩu phải có ít nhất 6 ký tự"
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password}</p>
+                )}
               </div>
             </div>
           </div>

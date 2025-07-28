@@ -24,6 +24,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
   const { setLoading } = useLoading();
 
   const checkEdit = !!semester?.id;
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     id: semester?.id || "",
@@ -32,8 +33,35 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
     startDate: semester?.startDate?.slice(0, 10) || "",
     endDate: semester?.endDate?.slice(0, 10) || "",
   });
+  const validateField = (field, value) => {
+    let message = "";
 
-  const handleSubmit = async () => {
+    switch (field) {
+      case "id":
+        if (!value.trim()) message = "Mã học kỳ không được để trống";
+        else if (value.length < 3) message = "Ít nhất 3 chữ số";
+        else if (!/^[0-9]+$/.test(value)) message = "Chỉ được chứa số";
+        break;
+      case "nameSemester":
+        if (!value.trim()) message = "Tên học kỳ không được để trống";
+        else if (value.length < 3) message = "Ít nhất 3 ký tự";
+        else if (!/^[\p{L}][\p{L}0-9 ]*$/u.test(value))
+          message = "Phải bắt đầu bằng chữ, chỉ chứa chữ/số/khoảng trắng";
+        break;
+      case "academicYear":
+        if (!value.trim()) message = "Niên khóa không được để trống";
+        else if (!/^\d{4}-\d{4}$/.test(value))
+          message = "Định dạng phải là yyyy-yyyy (VD: 2024-2025)";
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: message }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const idRegex = /^[0-9]+$/;
     const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
     const yearRegex = /^[0-9]{4}-[0-9]{4}$/;
@@ -157,97 +185,118 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               </DialogHeader>
             </>
           )}
-          <div className="grid gap-2">
-            <p className="text-xs text-red-500 font-medium mb-1">
-              Hướng dẫn đặt mã học kỳ: gồm 3 chữ số. Ví dụ:
-              <br />• <strong>151</strong>: năm học 2015–2016 học kỳ 1<br />•{" "}
-              <strong>152</strong>: năm học 2015–2016 học kỳ 2<br />•{" "}
-              <strong>153</strong>: năm học 2015–2016 học kỳ hè
-            </p>
-            <Label htmlFor="semesterId">
-              Mã học kỳ <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="semesterId"
-              placeholder="VD: 211"
-              value={form.id}
-              onChange={(e) => setForm({ ...form, id: e.target.value })}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 py-4">
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-2">
-              <Label htmlFor="nameSemester">
-                Tên học kỳ <span className="text-red-500">*</span>
+              <p className="text-xs text-red-500 font-medium mb-1">
+                Hướng dẫn đặt mã học kỳ: gồm 3 chữ số. Ví dụ:
+                <br />• <strong>151</strong>: năm học 2015–2016 học kỳ 1<br />•{" "}
+                <strong>152</strong>: năm học 2015–2016 học kỳ 2<br />•{" "}
+                <strong>153</strong>: năm học 2015–2016 học kỳ hè
+              </p>
+              <Label htmlFor="semesterId">
+                Mã học kỳ <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="nameSemester"
-                type="text"
-                placeholder="Nhập học kỳ..."
-                value={form.nameSemester}
-                onChange={(e) =>
-                  setForm({ ...form, nameSemester: e.target.value })
-                }
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="academicYear">
-                Năm học <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="academicYear"
-                type="text"
-                placeholder="VD: 2024-2025"
-                value={form.academicYear}
-                onChange={(e) =>
-                  setForm({ ...form, academicYear: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="nameSemester">
-                Ngày bắt đầu <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={form.startDate}
-                onChange={(e) =>
-                  setForm({ ...form, startDate: e.target.value })
-                }
+                id="semesterId"
+                value={form.id}
+                onChange={(e) => setForm({ ...form, id: e.target.value })}
+                onBlur={() => validateField("id", form.id)}
                 required
+                minLength={3}
+                pattern="^[0-9]+$"
               />
+              {errors.id && <p className="text-red-500 text-sm">{errors.id}</p>}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="endDate">
-                Ngày kết thúc <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="nameSemester">
+                  Tên học kỳ <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="nameSemester"
+                  value={form.nameSemester}
+                  onChange={(e) =>
+                    setForm({ ...form, nameSemester: e.target.value })
+                  }
+                  onBlur={() =>
+                    validateField("nameSemester", form.nameSemester)
+                  }
+                  required
+                  minLength={3}
+                  pattern="^[\p{L}][\p{L}0-9 ]*$"
+                />
+                {errors.nameSemester && (
+                  <p className="text-red-500 text-sm">{errors.nameSemester}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="academicYear">
+                  Năm học <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="academicYear"
+                  value={form.academicYear}
+                  onChange={(e) =>
+                    setForm({ ...form, academicYear: e.target.value })
+                  }
+                  onBlur={() =>
+                    validateField("academicYear", form.academicYear)
+                  }
+                  required
+                  pattern="^\d{4}-\d{4}$"
+                />
+                {errors.academicYear && (
+                  <p className="text-red-500 text-sm">{errors.academicYear}</p>
+                )}
+              </div>
             </div>
-          </div>
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="nameSemester">
+                  Ngày bắt đầu <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={form.startDate}
+                  onChange={(e) =>
+                    setForm({ ...form, startDate: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="endDate">
+                  Ngày kết thúc <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={form.endDate}
+                  onChange={(e) =>
+                    setForm({ ...form, endDate: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
 
-          <DialogFooter>
-            <Button
-              className="cursor-pointer"
-              variant="outline"
-              onClick={() => onClose()}
-            >
-              Hủy
-            </Button>
-            <Button
-              className="cursor-pointer bg-blue-600 hover:bg-blue-700"
-              onClick={handleSubmit}
-            >
-              {checkEdit ? "Cập nhật" : "Thêm học kỳ"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                className="cursor-pointer"
+                variant="outline"
+                onClick={() => onClose()}
+              >
+                Hủy
+              </Button>
+              <Button
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700"
+                type="submit"
+              >
+                {checkEdit ? "Cập nhật" : "Thêm học kỳ"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>

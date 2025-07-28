@@ -31,6 +31,8 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const checkEdit = !!users?.id;
+  const [errors, setErrors] = useState({});
+
   const [form, setForm] = useState({
     id: users?.id || "",
     username: users?.username || "",
@@ -68,6 +70,22 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
       setImagePreview(null);
     }
   }, [users]);
+  const validateField = (field, value) => {
+    let error = "";
+
+    if (field === "username") {
+      if (!value.trim()) error = "Username không được để trống";
+      else if (!/^[A-Za-z][A-Za-z0-9]{4,}$/.test(value))
+        error = "Phải bắt đầu bằng chữ, ít nhất 5 ký tự";
+    }
+
+    if (field === "password" && !checkEdit) {
+      if (!value.trim()) error = "Mật khẩu không được để trống";
+      else if (value.length < 6) error = "Mật khẩu ít nhất 6 ký tự";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -79,7 +97,8 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!form.username?.trim()) {
       toast.error("Vui lòng nhập username");
       return;
@@ -146,7 +165,10 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent
+          className="sm:max-w-[600px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             {checkEdit ? (
               <>
@@ -164,59 +186,74 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
               </>
             )}
           </DialogHeader>
-          <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-            <div className="grid gap-4">
-              {checkEdit && (
-                <div className="grid gap-2">
-                  <Label htmlFor="id">
-                    ID <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="id"
-                    placeholder=""
-                    disabled={checkEdit}
-                    value={form.id}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">
-                  Username <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="username"
-                  placeholder=""
-                  value={form.username}
-                  disabled={checkEdit}
-                  onChange={(e) =>
-                    setForm({ ...form, username: e.target.value })
-                  }
-                />
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="grid gap-4">
+                {checkEdit && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="id">
+                      ID <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="id"
+                      placeholder=""
+                      disabled={checkEdit}
+                      value={form.id}
+                      onChange={(e) => setForm({ ...form, id: e.target.value })}
+                    />
+                  </div>
+                )}
               </div>
-              {checkEdit ? (
-                <div className="grid gap-2"></div>
-              ) : (
+              <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="password">
-                    Password <span className="text-red-500">*</span>
+                  <Label htmlFor="username">
+                    Username <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    id="password"
-                    type="password"
-                    value={form.password}
+                    id="username"
+                    placeholder=""
+                    value={form.username}
                     disabled={checkEdit}
                     onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
+                      setForm({ ...form, username: e.target.value })
                     }
+                    onBlur={() => validateField("username", form.username)}
+                    required
+                    pattern="^[A-Za-z][A-Za-z0-9]{4,}$"
+                    title="Username phải bắt đầu bằng chữ, tối thiểu 5 ký tự (gồm chữ hoặc số)"
                   />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm">{errors.username}</p>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {/* <div className="grid gap-2 ">
+                {checkEdit ? (
+                  <div className="grid gap-2"></div>
+                ) : (
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">
+                      Password <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={form.password}
+                      disabled={checkEdit}
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
+                      onBlur={() => validateField("password", form.password)}
+                      required
+                      minLength={6}
+                      title="Mật khẩu phải có ít nhất 6 ký tự"
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm">{errors.password}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {/* <div className="grid gap-2 ">
                 <Label htmlFor="image">Ảnh</Label>
                 <div className="flex items-center gap-4">
                   <Input
@@ -239,87 +276,94 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
                   )}
                 </div>
               </div> */}
-              <div className="grid gap-2">
-                <Label htmlFor="">
-                  Trạng thái <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={form.status}
-                  onValueChange={(value) => setForm({ ...form, status: value })}
-                >
-                  <SelectTrigger id="">
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                    <SelectItem value="INACTIVE">INACTIVE</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="">
-                  Role <span className="text-red-500">*</span>
-                </Label>
-                {checkEdit ? (
+                <div className="grid gap-2">
+                  <Label htmlFor="">
+                    Trạng thái <span className="text-red-500">*</span>
+                  </Label>
                   <Select
-                    value={form.role}
-                    onValueChange={(value) => setForm({ ...form, role: value })}
-                    // disabled={true}
+                    value={form.status}
+                    onValueChange={(value) =>
+                      setForm({ ...form, status: value })
+                    }
                   >
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Chọn role" />
+                    <SelectTrigger id="">
+                      <SelectValue placeholder="Chọn trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="STUDENT">Student</SelectItem>
-                      <SelectItem value="TEACHER">Teacher</SelectItem>
-                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                      <SelectItem value="INACTIVE">INACTIVE</SelectItem>
                     </SelectContent>
                   </Select>
-                ) : (
-                  <Select
-                    value={form.role}
-                    onValueChange={(value) => setForm({ ...form, role: value })}
-                    disabled={true}
-                  >
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Chọn role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="STUDENT">Student</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="">
+                    Role <span className="text-red-500">*</span>
+                  </Label>
+                  {checkEdit ? (
+                    <Select
+                      value={form.role}
+                      onValueChange={(value) =>
+                        setForm({ ...form, role: value })
+                      }
+                      // disabled={true}
+                    >
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Chọn role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="STUDENT">Student</SelectItem>
+                        <SelectItem value="TEACHER">Teacher</SelectItem>
+                        <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Select
+                      value={form.role}
+                      onValueChange={(value) =>
+                        setForm({ ...form, role: value })
+                      }
+                      disabled={true}
+                    >
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Chọn role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="STUDENT">Student</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={() => {
-                onClose();
-                setForm({
-                  id: "",
-                  username: "",
-                  password: "",
-                  status: "ACTIVE",
-                  role: "TEACHER",
-                  image: "",
-                });
-                setImagePreview(null);
-              }}
-            >
-              Hủy
-            </Button>
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              onClick={handleSubmit}
-            >
-              {checkEdit ? "Cập nhật" : "Thêm"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => {
+                  onClose();
+                  setForm({
+                    id: "",
+                    username: "",
+                    password: "",
+                    status: "ACTIVE",
+                    role: "TEACHER",
+                    image: "",
+                  });
+                  setImagePreview(null);
+                }}
+              >
+                Hủy
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                type="submit"
+              >
+                {checkEdit ? "Cập nhật" : "Thêm"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>

@@ -172,20 +172,21 @@ const AdminDashboard = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
+      console.log(req);
 
-      if (req?.data) {
-        const userData = req.data;
-        setUserImage(userData.image);
-        if (userData.student) {
-          setUserInfo(userData.student);
-        } else if (userData.teacher) {
-          setUserInfo(userData.teacher);
-        } else {
-          console.error("No user data found in response");
-        }
-      } else {
-        console.error("Invalid response from server:", req);
-      }
+      // if (req?.data) {
+      //   const userData = req.data;
+      //   setUserImage(userData.image);
+      //   if (userData.student) {
+      //     setUserInfo(userData.student);
+      //   } else if (userData.teacher) {
+      //     setUserInfo(userData.teacher);
+      //   } else {
+      //     console.error("No user data found in response");
+      //   }
+      // } else {
+      //   console.error("Invalid response from server:", req);
+      // }
     } catch (error) {
       console.error("Error fetching user details:", error);
     }

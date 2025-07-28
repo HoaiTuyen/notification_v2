@@ -67,14 +67,6 @@ const AdminCreateNotification = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Kiểm tra file + tên hiển thị
-    // const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
-    // const hasEmptyFile = files.some((f) => !f);
-    // if (hasEmptyName || hasEmptyFile) {
-    //   toast.error("Vui lòng nhập tên hiển thị và chọn đầy đủ file PDF");
-    //   return;
-    // }
-
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
@@ -166,32 +158,56 @@ const AdminCreateNotification = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        [field]: value,
-      };
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
 
-      if (field === "studentCode" && !isValidStudentCode(value)) {
-        updated.sendEmail = false;
+    const countWords = (text) =>
+      text.trim().split(/\s+/).filter(Boolean).length;
+
+    setErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+
+      if (field === "title") {
+        if (countWords(value) < 3) {
+          updatedErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.title;
+        }
       }
 
-      return updated;
-    });
+      if (field === "content") {
+        if (countWords(value) < 3) {
+          updatedErrors.content = "Nội dung phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.content;
+        }
+      }
 
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    }
+      return updatedErrors;
+    });
   };
 
   const validateForm = () => {
     const newErrors = {};
+    const countWords = (text) =>
+      text.trim().split(/\s+/).filter(Boolean).length;
 
     if (!formData.title.trim()) {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
+    } else {
+      if (countWords(formData.title) < 3) {
+        newErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+      }
+    }
+
+    if (!formData.content.trim()) {
+      newErrors.content = "Vui lòng nhập nội dung thông báo";
+    } else {
+      if (countWords(formData.content) < 3) {
+        newErrors.content = "Nội dung phải có ít nhất 3 từ";
+      }
     }
 
     fileDisplayNames.forEach((name, index) => {
@@ -215,9 +231,35 @@ const AdminCreateNotification = () => {
       setDepartments(listDepartment.data.departments);
     }
   };
-  const isValidStudentCode = (code) => {
-    const regex = /^DH\d{8,}$/i;
-    return regex.test(code.trim());
+  const handleBlur = (field, value) => {
+    const countWords = (text) =>
+      text.trim().split(/\s+/).filter(Boolean).length;
+
+    setErrors((prev) => {
+      const updatedErrors = { ...prev };
+
+      if (field === "title") {
+        if (!value.trim()) {
+          updatedErrors.title = "Vui lòng nhập tiêu đề thông báo";
+        } else if (countWords(value) < 3) {
+          updatedErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.title;
+        }
+      }
+
+      if (field === "content") {
+        if (!value.trim()) {
+          updatedErrors.content = "Vui lòng nhập nội dung thông báo";
+        } else if (countWords(value) < 3) {
+          updatedErrors.content = "Nội dung phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.content;
+        }
+      }
+
+      return updatedErrors;
+    });
   };
 
   useEffect(() => {
@@ -257,6 +299,9 @@ const AdminCreateNotification = () => {
                           handleInputChange("title", e.target.value)
                         }
                         className={errors.title ? "border-red-500" : ""}
+                        required
+                        onBlur={(e) => handleBlur("title", e.target.value)}
+                        title="Tiêu đề phải chứa ít nhất 3 từ"
                       />
                       {errors.title && (
                         <p className="text-sm text-red-600">{errors.title}</p>
@@ -370,7 +415,9 @@ const AdminCreateNotification = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">Nội dung</Label>
+                      <Label htmlFor="content">
+                        Nội dung <span className="text-red-500">*</span>
+                      </Label>
                       <Textarea
                         id="content"
                         placeholder="Nhập nội dung chi tiết thông báo..."
@@ -379,7 +426,14 @@ const AdminCreateNotification = () => {
                           handleInputChange("content", e.target.value)
                         }
                         rows={6}
+                        required
+                        className={errors.content ? "border-red-500" : ""}
+                        onBlur={(e) => handleBlur("content", e.target.value)}
+                        title="Nội dung phải chứa ít nhất 3 từ"
                       />
+                      {errors.content && (
+                        <p className="text-sm text-red-600">{errors.content}</p>
+                      )}
                     </div>
 
                     {fileDisplayNames.map((name, index) => (

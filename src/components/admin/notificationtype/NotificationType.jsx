@@ -97,6 +97,8 @@ const NotificationType = () => {
           totalPages: res.data.totalPages,
           totalElements: res.data.totalElements,
         });
+      } else {
+        setNotificationTypes([]);
       }
     } catch (error) {
       console.error("Error fetching notification types:", error);
@@ -215,9 +217,14 @@ const NotificationType = () => {
                     </TableRow>
                   ) : (
                     notificationTypes.map((notiType, index) => (
-                      <TableRow className="border border-gray-200">
+                      <TableRow
+                        key={notiType.id}
+                        className="border border-gray-200"
+                      >
                         <TableCell className="font-medium">
-                          {index + 1}
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
                         </TableCell>
                         <TableCell className="max-w-[180px] truncate" title="">
                           <div className="flex items-center">
@@ -225,7 +232,7 @@ const NotificationType = () => {
                           </div>
                         </TableCell>
                         <TableCell className="">
-                          {notiType.description}
+                          {notiType.description || "Trống"}
                         </TableCell>
 
                         <TableCell className="text-center align-middle">
@@ -261,8 +268,8 @@ const NotificationType = () => {
                               <DropdownMenuItem
                                 className="text-red-600 cursor-pointer"
                                 onClick={() => {
-                                  setOpenModalDelete(true),
-                                    setSelectNotiType(notiType);
+                                  setOpenModalDelete(true);
+                                  setSelectNotiType(notiType);
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Xóa
