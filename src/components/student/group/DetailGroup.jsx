@@ -47,69 +47,6 @@ import {
   handleSendMessage,
   handleListMessage,
 } from "../../../controller/MessageController";
-const mockMessages = [
-  {
-    id: "1",
-    sender: "GV. Nguyễn Văn Tam",
-    content: "Chào các em! Hôm nay chúng ta sẽ học về React hooks.",
-    timestamp: "2024-12-20T09:00:00Z",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isTeacher: true,
-  },
-  {
-    id: "2",
-    sender: "Nguyễn Văn A",
-    content: "Thầy ơi, em có thể hỏi về useState không ạ?",
-    timestamp: "2024-12-20T09:05:00Z",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isTeacher: false,
-  },
-  {
-    id: "3",
-    sender: "GV. Nguyễn Văn Tam",
-    content: "Được em, em hỏi đi!",
-    timestamp: "2024-12-20T09:06:00Z",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isTeacher: true,
-  },
-  {
-    id: "4",
-    sender: "Trần Thị B",
-    content: "Em cũng muốn hỏi về useEffect ạ!",
-    timestamp: "2024-12-20T09:10:00Z",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isTeacher: false,
-  },
-];
-const mockGroupData = {
-  id: "1",
-  name: "Nhóm Lập trình Web",
-  userName: "GV. Nguyễn Văn Tam",
-  description: "Nhóm học tập môn Lập trình Web - Lớp IT01",
-  members: [
-    {
-      id: "1",
-      fullName: "Nguyễn Văn A",
-      role: "Sinh viên",
-      image: "/placeholder.svg?height=40&width=40",
-      isOnline: true,
-    },
-    {
-      id: "2",
-      fullName: "Trần Thị B",
-      role: "Sinh viên",
-      image: "/placeholder.svg?height=40&width=40",
-      isOnline: false,
-    },
-    {
-      id: "3",
-      fullName: "Lê Văn C",
-      role: "Sinh viên",
-      image: "/placeholder.svg?height=40&width=40",
-      isOnline: true,
-    },
-  ],
-};
 
 const DetailGroupStudent = () => {
   const { connected, stompClient, error } = useWebSocket();
@@ -709,44 +646,50 @@ const DetailGroupStudent = () => {
                         <div className="border-t pt-5">
                           {comments[notify.id]?.length > 0 && (
                             <div className="px-4 pb-2 space-y-2">
-                              {comments[notify.id].map((comment) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex items-start space-x-3"
-                                >
-                                  <div className="pt-3">
-                                    <Avatar className="h-8 w-8">
-                                      {comment.image ? (
-                                        <AvatarImage
-                                          src={comment.image}
-                                          alt="avatar"
-                                        />
-                                      ) : null}
-                                      <AvatarFallback className="bg-blue-500 text-white">
-                                        {getInitials(comment.sender)}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                  </div>
-                                  <div>
-                                    <div className="rounded-xl py-2 flex-1">
-                                      <div className="flex items-center space-x-2">
-                                        <div className="text-sm font-medium">
-                                          {comment.sender}
+                              {comments[notify.id]
+                                .sort(
+                                  (a, b) =>
+                                    new Date(a.timestamp) -
+                                    new Date(b.timestamp)
+                                )
+                                .map((comment) => (
+                                  <div
+                                    key={comment.id}
+                                    className="flex items-start space-x-3"
+                                  >
+                                    <div className="pt-3">
+                                      <Avatar className="h-8 w-8">
+                                        {comment.image ? (
+                                          <AvatarImage
+                                            src={comment.image}
+                                            alt="avatar"
+                                          />
+                                        ) : null}
+                                        <AvatarFallback className="bg-blue-500 text-white">
+                                          {getInitials(comment.sender)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    </div>
+                                    <div>
+                                      <div className="rounded-xl py-2 flex-1">
+                                        <div className="flex items-center space-x-2">
+                                          <div className="text-sm font-medium">
+                                            {comment.sender}
+                                          </div>
+                                          <div className="text-xs text-gray-500 ">
+                                            {dayjs(comment.timestamp).format(
+                                              "DD/MM/YYYY"
+                                            )}
+                                          </div>
                                         </div>
-                                        <div className="text-xs text-gray-500 ">
-                                          {dayjs(comment.timestamp).format(
-                                            "DD/MM/YYYY"
-                                          )}
-                                        </div>
-                                      </div>
 
-                                      <div className="text-sm text-gray-700">
-                                        {comment.content}
+                                        <div className="text-sm text-gray-700">
+                                          {comment.content}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           )}
 

@@ -26,6 +26,7 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
     files: [],
     displayNames: [""],
   });
+  const [errors, setErrors] = useState({});
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -56,9 +57,66 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
     displayNames.splice(index, 1);
     setFormData({ ...formData, files, displayNames });
   };
+  const validateForm = () => {
+    const newErrors = {};
+    const countWords = (text) =>
+      text.trim().split(/\s+/).filter(Boolean).length;
 
-  const handleSubmit = async () => {
-    if (!formData.title.trim()) return toast.error("Vui lòng nhập tiêu đề");
+    if (!formData.title.trim()) {
+      newErrors.title = "Vui lòng nhập tiêu đề thông báo";
+    } else {
+      if (countWords(formData.title) < 3) {
+        newErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+      }
+    }
+
+    if (!formData.content.trim()) {
+      newErrors.content = "Vui lòng nhập nội dung thông báo";
+    } else {
+      if (countWords(formData.content) < 3) {
+        newErrors.content = "Nội dung phải có ít nhất 3 từ";
+      }
+    }
+
+    setErrors(newErrors);
+
+    // Trả về true nếu không có lỗi
+    return Object.keys(newErrors).length === 0;
+  };
+  const handleBlur = (field, value) => {
+    const countWords = (text) =>
+      text.trim().split(/\s+/).filter(Boolean).length;
+
+    setErrors((prev) => {
+      const updatedErrors = { ...prev };
+
+      if (field === "title") {
+        if (!value.trim()) {
+          updatedErrors.title = "Vui lòng nhập tiêu đề thông báo";
+        } else if (countWords(value) < 3) {
+          updatedErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.title;
+        }
+      }
+
+      if (field === "content") {
+        if (!value.trim()) {
+          updatedErrors.content = "Vui lòng nhập nội dung thông báo";
+        } else if (countWords(value) < 3) {
+          updatedErrors.content = "Nội dung phải có ít nhất 3 từ";
+        } else {
+          delete updatedErrors.content;
+        }
+      }
+
+      return updatedErrors;
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
     try {
       setSubmitting(true);
@@ -94,90 +152,8 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
     }
   };
   if (!open) return null;
+  const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
   return (
-    // <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-    //   <DialogContent className="w-[1200px]  max-h-[90vh] overflow-y-auto">
-    //     <DialogHeader>
-    //       <DialogTitle className="text-xl font-semibold">
-    //         Tạo thông báo nhóm học tập
-    //       </DialogTitle>
-    //     </DialogHeader>
-
-    //     <Card className="max-w-[700px] shadow-lg">
-    //       <CardContent className="space-y-4">
-    //         <div>
-    //           <Label>Tiêu đề *</Label>
-    //           <Input
-    //             placeholder="Nhập tiêu đề"
-    //             value={formData.title}
-    //             onChange={(e) =>
-    //               setFormData({ ...formData, title: e.target.value })
-    //             }
-    //           />
-    //         </div>
-    //         <div>
-    //           <Label>Nội dung *</Label>
-    //           <Textarea
-    //             rows={5}
-    //             placeholder="Nội dung chi tiết thông báo"
-    //             value={formData.content}
-    //             onChange={(e) =>
-    //               setFormData({ ...formData, content: e.target.value })
-    //             }
-    //             className="whitespace-pre-wrap break-words"
-    //           />
-    //         </div>
-
-    //         {formData.displayNames.map((name, index) => (
-    //           <div
-    //             key={index}
-    //             className="space-y-1 border p-4 rounded-md relative"
-    //           >
-    //             <Label>Tên hiển thị file {index + 1}</Label>
-    //             <Input
-    //               type="text"
-    //               placeholder="Ví dụ: Tài liệu chương 1"
-    //               value={name}
-    //               onChange={(e) =>
-    //                 handleDisplayNameChange(e.target.value, index)
-    //               }
-    //             />
-    //             <Input
-    //               type="file"
-    //               accept=".pdf,.docx,.xlsx"
-    //               className="mt-2"
-    //               onChange={(e) => handleFileChange(e.target.files[0], index)}
-    //             />
-    //             {formData.displayNames.length > 1 && (
-    //               <button
-    //                 type="button"
-    //                 className="absolute top-2 right-2 text-red-500"
-    //                 onClick={() => handleRemoveFile(index)}
-    //               >
-    //                 <X size={16} />
-    //               </button>
-    //             )}
-    //           </div>
-    //         ))}
-
-    //         <Button
-    //           variant="secondary"
-    //           type="button"
-    //           onClick={handleAddFile}
-    //           className="flex items-center gap-2"
-    //         >
-    //           <Plus size={16} /> Thêm file khác
-    //         </Button>
-
-    //         <div className="text-right">
-    //           <Button onClick={handleSubmit} disabled={submitting}>
-    //             {submitting ? "Đang gửi..." : "Gửi thông báo"}
-    //           </Button>
-    //         </div>
-    //       </CardContent>
-    //     </Card>
-    //   </DialogContent>
-    // </Dialog>
     <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center">
       <div className="bg-white w-full max-w-[900px] max-h-[90vh] overflow-y-auto rounded-xl shadow-xl p-6 relative">
         {/* Nút đóng */}
@@ -192,80 +168,119 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
           Tạo thông báo nhóm học tập
         </h2>
 
-        <div className="space-y-4">
-          <div>
-            <Label>Tiêu đề *</Label>
-            <Input
-              placeholder="Nhập tiêu đề"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-2">
+                Tiêu đề <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                placeholder="Nhập tiêu đề"
+                value={formData.title}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, title: value }));
 
-          <div>
-            <Label>Nội dung *</Label>
-            <Textarea
-              rows={5}
-              placeholder="Nội dung chi tiết thông báo"
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
-              className="whitespace-pre-wrap break-words"
-            />
-          </div>
+                  if (countWords(value) >= 3) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.title;
+                      return newErrors;
+                    });
+                  }
+                }}
+                required
+                className={errors.title ? "border-red-500" : ""}
+                onBlur={(e) => handleBlur("title", e.target.value)}
+                title="Tiêu đề phải chứa ít nhất 3 từ"
+              />
+              {errors.title && (
+                <p className="text-sm text-red-600">{errors.title}</p>
+              )}
+            </div>
 
-          {formData.displayNames.map((name, index) => (
-            <div
-              key={index}
-              className="space-y-1 border p-4 rounded-md relative"
-            >
-              <Label>file {index + 1}</Label>
-              {/* <Input
+            <div>
+              <Label className="mb-2">
+                Nội dung <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                rows={5}
+                placeholder="Nội dung chi tiết thông báo"
+                value={formData.content}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, content: value }));
+
+                  if (countWords(value) >= 3) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.content;
+                      return newErrors;
+                    });
+                  }
+                }}
+                required
+                className={`whitespace-pre-wrap break-words ${
+                  errors.content ? "border-red-500" : ""
+                }`}
+                onBlur={(e) => handleBlur("content", e.target.value)}
+                title="Nội dung phải chứa ít nhất 3 từ"
+              />
+              {errors.content && (
+                <p className="text-sm text-red-600">{errors.content}</p>
+              )}
+            </div>
+
+            {formData.displayNames.map((name, index) => (
+              <div
+                key={index}
+                className="space-y-1 border p-4 rounded-md relative"
+              >
+                <Label>file {index + 1}</Label>
+                {/* <Input
                 type="text"
                 value={name}
                 placeholder="VD: Tài liệu chương 1"
                 onChange={(e) => handleDisplayNameChange(e.target.value, index)}
               /> */}
-              <Input
-                type="file"
-                accept=".pdf,.docx,.xlsx"
-                className="mt-2"
-                onChange={(e) => handleFileChange(e.target.files[0], index)}
-              />
-              {formData.displayNames.length > 1 && (
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 text-red-500 cursor-pointer"
-                  onClick={() => handleRemoveFile(index)}
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          ))}
+                <Input
+                  type="file"
+                  accept=".pdf,.docx,.xlsx"
+                  className="mt-2"
+                  onChange={(e) => handleFileChange(e.target.files[0], index)}
+                />
+                {formData.displayNames.length > 1 && (
+                  <button
+                    type="button"
+                    className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                    onClick={() => handleRemoveFile(index)}
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
 
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={handleAddFile}
-            className="flex items-center gap-2"
-          >
-            <Plus size={16} /> Thêm file khác
-          </Button>
-
-          <div className="text-right">
             <Button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="cursor-pointer"
+              variant="secondary"
+              type="button"
+              onClick={handleAddFile}
+              className="flex items-center gap-2"
             >
-              {submitting ? "Đang gửi..." : "Tạo thông báo"}
+              <Plus size={16} /> Thêm file khác
             </Button>
+
+            <div className="text-right">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700"
+              >
+                {submitting ? "Đang gửi..." : "Tạo thông báo"}
+              </Button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

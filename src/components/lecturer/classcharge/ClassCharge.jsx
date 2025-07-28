@@ -86,16 +86,15 @@ const ClassCharge = () => {
     <div className="w-full bg-white overflow-y-auto max-h-[700px] p-10">
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Lớp học phụ trách</h1>
-          <p className="text-muted-foreground">Quản lý lớp chủ nhiệm</p>
+          <h1 className="text-3xl font-bold">Lớp học chủ nhiệm</h1>
         </div>
 
         {/* Stats Cards */}
 
         <Tabs defaultValue="homeroom" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="homeroom">Lớp chủ nhiệm</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
 
           {/* Lớp chủ nhiệm */}
           <TabsContent value="homeroom" className="space-y-4">

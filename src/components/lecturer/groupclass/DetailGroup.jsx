@@ -346,7 +346,11 @@ const DetailGroupLecturer = () => {
         if (messages.length === 0 && hasMore) {
           fetchMessages(); // Gọi fetchMessages nếu messages rỗng
         } else if (messages.length > 0) {
-          messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+          messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "nearest",
+          });
         }
         setInitialLoaded(true);
       });
@@ -500,14 +504,11 @@ const DetailGroupLecturer = () => {
   useEffect(() => {
     if (activeTab !== "chat") return;
 
-    const timeout = setTimeout(() => {
-      const el = messagesEndRef.current;
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "end" });
-      }
-    }, 100); // Safari cần delay > 50ms
+    const el = scrollRef.current;
+    if (!el) return;
 
-    return () => clearTimeout(timeout);
+    // Cuộn tới đáy
+    el.scrollTop = el.scrollHeight;
   }, [messages.length, activeTab]);
 
   if (loading) {
@@ -527,7 +528,7 @@ const DetailGroupLecturer = () => {
       transition={{ duration: 0.3 }}
       className="overflow-hidden bg-gray-50 border-t border-gray-200 rounded-b-xl"
     >
-      <div className="min-h-screen w-full bg-white overflow-y-auto max-h-screen p-10">
+      <div className="h-full w-full bg-white overflow-auto p-10">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -543,7 +544,7 @@ const DetailGroupLecturer = () => {
             </div>
           </div>
         </div>
-        <div className="min-h-screen pb-10">
+        <div className="h-full pb-10">
           <Tabs
             defaultValue="home"
             className="px-6 pt-8 pb-3"
@@ -693,44 +694,50 @@ const DetailGroupLecturer = () => {
                         <div className="border-t pt-5">
                           {comments[notify.id]?.length > 0 && (
                             <div className="px-4 pb-2 space-y-2">
-                              {comments[notify.id].map((comment) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex items-start space-x-3"
-                                >
-                                  <div className="pt-3">
-                                    <Avatar className="h-8 w-8">
-                                      {comment.image ? (
-                                        <AvatarImage
-                                          src={comment.image}
-                                          alt="avatar"
-                                        />
-                                      ) : null}
-                                      <AvatarFallback className="bg-blue-500 text-white">
-                                        {getInitials(comment.sender)}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                  </div>
-                                  <div>
-                                    <div className="rounded-xl py-2 flex-1">
-                                      <div className="flex items-center space-x-2">
-                                        <div className="text-sm font-medium">
-                                          {comment.sender}
+                              {comments[notify.id]
+                                .sort(
+                                  (a, b) =>
+                                    new Date(a.timestamp) -
+                                    new Date(b.timestamp)
+                                )
+                                .map((comment) => (
+                                  <div
+                                    key={comment.id}
+                                    className="flex items-start space-x-3"
+                                  >
+                                    <div className="pt-3">
+                                      <Avatar className="h-8 w-8">
+                                        {comment.image ? (
+                                          <AvatarImage
+                                            src={comment.image}
+                                            alt="avatar"
+                                          />
+                                        ) : null}
+                                        <AvatarFallback className="bg-blue-500 text-white">
+                                          {getInitials(comment.sender)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    </div>
+                                    <div>
+                                      <div className="rounded-xl py-2 flex-1">
+                                        <div className="flex items-center space-x-2">
+                                          <div className="text-sm font-medium">
+                                            {comment.sender}
+                                          </div>
+                                          <div className="text-xs text-gray-500 ">
+                                            {dayjs(comment.timestamp).format(
+                                              "HH:mm - DD/MM/YYYY"
+                                            )}
+                                          </div>
                                         </div>
-                                        <div className="text-xs text-gray-500 ">
-                                          {dayjs(comment.timestamp).format(
-                                            "HH:mm - DD/MM/YYYY"
-                                          )}
-                                        </div>
-                                      </div>
 
-                                      <div className="text-sm text-gray-700">
-                                        {comment.content}
+                                        <div className="text-sm text-gray-700">
+                                          {comment.content}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           )}
 
@@ -781,7 +788,7 @@ const DetailGroupLecturer = () => {
               </div>
             </TabsContent>
             <TabsContent value="notification">
-              <div className="p-6  min-h-screen">
+              <div className="p-6">
                 {/* Nút Create */}
                 <div className="mb-6 ">
                   <button

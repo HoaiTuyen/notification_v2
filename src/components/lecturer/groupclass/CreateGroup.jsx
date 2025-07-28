@@ -35,7 +35,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
-
+  const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
     id: group?.id || "",
     name: group?.name || "",
@@ -44,7 +44,28 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
     color: DEFAULT_COLOR,
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
+
+    // Validate Tên nhóm
+    const trimmedName = form.name.trim();
+    if (!trimmedName) {
+      toast.error("Tên nhóm học tập không được để trống");
+      return;
+    }
+
+    if (trimmedName.length < 5) {
+      toast.error("Tên nhóm học tập ít nhất 5 ký tự");
+      return;
+    }
+
+    if (!nameRegex.test(trimmedName)) {
+      toast.error(
+        "Tên nhóm học tập phải bắt đầu bằng chữ, các kí tự còn lại chứa chữ, số hoặc khoảng trắng (không ký tự đặc biệt)"
+      );
+      return;
+    }
     setLoading(true);
     const submitData = {
       ...form,
@@ -95,6 +116,20 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
   }, [group, open]);
 
   useEffect(() => {}, []);
+  const validateField = (field, value) => {
+    let error = "";
+
+    if (field === "name") {
+      const trimmed = value.trim();
+      if (!trimmed) error = "Tên nhóm học tập không được để trống";
+      else if (trimmed.length < 5) error = "Tên nhóm học tập ít nhất 5 ký tự";
+      else if (!/^[\p{L}][\p{L}0-9 ]*$/u.test(trimmed))
+        error =
+          "Tên nhóm học tập phải bắt đầu bằng chữ và chỉ chứa chữ, số, hoặc khoảng trắng";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
 
   return (
     <>
@@ -119,10 +154,10 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
               </DialogHeader>
             </>
           )}
-
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-4">
-              {/* <div className="grid gap-2">
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-4">
+                {/* <div className="grid gap-2">
                 <Input
                   id="userId"
                   placeholder="VD: CNTT01"
@@ -130,30 +165,38 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
                 />
               </div> */}
 
-              <div className="grid gap-2">
-                <Label htmlFor="nameGroup">Tên nhóm</Label>
-                <Input
-                  id="nameGroup"
-                  type="text"
-                  placeholder="Nhập tên nhóm"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                />
+                <div className="grid gap-2">
+                  <Label htmlFor="nameGroup">Tên nhóm học tập</Label>
+                  <Input
+                    id="nameGroup"
+                    type="text"
+                    placeholder="Nhập tên nhóm học tập..."
+                    value={form.name}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
+                    required
+                    onBlur={(e) => validateField("name", e.target.value)}
+                  />
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.name || "\u00A0"}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
-              Hủy
-            </Button>
-            <Button
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => handleSubmit()}
-            >
-              Thêm nhóm
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => onClose()}>
+                Hủy
+              </Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" type="submit">
+                Thêm nhóm
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>

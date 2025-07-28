@@ -165,14 +165,11 @@ const TeacherProfile = () => {
     );
   }
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="h-full w-full bg-white p-0">
       <div className="space-y-6 p-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Thông tin cá nhân</h1>
-            <p className="text-muted-foreground">
-              Quản lý thông tin cá nhân và hồ sơ giảng viên
-            </p>
           </div>
           <div className="flex gap-2">
             {isEditing ? (
@@ -205,9 +202,9 @@ const TeacherProfile = () => {
         </div>
 
         <Tabs defaultValue="personal" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
 
           <TabsContent value="personal" className="space-y-4">
             <Card>

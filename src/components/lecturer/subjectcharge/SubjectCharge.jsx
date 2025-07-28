@@ -174,10 +174,10 @@ const SubjectCharge = () => {
         </div> */}
 
         <Tabs defaultValue="courses" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
-            {/* <TabsTrigger value="schedule">Lịch giảng dạy</TabsTrigger> */}
-          </TabsList>
+            <TabsTrigger value="schedule">Lịch giảng dạy</TabsTrigger> 
+          </TabsList> */}
 
           <TabsContent value="courses" className="space-y-4">
             <Card>

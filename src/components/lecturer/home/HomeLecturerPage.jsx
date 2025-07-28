@@ -147,7 +147,7 @@ const HomeLecturerPage = () => {
     );
   }
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="space-y-6 p-10">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map(({ title, value, description, icon: Icon, color }) => (

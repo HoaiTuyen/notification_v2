@@ -176,6 +176,7 @@ const NotificationDropdown = ({
                     ? "block whitespace-pre-line font-medium" // hiện đầy đủ, xuống dòng nếu có \n
                     : "block max-w-[250px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
                 }
+                title={item.title}
               >
                 {removeDuplicateLines(item.title) ||
                   `${item.sender} đã gửi: ${item.content}`}

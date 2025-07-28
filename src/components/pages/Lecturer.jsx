@@ -150,7 +150,14 @@ const LecturerDashboard = () => {
     fetchUserDetail();
   }, []);
   return (
-    <Layout style={{ minHeight: "150vh", width: "100vw" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Header
         style={{
           backgroundColor: "#fff",
@@ -248,10 +255,10 @@ const LecturerDashboard = () => {
         {/* NỘI DUNG */}
         <Content
           style={{
-            padding: 0,
-            // height: "100%",
-            overflow: "auto",
+            height: "100%",
+            overflowY: "auto",
             backgroundColor: "#fff",
+            padding: 0,
           }}
         >
           {/* {selectedTab === "notification" && <CreateNotification />} */}
