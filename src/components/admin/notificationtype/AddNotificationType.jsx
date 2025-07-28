@@ -177,15 +177,20 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
                     type="text"
                     placeholder="Nhập tên loại thông báo"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
                     onBlur={(e) => validateField("name", e.target.value)}
                     required
                     pattern="^[\p{L}0-9 ]+$"
                     title="Tên loại thông báo phải có ít nhất 3 ký tự, chỉ chứa chữ, số và khoảng trắng"
                   />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm">{errors.name}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.name || "\u00A0"}
+                  </p>
                 </div>
 
                 <div className="grid gap-2">

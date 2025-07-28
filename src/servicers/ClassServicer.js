@@ -56,3 +56,14 @@ export const getListStudentByClassExcel = (formData) => {
 export const createStudentByClassExcel = (data) => {
   return api.post("/class/add_student_class", data);
 };
+
+export const searchStudentByClass = (classId, keyword, page = 0, pageSize) => {
+  return api.get("/student/list_students", {
+    params: {
+      classId: classId,
+      keyword: keyword,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};

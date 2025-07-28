@@ -24,11 +24,14 @@ import {
   handleUploadImage,
 } from "../../../../controller/AccountController";
 import { useLoading } from "../../../../context/LoadingProvider";
+import { Eye, EyeOff } from "lucide-react";
 
 const AddAccount = ({ open, onClose, onSuccess, users }) => {
   const { setLoading } = useLoading();
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+
   const checkEdit = !!users?.id;
 
   const [form, setForm] = useState({
@@ -197,38 +200,53 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   id="username"
                   value={form.username}
                   disabled={checkEdit}
-                  onChange={(e) =>
-                    setForm({ ...form, username: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, username: e.target.value });
+                    if (errors.username) {
+                      setErrors((prev) => ({ ...prev, username: "" }));
+                    }
+                  }}
                   onBlur={() => validateField("username", form.username)}
                   required
                   pattern="^[A-Za-z][A-Za-z0-9]{4,}$"
-                  title="Username phải bắt đầu bằng chữ, tối thiểu 5 ký tự (gồm chữ hoặc số)"
+                  title="Username phải bắt đầu bằng chữ, tối thiểu 5 ký tự"
                 />
-                {errors.username && (
-                  <p className="text-red-500 text-sm">{errors.username}</p>
-                )}
+                <p className="text-sm min-h-[20px] text-red-500">
+                  {errors.username || "\u00A0"}
+                </p>
               </div>
               {!checkEdit && (
-                <div className="grid gap-2">
+                <div className="grid gap-2 relative">
                   <Label htmlFor="password">
                     Password <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
-                    onBlur={() => validateField("password", form.password)}
-                    required
-                    minLength={6}
-                    title="Mật khẩu phải có ít nhất 6 ký tự"
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm">{errors.password}</p>
-                  )}
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(e) => {
+                        setForm({ ...form, password: e.target.value });
+                        if (errors.password) {
+                          setErrors((prev) => ({ ...prev, password: "" }));
+                        }
+                      }}
+                      onBlur={() => validateField("password", form.password)}
+                      required
+                      minLength={6}
+                      title="Mật khẩu phải có ít nhất 6 ký tự"
+                      className="pr-10"
+                    />
+                    <div
+                      className="absolute right-2 top-2.5 cursor-pointer text-gray-500"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </div>
+                  </div>
+                  <p className="text-sm min-h-[20px] text-red-500">
+                    {errors.password || "\u00A0"}
+                  </p>
                 </div>
               )}
             </div>

@@ -22,9 +22,9 @@ import * as XLSX from "xlsx";
 import { useLoading } from "../../../context/LoadingProvider";
 const generateSampleExcel = () => {
   const sampleData = [
-    ["STT", "Tên lớp", "Mô tả"],
-    ["1", "D21_TH12", "Niên khoá 2021 - 2025"],
-    ["2", "D21_TH13", "Niên khoá 2021 - 2025"],
+    ["STT", "Mã lớp", "Tên lớp", "Mô tả"],
+    ["1", "D21_TH12", "D21_TH12", "Niên khoá 2021 - 2025"],
+    ["2", "D21_TH13", "D21_TH13", "Niên khoá 2021 - 2025"],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(sampleData);
@@ -148,8 +148,7 @@ const ImportClassModal = ({ open, onClose, onSuccess }) => {
           </div>
           <div className="mt-4">
             <p className="text-sm text-muted-foreground">
-              Lưu ý: File nhập vào cần có các cột: STT, Mã môn học, tên môn học,
-              số tín chỉ
+              Lưu ý: File nhập vào cần có các cột: STT, Mã lớp, Tên lớp, Mô tả
             </p>
           </div>
           <div className="mt-4">

@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import { handleListClass } from "../../../controller/ClassController";
 import { useValidateStudentForm } from "../../../hooks/useValidateForm";
 import { useLoading } from "../../../context/LoadingProvider";
+import { Eye, EyeOff } from "lucide-react";
 const AddStudent = ({ open, onClose, onSuccess, student }) => {
   const checkEdit = !!student?.id;
   const [dataClass, setDataClass] = useState([]);
@@ -34,7 +35,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     useValidateStudentForm();
   const { setLoading } = useLoading();
   const [errors, setErrors] = useState({});
-  const [changePassword, setChangePassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     id: student?.id || "",
@@ -188,7 +189,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     switch (field) {
       case "id":
         if (!trimmed) message = "Mã sinh viên không được để trống";
-        else if (!/^[A-Z0-9_]+$/.test(trimmed))
+        else if (!/^[A-Z][A-Z0-9_]*$/.test(trimmed))
           message = "Chỉ bao gồm chữ in hoa, số hoặc dấu gạch dưới";
         break;
       case "firstName":
@@ -244,15 +245,20 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     id="studentId"
                     placeholder="VD: DH52112031"
                     value={form.id}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, id: e.target.value });
+                      if (errors.id) {
+                        setErrors((prev) => ({ ...prev, id: "" }));
+                      }
+                    }}
                     onBlur={(e) => validateField("id", e.target.value)}
                     required
                     pattern="^[A-Z][A-Za-z0-9]*$"
                     title="Mã sinh viên phải bắt đầu bằng chữ, các kí tự còn lại chứa chữ hoặc số"
                   />
-                  {errors.id && (
-                    <p className="text-red-500 text-sm">{errors.id}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.id || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dateOfBirth">
@@ -269,6 +275,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     }
                     required
                   />
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.dateOfBirth || "\u00A0"}
+                  </p>
                 </div>
               </div>
 
@@ -281,17 +290,20 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     id="lastName"
                     placeholder="Nhập họ sinh viên"
                     value={form.firstName}
-                    onChange={(e) =>
-                      setForm({ ...form, firstName: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, firstName: e.target.value });
+                      if (errors.firstName) {
+                        setErrors((prev) => ({ ...prev, firstName: "" }));
+                      }
+                    }}
                     onBlur={(e) => validateField("firstName", e.target.value)}
                     required
                     pattern="^[\p{L} ]+$"
                     title="Họ chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt"
                   />
-                  {errors.firstName && (
-                    <p className="text-red-500 text-sm">{errors.firstName}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.firstName || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="firstName">
@@ -301,17 +313,20 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     id="firstName"
                     placeholder="Nhập tên sinh viên"
                     value={form.lastName}
-                    onChange={(e) =>
-                      setForm({ ...form, lastName: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, lastName: e.target.value });
+                      if (errors.lastName) {
+                        setErrors((prev) => ({ ...prev, lastName: "" }));
+                      }
+                    }}
                     onBlur={(e) => validateField("lastName", e.target.value)}
                     required
                     pattern="^[a-zA-ZÀ-ỹ]+$"
                     title="Tên chỉ được chứa chữ cái, không được chứa số hoặc ký tự đặc biệt"
                   />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm">{errors.lastName}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.lastName || "\u00A0"}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -324,16 +339,19 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     type="email"
                     placeholder="email@example.edu.vn"
                     value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, email: e.target.value });
+                      if (errors.email) {
+                        setErrors((prev) => ({ ...prev, email: "" }));
+                      }
+                    }}
                     onBlur={(e) => validateField("email", e.target.value)}
                     required
                     title="Email không hợp lệ. Vui lòng nhập đúng định dạng email."
                   />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm">{errors.email}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.email || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2 justify-center">
                   <Label htmlFor="gender">
@@ -353,6 +371,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                       <SelectItem value="NỮ">Nữ</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.gender || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="status">
@@ -376,6 +397,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                       <SelectItem value="THÔI_HỌC">Thôi học</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.status || "\u00A0"}
+                  </p>
                 </div>
               </div>
               {!checkEdit && (
@@ -388,34 +412,54 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                       id="username"
                       placeholder="Nhập username"
                       value={form.username}
-                      onChange={(e) =>
-                        setForm({ ...form, username: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setForm({ ...form, username: e.target.value });
+                        if (errors.username) {
+                          setErrors((prev) => ({ ...prev, username: "" }));
+                        }
+                      }}
                       onBlur={(e) => validateField("username", e.target.value)}
                       required={!checkEdit}
                     />
-                    {errors.username && (
-                      <p className="text-red-500 text-sm">{errors.username}</p>
-                    )}
+                    <p className="text-red-500 min-h-[20px] text-sm">
+                      {errors.username || "\u00A0"}
+                    </p>
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 relative">
                     <Label htmlFor="password">
                       Password <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Nhập mật khẩu"
-                      value={form.password}
-                      onChange={(e) =>
-                        setForm({ ...form, password: e.target.value })
-                      }
-                      onBlur={(e) => validateField("password", e.target.value)}
-                      required={!checkEdit}
-                    />
-                    {errors.password && (
-                      <p className="text-red-500 text-sm">{errors.password}</p>
-                    )}
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={form.password}
+                        onChange={(e) => {
+                          setForm({ ...form, password: e.target.value });
+                          if (errors.password) {
+                            setErrors((prev) => ({ ...prev, password: "" }));
+                          }
+                        }}
+                        onBlur={() => validateField("password", form.password)}
+                        required
+                        minLength={6}
+                        title="Mật khẩu phải có ít nhất 6 ký tự"
+                        className="pr-10"
+                      />
+                      <div
+                        className="absolute right-2 top-2.5 cursor-pointer text-gray-500"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm min-h-[20px] text-red-500">
+                      {errors.password || "\u00A0"}
+                    </p>
                   </div>
                 </div>
               )}

@@ -68,6 +68,7 @@ import StudentEmployee from "../components/employee/student/Student";
 import LecturerEmployee from "../components/employee/lecturer/Lecturer";
 import ChangePasswordLecturer from "../components/lecturer/ChangePassword";
 import ChangePasswordEmployee from "../components/employee/ChangePassword";
+import EmployeeListClassOfDepartment from "../components/employee/department/listClassByDepartment/ListClassByDepartment";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -217,6 +218,10 @@ function AppRoutes() {
             <Route path="semester" element={<EmployeeSemester />} />
             <Route path="subject" element={<EmployeeSubject />} />
             <Route path="department" element={<DepartmentEmployee />} />
+            <Route
+              path="department/:departmentId/class"
+              element={<EmployeeListClassOfDepartment />}
+            />
             <Route path="student-employee" element={<StudentEmployee />} />
             <Route path="lecturer-employee" element={<LecturerEmployee />} />
             <Route

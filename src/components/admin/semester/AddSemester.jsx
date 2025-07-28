@@ -199,13 +199,20 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               <Input
                 id="semesterId"
                 value={form.id}
-                onChange={(e) => setForm({ ...form, id: e.target.value })}
+                onChange={(e) => {
+                  setForm({ ...form, id: e.target.value });
+                  if (errors.id) {
+                    setErrors((prev) => ({ ...prev, id: "" }));
+                  }
+                }}
                 onBlur={() => validateField("id", form.id)}
                 required
                 minLength={3}
                 pattern="^[0-9]+$"
               />
-              {errors.id && <p className="text-red-500 text-sm">{errors.id}</p>}
+              <p className="text-red-500 min-h-[20px] text-sm">
+                {errors.id || "\u00A0"}
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="grid gap-2">
@@ -215,9 +222,12 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 <Input
                   id="nameSemester"
                   value={form.nameSemester}
-                  onChange={(e) =>
-                    setForm({ ...form, nameSemester: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, nameSemester: e.target.value });
+                    if (errors.nameSemester) {
+                      setErrors((prev) => ({ ...prev, nameSemester: "" }));
+                    }
+                  }}
                   onBlur={() =>
                     validateField("nameSemester", form.nameSemester)
                   }
@@ -225,9 +235,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                   minLength={3}
                   pattern="^[\p{L}][\p{L}0-9 ]*$"
                 />
-                {errors.nameSemester && (
-                  <p className="text-red-500 text-sm">{errors.nameSemester}</p>
-                )}
+                <p className="text-red-500 min-h-[20px] text-sm">
+                  {errors.nameSemester || "\u00A0"}
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="academicYear">
@@ -236,18 +246,21 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 <Input
                   id="academicYear"
                   value={form.academicYear}
-                  onChange={(e) =>
-                    setForm({ ...form, academicYear: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, academicYear: e.target.value });
+                    if (errors.academicYear) {
+                      setErrors((prev) => ({ ...prev, academicYear: "" }));
+                    }
+                  }}
                   onBlur={() =>
                     validateField("academicYear", form.academicYear)
                   }
                   required
                   pattern="^\d{4}-\d{4}$"
                 />
-                {errors.academicYear && (
-                  <p className="text-red-500 text-sm">{errors.academicYear}</p>
-                )}
+                <p className="text-red-500 min-h-[20px] text-sm">
+                  {errors.academicYear || "\u00A0"}
+                </p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 py-4">
@@ -259,9 +272,12 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                   id="startDate"
                   type="date"
                   value={form.startDate}
-                  onChange={(e) =>
-                    setForm({ ...form, startDate: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, startDate: e.target.value });
+                    if (errors.startDate) {
+                      setErrors((prev) => ({ ...prev, startDate: "" }));
+                    }
+                  }}
                   required
                 />
               </div>
@@ -273,9 +289,12 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                   id="endDate"
                   type="date"
                   value={form.endDate}
-                  onChange={(e) =>
-                    setForm({ ...form, endDate: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, endDate: e.target.value });
+                    if (errors.endDate) {
+                      setErrors((prev) => ({ ...prev, endDate: "" }));
+                    }
+                  }}
                   required
                 />
               </div>

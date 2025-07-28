@@ -9,6 +9,7 @@ import {
   listStudentByClass,
   getListStudentByClassExcel,
   createStudentByClassExcel,
+  searchStudentByClass,
 } from "../servicers/ClassServicer";
 
 export const handleAddClass = async (data) => {
@@ -188,6 +189,35 @@ export const handleCreateStudentByClassExcel = async (data) => {
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
       data: [],
+    };
+  }
+};
+
+export const handleSearchStudentByClass = async (
+  classId,
+  keyword,
+  page = 0,
+  pageSize = 10
+) => {
+  try {
+    const response = await searchStudentByClass(
+      classId,
+      keyword,
+      page,
+      pageSize
+    );
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi thêm môn học",
+      data: error.response?.data || {},
     };
   }
 };

@@ -23,7 +23,10 @@ import {
 } from "@/components/ui/card";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, Upload } from "lucide-react";
-import { handleListStudentByClass } from "../../../../controller/ClassController";
+import {
+  handleListStudentByClass,
+  handleSearchStudentByClass,
+} from "../../../../controller/ClassController";
 import { handleSearchStudent } from "../../../../controller/StudentController";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 import useDebounce from "../../../../hooks/useDebounce";
@@ -86,8 +89,8 @@ const ListStudentOfClass = () => {
     let res;
     const keyword = debouncedSearchTerm.trim();
     if (keyword) {
-      res = await handleSearchStudent(
-        "",
+      res = await handleSearchStudentByClass(
+        classId,
         keyword,
         page - 1,
         pagination.pageSize

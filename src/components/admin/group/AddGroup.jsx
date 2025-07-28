@@ -189,12 +189,17 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                   type="text"
                   placeholder="Nhập tên nhóm học tập"
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    if (errors.name) {
+                      setErrors((prev) => ({ ...prev, name: "" }));
+                    }
+                  }}
                   onBlur={(e) => validateField("name", e.target.value)}
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name}</p>
-                )}
+                <p className="text-red-500 min-h-[20px] text-sm">
+                  {errors.name || "\u00A0"}
+                </p>
               </div>
               {/* {checkEdit ? (
                 <div className="grid gap-2"></div>

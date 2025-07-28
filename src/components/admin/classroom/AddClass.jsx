@@ -205,7 +205,12 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     id="classId"
                     placeholder="VD: CNTT"
                     value={form.id}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, id: e.target.value });
+                      if (errors.id) {
+                        setErrors((prev) => ({ ...prev, id: "" }));
+                      }
+                    }}
                     disabled={checkEdit}
                     required
                     minLength={5}
@@ -213,9 +218,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     onBlur={(e) => validateField("id", e.target.value)}
                     title="Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái, số hoặc dấu gạch dưới"
                   />
-                  {errors.id && (
-                    <p className="text-red-500 text-sm">{errors.id}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.id || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="nameClass">
@@ -225,16 +230,21 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     id="nameClass"
                     type="text"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
                     required
                     minLength={5}
                     pattern="^[A-Za-z][A-Za-z0-9_]*$"
                     onBlur={(e) => validateField("name", e.target.value)}
                     title="Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái, số và dấu gạch dưới"
                   />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm">{errors.name}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.name || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="nameDescription">
@@ -244,17 +254,20 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     id="nameDescription"
                     type="text"
                     value={form.description}
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, description: e.target.value });
+                      if (errors.description) {
+                        setErrors((prev) => ({ ...prev, description: "" }));
+                      }
+                    }}
                     required
                     className="max-h-[100px] overflow-y-auto"
                     onBlur={(e) => validateField("description", e.target.value)}
                     title="Mô tả phải chứa ít nhất 3 từ"
                   />
-                  {errors.description && (
-                    <p className="text-red-500 text-sm">{errors.description}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.description || "\u00A0"}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

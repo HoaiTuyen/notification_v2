@@ -37,7 +37,7 @@ import { handleListClassByDepartment } from "../../../../controller/DepartmentCo
 import { useEffect } from "react";
 import { Pagination } from "antd";
 import ImportClassOfDepartmentModal from "./ImportClassByDepartment";
-const ListClassOfDepartment = () => {
+const EmployeeListClassOfDepartment = () => {
   const [searchParams] = useSearchParams();
 
   const page = searchParams.get("page") || "1";
@@ -56,7 +56,8 @@ const ListClassOfDepartment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const backUrl =
-    location.state?.from || `/admin/department?search=${search}&page=${page}`;
+    location.state?.from ||
+    `/nhan-vien/department?search=${search}&page=${page}`;
 
   const fetchListClassByDepartment = async (page = 1) => {
     const res = await handleListClassByDepartment(
@@ -90,6 +91,7 @@ const ListClassOfDepartment = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
+              className="cursor-pointer"
               size="sm"
               onClick={() => navigate(backUrl)}
             >
@@ -117,15 +119,15 @@ const ListClassOfDepartment = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <CardTitle>Danh sách lớp</CardTitle>
-                <CardDescription>Tổng số: {totalClass} lớp</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
-                  className="flex items-center"
+                  className="flex items-center cursor-pointer "
                   onClick={() => setOpenUpload(true)}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách lớp thuộc
+                  khoa
                 </Button>
                 {openUpload && (
                   <ImportClassOfDepartmentModal
@@ -144,7 +146,7 @@ const ListClassOfDepartment = () => {
             <div className="relative flex-1 mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm lớp..."
+                placeholder="Tìm kiếm lớp theo tên lớp..."
                 className="pl-8"
                 //   value={searchTerm}
                 //   onChange={(e) => setSearchTerm(e.target.value)}
@@ -230,4 +232,4 @@ const ListClassOfDepartment = () => {
     </div>
   );
 };
-export default ListClassOfDepartment;
+export default EmployeeListClassOfDepartment;

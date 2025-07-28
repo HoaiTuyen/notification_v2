@@ -7,6 +7,7 @@ import {
   listClassByDepartment,
   getListClassByDepartmentExcel,
   createClassByDepartmentExcel,
+  searchClassByDepartment,
 } from "../servicers/DepartmentServicer";
 
 export const handleListDepartment = async (page = 0, pageSize = 10) => {
@@ -165,7 +166,43 @@ export const handleCreateClassByDepartmentExcel = async (data) => {
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
-      data: [],
+    };
+  }
+};
+
+export const handleSearchClassByDepartment = async (
+  departmentId,
+  keyword,
+  page = 0,
+  pageSize = 10
+) => {
+  try {
+    const response = await searchClassByDepartment(
+      departmentId,
+      keyword,
+      page,
+      pageSize
+    );
+    console.log(response);
+
+    if (response?.data?.classes) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+
+    return {
+      status: response?.status || 500,
+      message: response?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+    };
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
     };
   }
 };

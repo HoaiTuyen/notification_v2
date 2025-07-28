@@ -18,9 +18,7 @@ import { handleListTeacher } from "../../../controller/TeacherController";
 import { handleListSemester } from "../../../controller/SemesterController";
 import { handleCreateClassSection } from "../../../controller/SectionController";
 import { toast } from "react-toastify";
-import { useLoading } from "../../../context/LoadingProvider";
 const DialogCreateSection = ({ open, onClose, onSuccess }) => {
-  const { setLoading } = useLoading();
   const [subjectOptions, setDataSubject] = useState([]);
   const [teacherOptions, setDataTeacher] = useState([]);
   const [semesterOptions, setDataSemester] = useState([]);
@@ -29,8 +27,8 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
     teacherId: "",
     semesterId: "",
     groupId: "",
-    startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0],
+    startDate: "",
+    endDate: "",
     courseSchedules: [],
   });
 
@@ -56,21 +54,13 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
     setForm((prev) => ({ ...prev, courseSchedules: updated }));
   };
 
-  const handleSubmit = async () => {
-    if (!form.subjectId) {
-      toast.error("Vui lòng chọn môn học.");
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    e.preventDefault();
 
-    // Validate giảng viên
-    if (!form.teacherId) {
-      toast.error("Vui lòng chọn giảng viên.");
-      return;
-    }
-
-    // Validate học kỳ
-    if (!form.semesterId) {
-      toast.error("Vui lòng chọn học kỳ.");
+    // Validate cơ bản
+    if (!form.subjectId || !form.teacherId || !form.semesterId) {
+      toast.error("Vui lòng chọn đầy đủ môn học, giảng viên và học kỳ.");
       return;
     }
 
@@ -83,28 +73,25 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
     }
 
     if (!/^\d+$/.test(groupId)) {
-      toast.error(
-        "Mã nhóm chỉ được chứa số, không có chữ hoặc ký tự đặc biệt."
-      );
+      toast.error("Mã nhóm chỉ được chứa số.");
       return;
     }
 
     if (groupNumber < 1 || groupNumber > 15) {
-      toast.error("Mã nhóm phải là số từ 1 đến 15.");
+      toast.error("Mã nhóm phải từ 1 đến 15.");
       return;
     }
 
-    // Validate ngày bắt đầu và kết thúc
     if (!form.startDate || !form.endDate) {
       toast.error("Vui lòng nhập ngày bắt đầu và kết thúc.");
       return;
     }
+
     if (new Date(form.startDate) > new Date(form.endDate)) {
       toast.error("Ngày bắt đầu không được sau ngày kết thúc.");
       return;
     }
 
-    // Validate lịch học
     if (form.courseSchedules.length === 0) {
       toast.error("Vui lòng thêm ít nhất một lịch học.");
       return;
@@ -112,24 +99,18 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
 
     for (let i = 0; i < form.courseSchedules.length; i++) {
       const s = form.courseSchedules[i];
-
       if (!s.room || !s.room.trim()) {
         toast.error(`Lịch học ${i + 1}: Vui lòng nhập tên phòng.`);
         return;
       }
 
-      if (typeof s.day !== "number" || s.day < 2 || s.day > 7) {
+      if (s.day < 2 || s.day > 7) {
         toast.error(`Lịch học ${i + 1}: Thứ phải từ 2 đến 7.`);
         return;
       }
 
-      if (typeof s.startPeriod !== "number" || s.startPeriod < 1) {
-        toast.error(`Lịch học ${i + 1}: Tiết bắt đầu phải ≥ 1.`);
-        return;
-      }
-
-      if (typeof s.endPeriod !== "number" || s.endPeriod < 1) {
-        toast.error(`Lịch học ${i + 1}: Tiết kết thúc phải ≥ 1.`);
+      if (s.startPeriod < 1 || s.endPeriod < 1) {
+        toast.error(`Lịch học ${i + 1}: Tiết phải ≥ 1.`);
         return;
       }
 
@@ -140,7 +121,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
         return;
       }
     }
-    setLoading(true);
+
     try {
       const payload = {
         ...form,
@@ -150,8 +131,8 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
           validPeriodRange: true,
         })),
       };
+
       const res = await handleCreateClassSection(payload);
-      console.log(res);
       if (res?.data && res?.status === 201) {
         toast.success(res.message || "Thêm lớp học phần thành công!");
         onSuccess();
@@ -161,10 +142,9 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
       }
     } catch (e) {
       toast.error(e.message || "Thêm lớp học phần thất bại!");
-    } finally {
-      setLoading(false);
     }
   };
+
   const fetchSubject = async () => {
     const pageSize = 10;
     let allSubjects = [];
@@ -252,281 +232,251 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
       return [];
     }
   };
+
   useEffect(() => {
     fetchSubject();
     fetchTeacher();
     fetchSemester();
   }, []);
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[750px]">
+      <DialogContent
+        className="sm:max-w-[600px] overflow-y-auto max-h-[750px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Tạo lớp học phần</DialogTitle>
         </DialogHeader>
-
-        <div className="grid gap-4">
-          <div>
-            <Label>
-              Môn học <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              options={subjectOptions}
-              value={subjectOptions.find((opt) => opt.value === form.subjectId)}
-              onChange={(selected) => {
-                setForm({
-                  ...form,
-                  subjectId: selected?.value || "",
-                  subjectName: selected?.label || "",
-                });
-              }}
-              placeholder="Chọn môn học"
-              isClearable
-              isSearchable
-            />
-          </div>
-          <div>
-            <Label>
-              Giảng viên <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              options={teacherOptions}
-              value={teacherOptions.find((opt) => opt.value === form.teacherId)}
-              onChange={(selected) => {
-                setForm({
-                  ...form,
-                  teacherId: selected?.value || "",
-                  teacherName: selected?.label || "",
-                });
-              }}
-              placeholder="Chọn giảng viên"
-              isClearable
-              isSearchable
-            />
-          </div>
-          <div>
-            <Label>
-              Học kỳ <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              options={semesterOptions}
-              value={semesterOptions.find(
-                (opt) => opt.value === form.semesterId
-              )}
-              onChange={(selected) => {
-                setForm({
-                  ...form,
-                  semesterId: selected?.value || "",
-                  semesterName: selected?.label || "",
-                });
-              }}
-              placeholder="Chọn học kỳ"
-              isClearable
-              isSearchable
-            />
-          </div>
-          <div>
-            <Label>
-              Nhóm môn học <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              value={form.groupId}
-              onChange={(e) => setForm({ ...form, groupId: e.target.value })}
-              placeholder="Nhập nhóm môn học"
-            />
-          </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
-                Ngày bắt đầu <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={form.startDate}
-                onChange={(e) =>
-                  setForm({ ...form, startDate: e.target.value })
-                }
-                className="w-full border rounded px-3 py-2"
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <div>
+              <Label>
+                Môn học <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                options={subjectOptions}
+                value={subjectOptions.find(
+                  (opt) => opt.value === form.subjectId
+                )}
+                onChange={(selected) => {
+                  setForm({
+                    ...form,
+                    subjectId: selected?.value || "",
+                    subjectName: selected?.label || "",
+                  });
+                }}
+                placeholder="Chọn môn học"
+                isClearable
+                isSearchable
               />
             </div>
-
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
-                Ngày kết thúc <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                className="w-full border rounded px-3 py-2"
+            <div>
+              <Label>
+                Giảng viên <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                options={teacherOptions}
+                value={teacherOptions.find(
+                  (opt) => opt.value === form.teacherId
+                )}
+                onChange={(selected) => {
+                  setForm({
+                    ...form,
+                    teacherId: selected?.value || "",
+                    teacherName: selected?.label || "",
+                  });
+                }}
+                placeholder="Chọn giảng viên"
+                isClearable
+                isSearchable
               />
             </div>
-          </div>
+            <div>
+              <Label>
+                Học kỳ <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                options={semesterOptions}
+                value={semesterOptions.find(
+                  (opt) => opt.value === form.semesterId
+                )}
+                onChange={(selected) => {
+                  setForm({
+                    ...form,
+                    semesterId: selected?.value || "",
+                    semesterName: selected?.label || "",
+                  });
+                }}
+                placeholder="Chọn học kỳ"
+                isClearable
+                isSearchable
+              />
+            </div>
+            <div>
+              <Label>
+                Nhóm <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={form.groupId}
+                onChange={(e) => setForm({ ...form, groupId: e.target.value })}
+                pattern="^\d{1,2}$"
+                title="Mã nhóm chỉ bao gồm số từ 1 đến 15"
+                placeholder="Nhập mã nhóm"
+              />
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1">
+                  Ngày bắt đầu <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="date"
+                  value={form.startDate}
+                  onChange={(e) =>
+                    setForm({ ...form, startDate: e.target.value })
+                  }
+                />
+              </div>
 
-          <div>
-            <Label>
-              Lịch học <span className="text-red-500">*</span>
-            </Label>
-            {/* {form.courseSchedules.map((item, index) => (
-              <div key={index} className="flex gap-2 items-end mb-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1">
+                  Ngày kết thúc <span className="text-red-500">*</span>
+                </label>
                 <Input
-                  placeholder="Phòng"
-                  value={item.room}
+                  type="date"
+                  value={form.endDate}
                   onChange={(e) =>
-                    updateSchedule(index, "room", e.target.value)
+                    setForm({ ...form, endDate: e.target.value })
                   }
                 />
-                <Input
-                  type="number"
-                  placeholder="Thứ"
-                  value={item.day}
-                  onChange={(e) =>
-                    updateSchedule(index, "day", Number(e.target.value))
-                  }
-                  className="w-20"
-                />
-                <Input
-                  type="number"
-                  placeholder="Tiết bắt đầu"
-                  value={item.startPeriod}
-                  onChange={(e) =>
-                    updateSchedule(index, "startPeriod", Number(e.target.value))
-                  }
-                  className="w-24"
-                />
-                <Input
-                  type="number"
-                  placeholder="Tiết kết thúc"
-                  value={item.endPeriod}
-                  onChange={(e) =>
-                    updateSchedule(index, "endPeriod", Number(e.target.value))
-                  }
-                  className="w-24"
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => removeSchedule(index)}
+              </div>
+            </div>
+
+            <div>
+              <Label>
+                Lịch học <span className="text-red-500">*</span>
+              </Label>
+
+              {form.courseSchedules.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col gap-1 mb-3 border p-3 rounded-md"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))} */}
-            {form.courseSchedules.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-1 mb-3 border p-3 rounded-md"
-              >
-                <div className="flex flex-wrap gap-2 items-end">
-                  <div className="flex flex-col gap-1">
-                    <Label>
-                      Phòng <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      placeholder="Phòng"
-                      value={item.room}
-                      onChange={(e) =>
-                        updateSchedule(index, "room", e.target.value)
-                      }
-                    />
+                  <div className="flex flex-wrap gap-2 items-end">
+                    <div className="flex flex-col gap-1">
+                      <Label>
+                        Phòng <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        placeholder="Phòng"
+                        value={item.room}
+                        onChange={(e) =>
+                          updateSchedule(index, "room", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label>
+                        Thứ <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        type="number"
+                        min={2}
+                        max={7}
+                        value={item.day}
+                        onChange={(e) =>
+                          updateSchedule(index, "day", Number(e.target.value))
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label>
+                        Tiết bắt đầu <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={item.startPeriod}
+                        onChange={(e) =>
+                          updateSchedule(
+                            index,
+                            "startPeriod",
+                            Number(e.target.value)
+                          )
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label>
+                        Tiết kết thúc <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={item.endPeriod}
+                        onChange={(e) =>
+                          updateSchedule(
+                            index,
+                            "endPeriod",
+                            Number(e.target.value)
+                          )
+                        }
+                        required
+                      />
+                    </div>
+
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="self-end mb-1 cursor-pointer"
+                      onClick={() => removeSchedule(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <Label>
-                      Thứ <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="number"
-                      min={2}
-                      max={8}
-                      value={item.day}
-                      onChange={(e) =>
-                        updateSchedule(index, "day", Number(e.target.value))
-                      }
-                      className="w-20"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <Label>
-                      Tiết bắt đầu <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={item.startPeriod}
-                      onChange={(e) =>
-                        updateSchedule(
-                          index,
-                          "startPeriod",
-                          Number(e.target.value)
-                        )
-                      }
-                      className="w-24"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <Label>
-                      Tiết kết thúc <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={item.endPeriod}
-                      onChange={(e) =>
-                        updateSchedule(
-                          index,
-                          "endPeriod",
-                          Number(e.target.value)
-                        )
-                      }
-                      className="w-24"
-                    />
-                  </div>
-
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="self-end mb-1 cursor-pointer"
-                    onClick={() => removeSchedule(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {/* Hiển thị rõ lịch học đã chọn */}
+                  <p className="text-sm text-muted-foreground pl-1 pt-1">
+                    📅 {`Thứ ${item.day}`} | ⏰{" "}
+                    {`Tiết ${item.startPeriod} đến ${item.endPeriod}`}
+                  </p>
                 </div>
+              ))}
 
-                {/* Hiển thị rõ lịch học đã chọn */}
-                <p className="text-sm text-muted-foreground pl-1 pt-1">
-                  📅 {`Thứ ${item.day}`} | ⏰{" "}
-                  {`Tiết ${item.startPeriod} đến ${item.endPeriod}`}
-                </p>
-              </div>
-            ))}
-
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-2 cursor-pointer"
-              onClick={addSchedule}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm lịch học
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-2 cursor-pointer"
+                onClick={addSchedule}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Thêm lịch học
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="cursor-pointer"
-          >
-            Hủy
-          </Button>
-          <Button onClick={handleSubmit} className="cursor-pointer">
-            Tạo lớp học phần
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={onClose}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              type="submit"
+            >
+              Tạo lớp học phần
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

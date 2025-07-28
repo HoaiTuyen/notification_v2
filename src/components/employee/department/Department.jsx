@@ -122,7 +122,7 @@ const Department = () => {
     fetchListDepartment(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
@@ -137,7 +137,7 @@ const Department = () => {
               setOpenModal(true);
             }}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm khoa
+            <Plus className=" h-4 w-4" /> Thêm khoa
           </Button>
 
           {openModal && (
@@ -157,9 +157,6 @@ const Department = () => {
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách khoa</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} khoa
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -167,7 +164,7 @@ const Department = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm khoa..."
+                  placeholder="Tìm kiếm khoa theo tên khoa..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -256,7 +253,7 @@ const Department = () => {
                               <DropdownMenuItem
                                 onClick={() =>
                                   navigate(
-                                    `/admin/department/${department.id}/class?search=${debouncedSearchTerm}&page=${pagination.current}`
+                                    `/nhan-vien/department/${department.id}/class?search=${debouncedSearchTerm}&page=${pagination.current}`
                                   )
                                 }
                               >
@@ -276,24 +273,29 @@ const Department = () => {
         {openModalDelete && (
           <DeleteDepartment
             onOpen={openModalDelete}
-            onClose={() => setOpenModalDelete(false)}
+            onClose={() => {
+              setOpenModalDelete(false);
+              setSelectDepartment(null);
+            }}
             department={selectDepartment}
             onSuccess={() => fetchListDepartment(pageFromUrl)}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.totalPages >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

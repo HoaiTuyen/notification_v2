@@ -122,7 +122,7 @@ const EmployeeSubject = () => {
     fetchListSubject(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
@@ -161,10 +161,7 @@ const EmployeeSubject = () => {
         {/* Card */}
         <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
-            <CardTitle>Danh sách lớp</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} môn học
-            </CardDescription>
+            <CardTitle>Danh sách môn học</CardTitle>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -172,7 +169,7 @@ const EmployeeSubject = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm môn học..."
+                  placeholder="Tìm kiếm môn học theo tên môn học..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -250,15 +247,6 @@ const EmployeeSubject = () => {
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openModalEdit(subject)}
                               >
@@ -289,7 +277,10 @@ const EmployeeSubject = () => {
         {openModalDelete && (
           <DeleteSubject
             onOpen={openModalDelete}
-            onClose={() => setOpenModalDelete(false)}
+            onClose={() => {
+              setOpenModalDelete(false);
+              setSelectSubject(null);
+            }}
             onSuccess={() => fetchListSubject(pageFromUrl)}
             subject={selectSubject}
           />

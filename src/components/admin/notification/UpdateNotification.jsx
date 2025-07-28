@@ -258,7 +258,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">
+              <Label className="mb-2" htmlFor="title">
                 Tiêu đề thông báo <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -277,7 +277,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Loại thông báo</Label>
+                <Label className="mb-2">Loại thông báo</Label>
                 <Select
                   value={formData.notificationType}
                   onValueChange={(value) =>
@@ -305,7 +305,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
               </div>
 
               <div>
-                <Label>Khoa</Label>
+                <Label className="mb-2">Khoa</Label>
                 <Select
                   value={formData.departmentId}
                   onValueChange={(value) =>
@@ -332,7 +332,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
             </div>
 
             <div>
-              <Label>
+              <Label className="mb-2">
                 Nội dung thông báo <span className="text-red-500">*</span>
               </Label>
               <Textarea
@@ -352,7 +352,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
             {fileDisplayNames.map((name, index) => (
               <div key={index} className="space-y-1">
                 <div className="flex justify-between">
-                  <Label>File {index + 1}</Label>
+                  <Label className="mb-2">File {index + 1}</Label>
                   {fileDisplayNames.length > 1 && (
                     <Button
                       type="button"

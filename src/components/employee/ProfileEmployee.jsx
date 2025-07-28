@@ -184,8 +184,8 @@ const EmployeeProfilePage = () => {
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
               className={
                 isEditing
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
               }
             >
               {isEditing ? (

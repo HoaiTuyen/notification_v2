@@ -33,16 +33,22 @@ import { ArrowLeft, Download, Plus, Search, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { handleListClassByDepartment } from "../../../../controller/DepartmentController";
+import {
+  handleListClassByDepartment,
+  handleSearchClassByDepartment,
+} from "../../../../controller/DepartmentController";
 import { useEffect } from "react";
 import { Pagination, Spin } from "antd";
 import ImportClassOfDepartmentModal from "./ImportClassByDepartment";
+import useDebounce from "../../../../hooks/useDebounce";
 const ListClassOfDepartment = () => {
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
 
   const page = searchParams.get("page") || "1";
   const search = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(search);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [classByDepartment, setClassByDepartment] = useState([]);
   const [totalClass, setTotalClass] = useState(0);
   const [openUpload, setOpenUpload] = useState(false);
@@ -62,12 +68,24 @@ const ListClassOfDepartment = () => {
   const fetchListClassByDepartment = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await handleListClassByDepartment(
-        departmentId,
-        page - 1,
-        pagination.pageSize
-      );
-      console.log(res);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      console.log(keyword);
+      if (keyword) {
+        res = await handleSearchClassByDepartment(
+          departmentId,
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(res);
+      } else {
+        res = await handleListClassByDepartment(
+          departmentId,
+          page - 1,
+          pagination.pageSize
+        );
+      }
 
       if (res?.data && res?.status === 200) {
         if (page === 1 && res?.data?.classes) {
@@ -90,7 +108,7 @@ const ListClassOfDepartment = () => {
   };
   useEffect(() => {
     fetchListClassByDepartment(pagination.current);
-  }, [pagination.current]);
+  }, [pagination.current, debouncedSearchTerm]);
 
   return (
     <div className="h-full w-full bg-white p-10 overflow-auto">
@@ -153,10 +171,10 @@ const ListClassOfDepartment = () => {
             <div className="relative flex-1 mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm lớp..."
+                placeholder="Tìm kiếm lớp theo tên lớp..."
                 className="pl-8"
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -192,7 +210,9 @@ const ListClassOfDepartment = () => {
                         colSpan={6}
                         className="text-center h-24 text-muted-foreground"
                       >
-                        Không có sinh viên nào đăng ký môn học này
+                        {debouncedSearchTerm
+                          ? "Không tìm thấy lớp học phù hợp"
+                          : "Chưa có lớp học nào"}
                       </TableCell>
                     </TableRow>
                   ) : (

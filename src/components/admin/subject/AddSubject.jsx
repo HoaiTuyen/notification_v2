@@ -137,6 +137,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
 
     if (field === "credit") {
       const num = parseInt(value, 10);
+
       if (isNaN(num)) error = "Số tín chỉ không hợp lệ";
       else if (num < 1) error = "Tín chỉ phải >= 1";
       else if (num > 15) error = "Tín chỉ không được vượt quá 15";
@@ -183,16 +184,21 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                     placeholder="VD: CS03030"
                     disabled={checkEdit}
                     value={form.id}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, id: e.target.value });
+                      if (errors.id) {
+                        setErrors((prev) => ({ ...prev, id: "" }));
+                      }
+                    }}
                     required
                     minLength={7}
                     pattern="^[A-Za-z][A-Za-z0-9]*$"
                     title="Mã môn học phải bắt đầu bằng chữ cái, chỉ chứa chữ cái hoặc số, và ít nhất 7 ký tự"
                     onBlur={(e) => validateField("id", e.target.value)}
                   />
-                  {errors.id && (
-                    <p className="text-red-500 text-sm">{errors.id}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.id || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="nameSubject">Tên môn học</Label>
@@ -200,16 +206,21 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                     id="nameSubject"
                     type="text"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
                     required
                     minLength={3}
                     pattern="^[\p{L}][\p{L}0-9 ]*$"
                     title="Tên môn học phải bắt đầu bằng chữ cái, chỉ chứa chữ, số và khoảng trắng, và ít nhất 3 ký tự"
                     onBlur={(e) => validateField("name", e.target.value)}
                   />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm">{errors.name}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.name || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="credit">Số tín chỉ</Label>
@@ -217,18 +228,21 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                     id="credit"
                     type="text"
                     value={form.credit}
-                    onChange={(e) =>
-                      setForm({ ...form, credit: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, credit: e.target.value });
+                      if (errors.credit) {
+                        setErrors((prev) => ({ ...prev, credit: "" }));
+                      }
+                    }}
                     required
                     min={1}
                     max={15}
                     title="Số tín chỉ phải từ 1 đến 15"
                     onBlur={(e) => validateField("credit", e.target.value)}
                   />
-                  {errors.credit && (
-                    <p className="text-red-500 text-sm">{errors.credit}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.credit || "\u00A0"}
+                  </p>
                 </div>
               </div>
             </div>

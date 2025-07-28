@@ -52,3 +52,19 @@ export const getListClassByDepartmentExcel = (formData) => {
 export const createClassByDepartmentExcel = async (data) => {
   return await api.post("/department/add_classs_department", data);
 };
+
+export const searchClassByDepartment = (
+  departmentId,
+  keyword,
+  page,
+  pageSize = 10
+) => {
+  return api.get("/class/list_classes", {
+    params: {
+      departmentId: departmentId,
+      keyword: keyword,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};

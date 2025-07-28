@@ -183,16 +183,21 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
                     placeholder="VD: CNTT"
                     value={form.id}
                     disabled={checkEdit}
-                    onChange={(e) => setForm({ ...form, id: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, id: e.target.value });
+                      if (errors.id) {
+                        setErrors((prev) => ({ ...prev, id: "" }));
+                      }
+                    }}
                     required
                     minLength={4}
                     maxLength={10}
                     onBlur={(e) => validateField("id", e.target.value)}
                     title="Mã khoa phải bắt đầu bằng chữ, chỉ chứa chữ cái hoặc số, dài từ 4–10 ký tự"
                   />
-                  {errors.id && (
-                    <p className="text-red-500 text-sm">{errors.id}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.id || "\u00A0"}
+                  </p>
                 </div>
 
                 <div className="grid gap-2">
@@ -204,15 +209,20 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
                     type="text"
                     placeholder="Nhập tên khoa"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
                     required
                     minLength={5}
                     onBlur={(e) => validateField("name", e.target.value)}
                     title="Tên khoa chỉ được chứa chữ cái và khoảng trắng, không chứa số hoặc ký tự đặc biệt"
                   />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm">{errors.name}</p>
-                  )}
+                  <p className="text-red-500 min-h-[20px] text-sm">
+                    {errors.name || "\u00A0"}
+                  </p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="description">Mô tả</Label>

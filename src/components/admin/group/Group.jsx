@@ -126,7 +126,7 @@ const Group = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className=" h-4 w-4" /> Thêm nhóm
+            <Plus className=" h-4 w-4" /> Tạo nhóm học tập
           </Button>
           {openModal && (
             <AddGroup

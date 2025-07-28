@@ -129,7 +129,7 @@ const EmployeeSemester = () => {
     fetchListSemester(pageFromUrl);
   }, [searchFromUrl, pageFromUrl]);
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
@@ -159,9 +159,6 @@ const EmployeeSemester = () => {
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách học kỳ</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.totalElements} học kỳ
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -256,25 +253,10 @@ const EmployeeSemester = () => {
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openEditSemester(semester)}
                               >
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Link to="" className="flex items-center">
-                                  <Users className="mr-2 h-4 w-4" /> Danh sách
-                                  môn học
-                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -305,19 +287,21 @@ const EmployeeSemester = () => {
             onSuccess={() => fetchListSemester(pageFromUrl)}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              setSearchParams({
-                search: debouncedSearchTerm,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
+        {pagination.totalElements >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  page: page.toString(),
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
