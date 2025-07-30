@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function AdminNotificationDetail() {
+export default function AdminNotificationDetailPersonal() {
   const { notificationId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -31,7 +31,6 @@ export default function AdminNotificationDetail() {
   const page = searchParams.get("page") || "1";
   const search = searchParams.get("search") || "";
   const type = searchParams.get("type") || "all";
-  const department = searchParams.get("department") || "all";
 
   const [notification, setNotification] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +41,6 @@ export default function AdminNotificationDetail() {
       try {
         setLoading(true);
         const detailNotify = await handleDetailNotification(notificationId);
-        console.log(detailNotify);
         if (detailNotify?.data) {
           setNotification(detailNotify.data);
         } else {
@@ -94,7 +92,7 @@ export default function AdminNotificationDetail() {
           className="cursor-pointer"
           onClick={() =>
             navigate(
-              `/admin/sent-notification-all?search=${search}&type=${type}&department=${department}&page=${page}`
+              `/admin/sent-notification-personal?search=${search}&type=${type}&page=${page}`
             )
           }
         >
@@ -114,7 +112,7 @@ export default function AdminNotificationDetail() {
           className="cursor-pointer"
           onClick={() =>
             navigate(
-              `/admin/sent-notification-all?search=${search}&type=${type}&department=${department}&page=${page}`
+              `/admin/sent-notification-personal?search=${search}&type=${type}&page=${page}`
             )
           }
         >

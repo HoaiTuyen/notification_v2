@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
+import { handleListAcademic } from "../../../controller/AcademicController";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   const { setLoading } = useLoading();
 
@@ -35,26 +36,44 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
 
   const [teachers, setTeachers] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
   const [form, setForm] = useState({
     id: classRoom?.id || "",
     name: classRoom?.name || "",
     description: classRoom?.description || "",
     teacherId: classRoom?.teacherId || "",
     departmentId: classRoom?.departmentId || "",
+    academicYearId: classRoom?.academicYearId || "",
   });
 
   const listTeacher = async () => {
-    const res = await handleListTeacher();
+    const res = await handleListTeacher(0, 100);
     console.log(res);
 
     if (res?.data && res?.status === 200) {
       setTeachers(res.data.teachers);
+    } else {
+      setTeachers([]);
     }
   };
   const listDepartment = async () => {
-    const res = await handleListDepartment();
+    const res = await handleListDepartment(0, 100);
     if (res?.data && res?.status === 200) {
       setDepartments(res.data.departments);
+    } else {
+      setDepartments([]);
+    }
+  };
+  const listAcademicYear = async () => {
+    try {
+      const res = await handleListAcademic(0, 100);
+      if (res?.data && res?.status === 200) {
+        setAcademicYears(res.data.academicYears);
+      } else {
+        setAcademicYears([]);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -92,6 +111,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         description: classRoom?.description || "",
         teacherId: classRoom?.teacherId || "",
         departmentId: classRoom?.departmentId || "",
+        academicYearId: classRoom?.academicYearId || "",
       });
     } else {
       setForm({
@@ -100,6 +120,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         description: "",
         teacherId: "",
         departmentId: "",
+        academicYearId: "",
       });
     }
   }, [open, classRoom]);
@@ -173,6 +194,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   useEffect(() => {
     listTeacher();
     listDepartment();
+    listAcademicYear();
   }, []);
   return (
     <>
@@ -296,29 +318,53 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="">Khoa</Label>
+                  <Label htmlFor="">Niên khoá</Label>
                   <Select
-                    value={form.departmentId}
+                    value={form.academicYearId}
                     onValueChange={(value) =>
-                      setForm({ ...form, departmentId: value })
+                      setForm({ ...form, academicYearId: value })
                     }
                   >
                     <SelectTrigger id="gender">
-                      <SelectValue placeholder="Chọn khoa" />
+                      <SelectValue placeholder="Chọn niên khoá" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.length === 0 ? (
+                      {academicYears.length === 0 ? (
                         <SelectItem>Trống</SelectItem>
                       ) : (
-                        departments.map((department, index) => (
-                          <SelectItem key={index} value={department.id}>
-                            {department.name}
+                        academicYears.map((academicYear, index) => (
+                          <SelectItem key={index} value={academicYear.id}>
+                            {academicYear.name}
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Khoa</Label>
+                <Select
+                  value={form.departmentId}
+                  onValueChange={(value) =>
+                    setForm({ ...form, departmentId: value })
+                  }
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Chọn khoa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.length === 0 ? (
+                      <SelectItem>Trống</SelectItem>
+                    ) : (
+                      departments.map((department, index) => (
+                        <SelectItem key={index} value={department.id}>
+                          {department.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

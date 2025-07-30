@@ -38,6 +38,7 @@ import {
   handleSearchNotification,
 } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
+import { handleListDepartment } from "../../../controller/DepartmentController";
 import { Pagination, Spin } from "antd";
 import dayjs from "dayjs";
 import DeleteNotification from "./DeleteNotification";
@@ -51,11 +52,15 @@ const SentNotifications = () => {
 
   const searchFromUrl = searchParams.get("search") || "";
   const typeFromUrl = searchParams.get("type") || "all";
+  const departmentFromUrl = searchParams.get("department") || "all";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [type, setType] = useState([]);
   const [selectType, setSelectType] = useState(typeFromUrl);
+  const [selectDepartment, setSelectDepartment] = useState(departmentFromUrl);
+
   const [dataNotify, setDataNotify] = useState([]);
+  const [dataDepartment, setDataDepartment] = useState([]);
   const [openModalDelete, setModalDelete] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotify, setSelectNotify] = useState([]);
@@ -77,10 +82,11 @@ const SentNotifications = () => {
       const keyword = debouncedSearchTerm.trim();
       const isKeywordEmpty = keyword === "";
       const isTypeAll = selectType === "all";
+      const isDepartmentAll = selectDepartment === "all";
 
       let response;
 
-      if (isKeywordEmpty && isTypeAll) {
+      if (isKeywordEmpty && isTypeAll && isDepartmentAll) {
         response = await handleListNotification(
           "desc",
           page - 1,
@@ -89,10 +95,12 @@ const SentNotifications = () => {
       } else {
         const keywordParam = keyword;
         const typeParam = isTypeAll ? "" : selectType;
+        const departmentParam = isDepartmentAll ? "" : selectDepartment;
 
         response = await handleSearchNotification(
           keywordParam,
           typeParam,
+          departmentParam,
           page - 1,
           pagination.pageSize
         );
@@ -128,36 +136,57 @@ const SentNotifications = () => {
     }
   };
   const fetchNotifyType = async () => {
-    const listNotifyType = await handleListNotificationType();
+    const listNotifyType = await handleListNotificationType(0, 100);
     if (listNotifyType?.data) {
       setType(listNotifyType.data.notificationTypes);
+    } else {
+      setType([]);
+    }
+  };
+  const fetchDepartment = async () => {
+    try {
+      const listDepartment = await handleListDepartment(0, 100);
+      if (listDepartment?.data) {
+        setDataDepartment(listDepartment.data.departments);
+      }
+    } catch (e) {
+      console.log(e);
+      setDataDepartment([]);
     }
   };
   useEffect(() => {
     setSearchParams({
       search: debouncedSearchTerm,
       type: selectType,
+      department: selectDepartment,
       page: pageFromUrl,
     });
-  }, [debouncedSearchTerm, selectType, pageFromUrl]);
+  }, [debouncedSearchTerm, selectType, selectDepartment, pageFromUrl]);
 
   useEffect(() => {
     fetchListNotification(pageFromUrl);
     fetchNotifyType();
-  }, [pageFromUrl, debouncedSearchTerm, selectType, forceReload]);
+    fetchDepartment();
+  }, [
+    pageFromUrl,
+    debouncedSearchTerm,
+    selectType,
+    selectDepartment,
+    forceReload,
+  ]);
 
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/admin/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/admin/sent-notification-all/${id}?search=${debouncedSearchTerm}&type=${selectType}&department=${selectDepartment}&page=${pagination.current}`
     );
   };
   const handleWapper = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/admin/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/admin/sent-notification-all/${id}?search=${debouncedSearchTerm}&type=${selectType}&department=${selectDepartment}&page=${pagination.current}`
     );
   };
 
@@ -172,10 +201,7 @@ const SentNotifications = () => {
         <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
-              <p className="text-muted-foreground">
-                Quản lý và theo dõi các thông báo bạn đã gửi
-              </p>
+              <h1 className="text-3xl font-bold">Thông báo chung</h1>
             </div>
             <Button
               variant="outline"
@@ -222,11 +248,29 @@ const SentNotifications = () => {
                     <SelectValue placeholder="Loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả loại</SelectItem>
+                    <SelectItem value="all">Tất cả loại thông báo</SelectItem>
                     {type.length === 0 ? (
                       <SelectItem>Trống</SelectItem>
                     ) : (
                       type.map((item) => (
+                        <SelectItem value={item.name}>{item.name}</SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectDepartment}
+                  onValueChange={(value) => setSelectDepartment(value)}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Lọc theo khoa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả khoa</SelectItem>
+                    {dataDepartment.length === 0 ? (
+                      <SelectItem>Trống</SelectItem>
+                    ) : (
+                      dataDepartment.map((item) => (
                         <SelectItem value={item.name}>{item.name}</SelectItem>
                       ))
                     )}
@@ -265,7 +309,7 @@ const SentNotifications = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1 space-y-2">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold line-clamp-2 whitespace-pre-line">
+                              <h3 className="font-semibold line-clamp-2 overflow-hidden">
                                 {notification.title}
                               </h3>
                               {notification.notificationType && (
@@ -304,7 +348,7 @@ const SentNotifications = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button
+                            {/* <Button
                               size="sm"
                               variant="outline"
                               className="cursor-pointer"
@@ -327,7 +371,7 @@ const SentNotifications = () => {
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
+                            </Button> */}
                           </div>
                         </div>
                       </div>
@@ -352,22 +396,25 @@ const SentNotifications = () => {
               notify={selectNotify}
             />
           )}
-          <div className="flex justify-center mt-4">
-            <Pagination
-              current={pagination.current}
-              pageSize={pagination.pageSize}
-              showSizeChanger={false}
-              total={pagination.total}
-              onChange={(page) => {
-                const params = new URLSearchParams({
-                  search: debouncedSearchTerm,
-                  type: selectType,
-                  page: page.toString(),
-                });
-                setSearchParams(params);
-              }}
-            />
-          </div>
+          {pagination.total >= 10 && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={pagination.current}
+                pageSize={pagination.pageSize}
+                showSizeChanger={false}
+                total={pagination.total}
+                onChange={(page) => {
+                  const params = new URLSearchParams({
+                    search: debouncedSearchTerm,
+                    type: selectType,
+                    department: selectDepartment,
+                    page: page.toString(),
+                  });
+                  setSearchParams(params);
+                }}
+              />
+            </div>
+          )}
         </div>
         {openModalDelete && (
           <DeleteNotification
@@ -398,6 +445,7 @@ const SentNotifications = () => {
               setSearchParams({
                 search: searchTerm.trim(),
                 type: selectType,
+                department: selectDepartment,
                 page: targetPage.toString(),
               });
 

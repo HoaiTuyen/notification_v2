@@ -3,11 +3,11 @@ import api from "../axios/CustomAxios";
 export const addTeacher = async (data) => {
   return await api.post("/teacher/add", data);
 };
-export const listTeacher = async (page = 0, pageSize) => {
+export const listTeacher = async (page, pageSize) => {
   return await api.get("/teacher/list_teachers", {
     params: {
       page: page,
-      pageSize: pageSize,
+      size: pageSize,
     },
   });
 };
@@ -23,7 +23,7 @@ export const searchTeacher = async (status, keyword, page = 0, pageSize) => {
       status: status,
       keyword: keyword,
       page: page,
-      pageSize: pageSize,
+      size: pageSize,
     },
   });
 };
@@ -47,7 +47,7 @@ export const filterTeacher = async (
     params: {
       keyword: keyword,
       page: page,
-      pageSize: pageSize,
+      size: pageSize,
     },
   });
 };

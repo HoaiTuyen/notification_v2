@@ -8,6 +8,7 @@ import {
   createUserNotification,
   listNotificationReport,
   downloadReportExcel,
+  listNotificationPersonal,
 } from "../servicers/Notification";
 
 export const handleCreateNotification = async (formData) => {
@@ -113,11 +114,18 @@ export const handleDeleteNotification = async (id) => {
 export const handleSearchNotification = async (
   keyword,
   type,
+  department,
   page,
   pageSize
 ) => {
   try {
-    const response = await searchNotification(keyword, type, page, pageSize);
+    const response = await searchNotification(
+      keyword,
+      type,
+      department,
+      page,
+      pageSize
+    );
 
     return {
       status: response.status,
@@ -184,6 +192,32 @@ export const handleDownloadReportExcel = async (from, to) => {
     const response = await downloadReportExcel(from, to);
 
     return response;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+
+export const handleListNotificationPersonal = async (
+  userId,
+  page,
+  pageSize
+) => {
+  try {
+    const response = await listNotificationPersonal(userId, page, pageSize);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
   } catch (error) {
     console.error("Error fetching departments:", error);
     return {

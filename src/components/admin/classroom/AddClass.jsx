@@ -27,8 +27,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
+import { handleListAcademic } from "../../../controller/AcademicController";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   const { setLoading } = useLoading();
+  const [academicYears, setAcademicYears] = useState([]);
 
   const checkEdit = !!classRoom?.id;
   const [errors, setErrors] = useState({});
@@ -41,10 +43,11 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     description: classRoom?.description || "",
     teacherId: classRoom?.teacherId || "",
     departmentId: classRoom?.departmentId || "",
+    academicYearId: classRoom?.academicYearId || "",
   });
 
   const listTeacher = async () => {
-    const res = await handleListTeacher();
+    const res = await handleListTeacher(0, 100);
     console.log(res);
 
     if (res?.data && res?.status === 200) {
@@ -52,9 +55,20 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     }
   };
   const listDepartment = async () => {
-    const res = await handleListDepartment();
+    const res = await handleListDepartment(0, 100);
     if (res?.data && res?.status === 200) {
       setDepartments(res.data.departments);
+    }
+  };
+  const fetchListAcademicYear = async () => {
+    try {
+      const listAcademic = await handleListAcademic(0, 100);
+      console.log(listAcademic);
+      if (listAcademic?.data && listAcademic?.status === 200) {
+        setAcademicYears(listAcademic.data.academicYears);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
   const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -65,15 +79,17 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     if (field === "id") {
       if (!value.trim()) error = "Mã lớp không được để trống";
       else if (value.length < 5) error = "Mã lớp ít nhất 5 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value))
-        error = "Mã lớp phải bắt đầu bằng chữ cái và chỉ gồm chữ, số hoặc _";
+      else if (!/^[A-Z][A-Z0-9_]*$/.test(value))
+        error =
+          "Mã lớp phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số hoặc dấu gạch dưới";
     }
 
     if (field === "name") {
       if (!value.trim()) error = "Tên lớp không được để trống";
       else if (value.length < 5) error = "Tên lớp ít nhất 5 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value))
-        error = "Tên lớp phải bắt đầu bằng chữ cái và chỉ gồm chữ, số hoặc _";
+      else if (!/^[A-Z][A-Z0-9_]*$/.test(value))
+        error =
+          "Tên lớp phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số hoặc dấu gạch dưới";
     }
 
     if (field === "description") {
@@ -92,6 +108,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         description: classRoom?.description || "",
         teacherId: classRoom?.teacherId || "",
         departmentId: classRoom?.departmentId || "",
+        academicYearId: classRoom?.academicYearId || "",
       });
     } else {
       setForm({
@@ -100,6 +117,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         description: "",
         teacherId: "",
         departmentId: "",
+        academicYearId: "",
       });
     }
   }, [open, classRoom]);
@@ -107,8 +125,6 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     e.preventDefault();
     try {
       const isEmpty = (val) => !val || !val.trim();
-
-      // Validate mã lớp
       if (isEmpty(form.id)) {
         toast.error("Mã lớp không được để trống");
         return;
@@ -117,9 +133,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         toast.error("Mã lớp ít nhất 5 ký tự");
         return;
       }
-      if (!/^[A-Za-z][A-Za-z0-9]*$/.test(form.id.trim())) {
+      if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(form.id.trim())) {
         toast.error(
-          "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái hoặc số"
+          "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái, số hoặc dấu gạch dưới"
         );
         return;
       }
@@ -133,9 +149,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         toast.error("Tên lớp ít nhất 5 ký tự");
         return;
       }
-      if (!/^[A-Za-z][A-Za-z0-9 ]*$/.test(form.name.trim())) {
+      if (!/^[A-Za-z][A-Za-z0-9_ ]*$/.test(form.name.trim())) {
         toast.error(
-          "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc khoảng trắng"
+          "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc dấu gạch dưới"
         );
         return;
       }
@@ -173,6 +189,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   useEffect(() => {
     listTeacher();
     listDepartment();
+    fetchListAcademicYear();
   }, []);
   return (
     <>
@@ -203,7 +220,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </Label>
                   <Input
                     id="classId"
-                    placeholder="VD: CNTT"
+                    placeholder="VD: D21_TH12"
                     value={form.id}
                     onChange={(e) => {
                       setForm({ ...form, id: e.target.value });
@@ -270,7 +287,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2   gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="">Giáo viên phụ trách</Label>
                   <Select
@@ -296,29 +313,53 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="">Khoa</Label>
+                  <Label htmlFor="">Niên khoá</Label>
                   <Select
-                    value={form.departmentId}
+                    value={form.academicYearId}
                     onValueChange={(value) =>
-                      setForm({ ...form, departmentId: value })
+                      setForm({ ...form, academicYearId: value })
                     }
                   >
                     <SelectTrigger id="gender">
-                      <SelectValue placeholder="Chọn khoa" />
+                      <SelectValue placeholder="Chọn niên khoá" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.length === 0 ? (
+                      {academicYears.length === 0 ? (
                         <SelectItem>Trống</SelectItem>
                       ) : (
-                        departments.map((department, index) => (
-                          <SelectItem key={index} value={department.id}>
-                            {department.name}
+                        academicYears.map((academicYear, index) => (
+                          <SelectItem key={index} value={academicYear.id}>
+                            {academicYear.name}
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Khoa</Label>
+                <Select
+                  value={form.departmentId}
+                  onValueChange={(value) =>
+                    setForm({ ...form, departmentId: value })
+                  }
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Chọn khoa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.length === 0 ? (
+                      <SelectItem>Trống</SelectItem>
+                    ) : (
+                      departments.map((department, index) => (
+                        <SelectItem key={index} value={department.id}>
+                          {department.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

@@ -35,7 +35,8 @@ import { handleListNotificationType } from "../../../controller/NotificationType
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
-import { handleListClass } from "../../../controller/ClassController";
+
+import { handleListAcademic } from "../../../controller/AcademicController";
 const EmployeeCreateNotification = () => {
   const { connected } = useWebSocket();
 
@@ -79,7 +80,6 @@ const EmployeeCreateNotification = () => {
       form.append(`files[${index}]`, files[index]);
     });
     console.log(form);
-
     try {
       setIsLoading(true);
       setLoading(true);
@@ -124,33 +124,13 @@ const EmployeeCreateNotification = () => {
     }
   };
   const fetchAcademicYear = async () => {
-    const pageSize = 10;
-    let allClasses = [];
-    let page = 0;
-    let totalPages = 1;
-
     try {
-      do {
-        const req = await handleListClass(page, pageSize);
-        if (req?.data?.classes) {
-          allClasses = [...allClasses, ...req.data.classes];
-          totalPages = req.data.totalPages;
-          page++;
-        } else {
-          break;
-        }
-      } while (page < totalPages);
-
-      const uniqueYearsMap = new Map();
-
-      allClasses.forEach((cls) => {
-        const key = cls.description?.trim().toLowerCase();
-        if (key && !uniqueYearsMap.has(key)) {
-          uniqueYearsMap.set(key, cls);
-        }
-      });
-
-      setAcademicYears(Array.from(uniqueYearsMap.values()));
+      const req = await handleListAcademic(0, 100);
+      if (req?.data?.academicYears) {
+        setAcademicYears(req.data.academicYears);
+      } else {
+        setAcademicYears([]);
+      }
     } catch (e) {
       console.error("Lỗi khi fetch all classes:", e);
       setAcademicYears([]);
@@ -421,7 +401,7 @@ const EmployeeCreateNotification = () => {
                                 value={String(academicYear.id)}
                               >
                                 <div className="flex items-center gap-2">
-                                  <span>{academicYear.description}</span>
+                                  <span>{academicYear.name}</span>
                                 </div>
                               </SelectItem>
                             ))}

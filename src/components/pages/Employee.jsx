@@ -74,7 +74,17 @@ const EmployeeDashboard = () => {
     {
       key: "sent-notification",
       icon: <Bell size={16} />,
-      label: "Thông báo đã gửi",
+      label: "Thông báo",
+      children: [
+        {
+          key: "sent-notification-all",
+          label: "Thông báo chung",
+        },
+        {
+          key: "sent-notification-personal",
+          label: "Thông báo đã gửi",
+        },
+      ],
     },
     {
       key: "study-module",

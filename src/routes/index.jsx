@@ -30,6 +30,8 @@ import AdminCreateNotificationStudent from "../components/admin/notification/Cre
 import SentNotifications from "../components/admin/notification/SentNotification";
 import AdminNotificationDetail from "../components/admin/notification/DetailNotification";
 import Academic from "../components/admin/academic/Academic";
+import SentNotificationsPersonal from "../components/admin/notification/SentNotificationPersonal";
+import AdminNotificationDetailPersonal from "../components/admin/notification/DetailNotificationPersonal";
 //student
 import NotificationsPage from "../components/student/notification/NotificationPage";
 import StudentProfilePage from "../components/student/ProfileStudent";
@@ -130,10 +132,21 @@ function AppRoutes() {
               path="notification-student"
               element={<AdminCreateNotificationStudent />}
             />
-            <Route path="sent-notification" element={<SentNotifications />} />
             <Route
-              path="sent-notification/:notificationId"
+              path="sent-notification-all"
+              element={<SentNotifications />}
+            />
+            <Route
+              path="sent-notification-personal"
+              element={<SentNotificationsPersonal />}
+            />
+            <Route
+              path="sent-notification-all/:notificationId"
               element={<AdminNotificationDetail />}
+            />
+            <Route
+              path="sent-notification-personal/:notificationId"
+              element={<AdminNotificationDetailPersonal />}
             />
             <Route path="academic" element={<Academic />} />
           </Route>
@@ -195,7 +208,7 @@ function AppRoutes() {
               element={<EmployeeCreateNotificationStudent />}
             />
             <Route
-              path="sent-notification"
+              path="sent-notification-all"
               element={<EmployeeSentNotifications />}
             />
             <Route

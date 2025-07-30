@@ -46,7 +46,8 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
   }, [subject]);
   const handleAdd = async (e) => {
     e.preventDefault();
-    const idRegex = /^[A-Za-z][A-Za-z0-9]*$/;
+    const idRegex = /^[A-Z][A-Z0-9]*$/;
+
     const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
 
     // Validate mã môn học
@@ -59,7 +60,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
       return;
     }
     if (!idRegex.test(form.id)) {
-      toast.error("Mã môn học phải bắt đầu bằng chữ");
+      toast.error("Mã môn học phải bắt đầu bằng chữ in hoa");
       return;
     }
 
@@ -74,6 +75,12 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     }
     if (!nameRegex.test(form.name.trim())) {
       toast.error("Tên môn học phải bắt đầu bằng chữ");
+      return;
+    }
+    const words = form.name.trim().split(/\s+/);
+    const firstWord = words[0];
+    if (firstWord[0] !== firstWord[0].toUpperCase()) {
+      toast.error("Chữ cái đầu tiên của tên môn học phải viết hoa");
       return;
     }
 
@@ -124,8 +131,9 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     if (field === "id") {
       if (!value.trim()) error = "Mã môn học không được để trống";
       else if (value.length < 7) error = "Mã môn học ít nhất 7 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9]*$/.test(value))
-        error = "Mã môn học phải bắt đầu bằng chữ cái và chỉ gồm chữ hoặc số";
+      else if (!/^[A-Z][A-Z0-9]*$/.test(value))
+        error =
+          "Mã môn học phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa hoặc số";
     }
 
     if (field === "name") {
@@ -133,6 +141,13 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
       else if (value.length < 3) error = "Tên môn học ít nhất 3 ký tự";
       else if (!/^[\p{L}][\p{L}0-9 ]*$/u.test(value))
         error = "Tên môn học chỉ được chứa chữ cái, số và khoảng trắng";
+      else {
+        const words = value.trim().split(/\s+/);
+        const firstWord = words[0];
+        if (firstWord[0] !== firstWord[0].toUpperCase()) {
+          error = "Chữ cái đầu tiên của tên môn học phải viết hoa";
+        }
+      }
     }
 
     if (field === "credit") {
@@ -192,8 +207,8 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                     }}
                     required
                     minLength={7}
-                    pattern="^[A-Za-z][A-Za-z0-9]*$"
-                    title="Mã môn học phải bắt đầu bằng chữ cái, chỉ chứa chữ cái hoặc số, và ít nhất 7 ký tự"
+                    pattern="^[A-Z][A-Z0-9]*$"
+                    title="Mã môn học phải bắt đầu bằng chữ in hoa, chỉ chứa chữ in hoa hoặc số, và ít nhất 7 ký tự"
                     onBlur={(e) => validateField("id", e.target.value)}
                   />
                   <p className="text-red-500 min-h-[20px] text-sm">

@@ -89,6 +89,7 @@ const Semester = () => {
         );
       } else {
         res = await handleListSemester("desc", page - 1, pagination.pageSize);
+        console.log(res);
       }
 
       if (res?.data) {

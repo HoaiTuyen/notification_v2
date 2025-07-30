@@ -30,11 +30,18 @@ export const deleteNotification = (id) => {
 export const detailNotification = (id) => {
   return api.get(`/notification/detail_notification/${id}`);
 };
-export const searchNotification = async (keyword, type, page, pageSize) => {
+export const searchNotification = async (
+  keyword,
+  type,
+  department,
+  page,
+  pageSize
+) => {
   const req = await api.get("/notification/list_notifications", {
     params: {
       keyword: keyword,
       notificationType: type,
+      departmentName: department,
       page: page,
       pageSize: pageSize,
     },
@@ -56,5 +63,15 @@ export const downloadReportExcel = (from, to) => {
   return api.post("/notification/export_notification", null, {
     params: { from, to },
     responseType: "blob", // quan trọng: để axios trả về blob
+  });
+};
+
+export const listNotificationPersonal = (userId, page, pageSize) => {
+  return api.get("notification/notification_create", {
+    params: {
+      userId: userId,
+      page: page,
+      size: pageSize,
+    },
   });
 };

@@ -4,7 +4,7 @@ export const listAcademic = (page, pageSize) => {
   return api.get("/academic_year/list_academic_year", {
     params: {
       page: page,
-      pageSize: pageSize,
+      size: pageSize,
     },
   });
 };

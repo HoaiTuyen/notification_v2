@@ -39,7 +39,7 @@ export const handleAddTeacher = async (dataTeacher) => {
     };
   }
 };
-export const handleListTeacher = async (page = 0, pageSize = 10) => {
+export const handleListTeacher = async (page, pageSize) => {
   try {
     const response = await listTeacher(page, pageSize);
     if (response?.data?.teachers) {

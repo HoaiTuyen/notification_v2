@@ -10,7 +10,7 @@ import {
   searchClassByDepartment,
 } from "../servicers/DepartmentServicer";
 
-export const handleListDepartment = async (page = 0, pageSize = 10) => {
+export const handleListDepartment = async (page, pageSize) => {
   try {
     const response = await listDepartment(page, pageSize);
 

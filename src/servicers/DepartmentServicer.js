@@ -5,11 +5,11 @@ export const addDepartment = async (data) => {
   return response;
 };
 
-export const listDepartment = async (page = 0, pageSize = 10) => {
+export const listDepartment = async (page, pageSize) => {
   const response = await api.get("/department/list_departments", {
     params: {
       page,
-      pageSize,
+      size: pageSize,
     },
   });
   return response;
