@@ -8,13 +8,13 @@ export const createNotification = (formData) => {
   });
 };
 export const createUserNotification = (formData) => {
-  return api.post("/notification/create_notification_user", formData, {
+  return api.post("/notification/create", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
 };
-export const listNotification = (sort, page, pageSize = 10, type) => {
+export const listNotification = (sort, page, pageSize, type) => {
   return api.get("/notification/list_notifications", {
     params: {
       sort: sort,

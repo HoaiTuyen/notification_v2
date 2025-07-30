@@ -64,7 +64,7 @@ const StudentNotificationDetail = () => {
           className="cursor-pointer"
           onClick={() =>
             navigate(
-              `/sinh-vien/notification?search=${search}&type=${type}&page=${page}`
+              `/sinh-vien/notification-all?search=${search}&type=${type}&page=${page}`
             )
           }
         >

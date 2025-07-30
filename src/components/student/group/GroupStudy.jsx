@@ -105,7 +105,7 @@ const GroupStudyStudent = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white">
+      <div className="h-full w-full bg-white overflow-auto">
         <div className="p-6">
           <div className="max-w-7xl mx-auto space-y-8">
             {/* Header */}

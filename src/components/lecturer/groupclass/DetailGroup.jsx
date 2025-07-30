@@ -21,6 +21,7 @@ import {
   SendHorizontal,
   Paperclip,
   Smile,
+  EllipsisVertical,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
@@ -54,6 +55,7 @@ import {
 import {
   handleListMessage,
   handleSendMessage,
+  handleRevokeMessage,
 } from "../../../controller/MessageController";
 import useWebSocket from "../../../config/Websorket";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +100,7 @@ const DetailGroupLecturer = () => {
   const [messages, setMessages] = useState([]);
   const [activeTab, setActiveTab] = useState("home");
   const [page, setPage] = useState(0);
+  const [expandedComments, setExpandedComments] = useState({}); // { [notificationId]: boolean }
 
   // Auto-scroll to bottom when chat tab is active or messages change
 
@@ -204,6 +207,7 @@ const DetailGroupLecturer = () => {
           avatar: m.avatarUrl,
           userId: m.userId,
           isTeacher: false,
+          recalled: m.recalled || false,
         }));
 
         setMessages((prev) => {
@@ -237,17 +241,8 @@ const DetailGroupLecturer = () => {
       isTeacher: userDetail?.role === "TEACHER",
       userId,
     };
-
     setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
     setNewMessage("");
-
-    // // 👉 cuộn xuống dưới luôn
-    // setTimeout(() => {
-    //   requestAnimationFrame(() => {
-    //     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    //   });
-    // }, 100);
-
     try {
       await handleSendMessage(groupId, content);
       // WebSocket sẽ update lại tin chính xác sau
@@ -281,6 +276,24 @@ const DetailGroupLecturer = () => {
       setIsSending(false);
     }
   };
+  const handleRevokeMessageGroup = async (messageId) => {
+    console.log(messageId);
+    try {
+      const response = await handleRevokeMessage(messageId, userId);
+      console.log(response);
+
+      if (response?.status === 200) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId ? { ...msg, recalled: true } : msg
+          )
+        );
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(/\s+/);
@@ -315,6 +328,13 @@ const DetailGroupLecturer = () => {
       setIsLoadingDetail(false);
     }
   };
+  const toggleExpandComments = (id) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || activeTab !== "chat") return;
@@ -378,6 +398,7 @@ const DetailGroupLecturer = () => {
             avatar: m.avatarUrl,
             userId: m.userId,
             isTeacher: false,
+            recalled: m.recalled || false,
           }));
 
           setMessages(newMessages.reverse());
@@ -466,6 +487,8 @@ const DetailGroupLecturer = () => {
           timestamp: parsed.createdAt || new Date().toISOString(),
           avatar: parsed.avatarUrl,
           userId: parsed.userId,
+          isTeacher: parsed.isTeacher || false,
+          recalled: parsed.recalled || false,
         };
 
         setMessages((prev) => {
@@ -694,50 +717,121 @@ const DetailGroupLecturer = () => {
                         <div className="border-t pt-5">
                           {comments[notify.id]?.length > 0 && (
                             <div className="px-4 pb-2 space-y-2">
-                              {comments[notify.id]
-                                .sort(
-                                  (a, b) =>
-                                    new Date(a.timestamp) -
-                                    new Date(b.timestamp)
-                                )
-                                .map((comment) => (
-                                  <div
-                                    key={comment.id}
-                                    className="flex items-start space-x-3"
+                              {!expandedComments[notify.id] ? (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      toggleExpandComments(notify.id)
+                                    }
+                                    className="text-sm font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
                                   >
-                                    <div className="pt-3">
-                                      <Avatar className="h-8 w-8">
-                                        {comment.image ? (
-                                          <AvatarImage
-                                            src={comment.image}
-                                            alt="avatar"
-                                          />
-                                        ) : null}
-                                        <AvatarFallback className="bg-blue-500 text-white">
-                                          {getInitials(comment.sender)}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                    </div>
-                                    <div>
-                                      <div className="rounded-xl py-2 flex-1">
-                                        <div className="flex items-center space-x-2">
-                                          <div className="text-sm font-medium">
-                                            {comment.sender}
-                                          </div>
-                                          <div className="text-xs text-gray-500 ">
-                                            {dayjs(comment.timestamp).format(
-                                              "HH:mm - DD/MM/YYYY"
-                                            )}
-                                          </div>
+                                    {comments[notify.id].length} phản hồi về
+                                    thông báo
+                                  </button>
+                                  {/* Hiển thị 1 phản hồi mới nhất */}
+                                  {comments[notify.id]
+                                    .slice()
+                                    .sort(
+                                      (a, b) =>
+                                        new Date(b.timestamp) -
+                                        new Date(a.timestamp)
+                                    )
+                                    .slice(0, 1)
+                                    .map((comment) => (
+                                      <div
+                                        key={comment.id}
+                                        className="flex items-start space-x-3"
+                                      >
+                                        <div className="pt-3">
+                                          <Avatar className="h-8 w-8">
+                                            {comment.image ? (
+                                              <AvatarImage
+                                                src={comment.image}
+                                                alt="avatar"
+                                              />
+                                            ) : null}
+                                            <AvatarFallback className="bg-blue-500 text-white">
+                                              {getInitials(comment.sender)}
+                                            </AvatarFallback>
+                                          </Avatar>
                                         </div>
-
-                                        <div className="text-sm text-gray-700">
-                                          {comment.content}
+                                        <div>
+                                          <div className="rounded-xl py-2 flex-1">
+                                            <div className="flex items-center space-x-2">
+                                              <div className="text-sm font-medium">
+                                                {comment.sender}
+                                              </div>
+                                              <div className="text-xs text-gray-500">
+                                                {dayjs(
+                                                  comment.timestamp
+                                                ).format("HH:mm - DD/MM/YYYY")}
+                                              </div>
+                                            </div>
+                                            <div className="text-sm text-gray-700">
+                                              {comment.content}
+                                            </div>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  </div>
-                                ))}
+                                    ))}
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      toggleExpandComments(notify.id)
+                                    }
+                                    className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                  >
+                                    Ẩn phản hồi
+                                  </button>
+                                  {/* Hiển thị tất cả phản hồi */}
+                                  {comments[notify.id]
+                                    .slice()
+                                    .sort(
+                                      (a, b) =>
+                                        new Date(a.timestamp) -
+                                        new Date(b.timestamp)
+                                    )
+                                    .map((comment) => (
+                                      <div
+                                        key={comment.id}
+                                        className="flex items-start space-x-3"
+                                      >
+                                        <div className="pt-3">
+                                          <Avatar className="h-8 w-8">
+                                            {comment.image ? (
+                                              <AvatarImage
+                                                src={comment.image}
+                                                alt="avatar"
+                                              />
+                                            ) : null}
+                                            <AvatarFallback className="bg-blue-500 text-white">
+                                              {getInitials(comment.sender)}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                        </div>
+                                        <div>
+                                          <div className="rounded-xl py-2 flex-1">
+                                            <div className="flex items-center space-x-2">
+                                              <div className="text-sm font-medium">
+                                                {comment.sender}
+                                              </div>
+                                              <div className="text-xs text-gray-500">
+                                                {dayjs(
+                                                  comment.timestamp
+                                                ).format("HH:mm - DD/MM/YYYY")}
+                                              </div>
+                                            </div>
+                                            <div className="text-sm text-gray-700">
+                                              {comment.content}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                </>
+                              )}
                             </div>
                           )}
 
@@ -1140,22 +1234,73 @@ const DetailGroupLecturer = () => {
                                       )}
                                     </div>
                                   )}
-
                                   <div
-                                    className={`rounded-lg px-3 py-2 ${
+                                    className={`flex items-center ${
                                       isOwnMessage
-                                        ? "bg-blue-600 text-white"
-                                        : message.isTeacher
-                                        ? "bg-green-100 text-green-900"
-                                        : "bg-gray-100 text-gray-900"
+                                        ? "flex-row"
+                                        : "flex-row-reverse"
                                     }`}
                                   >
-                                    <p className="text-sm">{message.content}</p>
-                                  </div>
+                                    {isOwnMessage && (
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <button>
+                                            <EllipsisVertical
+                                              size={16}
+                                              className="mb-3 mr-2 text-gray-400 cursor-pointer"
+                                            />
+                                          </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                          <DropdownMenuItem
+                                            className="text-red-500 cursor-pointer"
+                                            onClick={() =>
+                                              handleRevokeMessageGroup(
+                                                message.id
+                                              )
+                                            }
+                                          >
+                                            Thu hồi
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    )}
 
-                                  <p className="text-xs text-gray-500">
-                                    {dayjs(message.timestamp).format("HH:mm")}
-                                  </p>
+                                    <div>
+                                      <div
+                                        className={`rounded-lg px-3 py-2 ${
+                                          isOwnMessage
+                                            ? "bg-blue-600 text-white"
+                                            : message.isTeacher
+                                            ? "bg-green-100 text-green-900"
+                                            : "bg-gray-100 text-gray-900"
+                                        }`}
+                                      >
+                                        {message.recalled ? (
+                                          <p className="text-sm italic text-gray-500">
+                                            Tin nhắn đã được thu hồi
+                                          </p>
+                                        ) : (
+                                          <p className="text-sm">
+                                            {message.content}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div
+                                        className={`flex ${
+                                          isOwnMessage
+                                            ? "justify-start"
+                                            : "justify-end"
+                                        }`}
+                                      >
+                                        <p className="text-xs text-gray-500">
+                                          {dayjs(message.timestamp).format(
+                                            "HH:mm"
+                                          )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>

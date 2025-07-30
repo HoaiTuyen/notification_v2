@@ -107,7 +107,7 @@ const ChangePasswordEmployee = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white p-0 overflow-y-auto max-h-[600px]">
+    <div className="h-full w-full bg-white p-0 overflow-auto">
       <div className="space-y-6 p-10">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Đổi mật khẩu</h2>
@@ -116,7 +116,7 @@ const ChangePasswordEmployee = () => {
           </p>
         </div>
 
-        <div className="max-w-2xl overflow-y-auto max-h-[600px]">
+        <div className="max-w-2xl overflow-y-auto">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">

@@ -151,7 +151,6 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received personal notification:", parsedMessage);
-          parsedMessage.type = "ChungToanTruong";
 
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
@@ -258,6 +257,7 @@ const Student = () => {
 
     try {
       const res = await handleListNotificationByStudent(userId, nextPage, 5);
+      console.log(res);
 
       if (res?.data?.responses?.length > 0) {
         setNotificationList((prev) => [
@@ -293,6 +293,16 @@ const Student = () => {
       key: "notification",
       icon: <Bell size={16} />,
       label: "Thông báo",
+      children: [
+        {
+          key: "notification-all",
+          label: "Thông báo chung",
+        },
+        {
+          key: "notification-personal",
+          label: "Thông báo đã nhận",
+        },
+      ],
     },
     {
       key: "group-study",
@@ -337,7 +347,14 @@ const Student = () => {
   }, []);
 
   return (
-    <Layout style={{ minHeight: "150vh", width: "100vw" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Header
         style={{
           backgroundColor: "#fff",
@@ -472,10 +489,10 @@ const Student = () => {
         {/* NỘI DUNG */}
         <Content
           style={{
-            padding: 0,
-
-            overflow: "auto",
+            height: "100%",
+            overflowY: "auto",
             backgroundColor: "#fff",
+            padding: 0,
           }}
         >
           <Outlet />

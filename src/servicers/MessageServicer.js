@@ -16,3 +16,9 @@ export const list_message = async (groupId, page, size) => {
     },
   });
 };
+export const revoke_message = async (messageId, userId) => {
+  return await api.post("/chat_message/revoke_message", {
+    messageId: messageId,
+    userId: userId,
+  });
+};

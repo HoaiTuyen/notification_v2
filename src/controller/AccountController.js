@@ -304,10 +304,10 @@ export const handleCheckCourseSchedule = async (id, check) => {
 export const handleListNotificationByStudent = async (
   StudentId,
   page,
-  pageSize
+  size
 ) => {
   try {
-    const response = await listNotificationByStudent(StudentId, page, pageSize);
+    const response = await listNotificationByStudent(StudentId, page, size);
 
     return response;
   } catch (error) {

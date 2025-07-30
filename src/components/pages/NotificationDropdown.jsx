@@ -174,7 +174,7 @@ const NotificationDropdown = ({
                 className={
                   isTitleOnly
                     ? "block whitespace-pre-line font-medium" // hiện đầy đủ, xuống dòng nếu có \n
-                    : "block max-w-[250px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
+                    : "block max-w-[280px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
                 }
                 title={item.title}
               >
@@ -212,8 +212,8 @@ const NotificationDropdown = ({
               !item.departmentName &&
               !item.groupName &&
               item.type !== "CHAT_MESSAGE" && (
-                <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                  Phòng đào tạo
+                <span className="tex-xs max-w-[280px] font-light truncate overflow-hidden whitespace-nowrap">
+                  {item.content}
                 </span>
               )}
           </div>

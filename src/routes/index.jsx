@@ -29,6 +29,7 @@ import AdminCreateNotification from "../components/admin/notification/CreateNoti
 import AdminCreateNotificationStudent from "../components/admin/notification/CreateNotificationStudent";
 import SentNotifications from "../components/admin/notification/SentNotification";
 import AdminNotificationDetail from "../components/admin/notification/DetailNotification";
+import Academic from "../components/admin/academic/Academic";
 //student
 import NotificationsPage from "../components/student/notification/NotificationPage";
 import StudentProfilePage from "../components/student/ProfileStudent";
@@ -38,6 +39,7 @@ import DetailGroupStudent from "../components/student/group/DetailGroup";
 import HomePageStudent from "../components/student/home/HomePageStudent";
 import StudentSubject from "../components/student/subject/StudentSubject";
 import ChangePasswordPage from "../components/student/ChangePassword";
+import NotificationsPersonal from "../components/student/notification/NotificationPersonal";
 //Lecturer
 import TeacherProfile from "../components/lecturer/SettingLecturer";
 import LecturerCreateNotification from "../components/lecturer/notification/CreateNotification";
@@ -133,6 +135,7 @@ function AppRoutes() {
               path="sent-notification/:notificationId"
               element={<AdminNotificationDetail />}
             />
+            <Route path="academic" element={<Academic />} />
           </Route>
           <Route
             path="/giang-vien"
@@ -242,7 +245,7 @@ function AppRoutes() {
             <Route path="home" element={<HomePageStudent />} />
             <Route path="profile" element={<StudentProfilePage />} />
             <Route path="subject" element={<StudentSubject />} />
-            <Route path="notification" element={<NotificationsPage />} />
+            <Route path="notification-all" element={<NotificationsPage />} />
             <Route
               path="notification/:notificationId"
               element={<StudentNotificationDetail />}
@@ -253,6 +256,10 @@ function AppRoutes() {
               element={<DetailGroupStudent />}
             />
             <Route path="change-password" element={<ChangePasswordPage />} />
+            <Route
+              path="notification-personal"
+              element={<NotificationsPersonal />}
+            />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

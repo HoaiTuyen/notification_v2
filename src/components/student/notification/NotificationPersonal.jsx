@@ -35,8 +35,12 @@ import useDebounce from "../../../hooks/useDebounce";
 import { motion } from "framer-motion";
 import { Spin } from "antd";
 import { toast } from "react-toastify";
-const NotificationsPage = () => {
+import { handleListNotificationByStudent } from "../../../controller/AccountController";
+import { jwtDecode } from "jwt-decode";
+const NotificationsPersonal = () => {
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("access_token");
+  const { userId } = jwtDecode(token);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -59,12 +63,12 @@ const NotificationsPage = () => {
 
   const navigate = useNavigate();
 
-  const handleViewDetail = (id, e) => {
-    e.stopPropagation();
-    navigate(
-      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
-    );
-  };
+  //   const handleViewDetail = (id, e) => {
+  //     e.stopPropagation();
+  //     navigate(
+  //       `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+  //     );
+  //   };
 
   const fetchNotifications = async (page = 1) => {
     try {
@@ -74,28 +78,32 @@ const NotificationsPage = () => {
       setLoading(true);
 
       if (keyword) {
-        res = await handleSearchNotification(
-          keyword,
-          type,
-          page,
-          pagination.pageSize
-        );
+        res = await handleSearchNotification(keyword, type, 0, 100);
       } else {
-        res = await handleListNotification(
-          "desc",
+        res = await handleListNotificationByStudent(
+          userId,
           page - 1,
-          pagination.pageSize,
-          type
+          pagination.pageSize
         );
       }
 
       if (res?.data) {
-        setNotifications(res.data.notifications);
+        setNotifications(res.data.responses);
         setPagination({
           current: page,
-          pageSize: res.data.pageSize,
+          pageSize: pagination.pageSize,
           total: res.data.totalElements,
           totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      } else {
+        setNotifications([]);
+        setPagination({
+          current: page,
+          pageSize: pagination.pageSize,
+          total: 0,
+          totalPages: 0,
+          totalElements: 0,
         });
       }
     } catch (e) {
@@ -146,10 +154,10 @@ const NotificationsPage = () => {
 
   const NotificationCard = ({ notification }) => (
     <div
-      className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
       onClick={(e) => onViewDetail(notification.id, e)}
     >
-      <div className="flex min-w-0">
+      <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">
           {notification.title}
         </p>
@@ -174,7 +182,9 @@ const NotificationsPage = () => {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Thông báo</h2>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Thông báo đã nhận
+              </h2>
             </div>
           </div>
 
@@ -277,4 +287,4 @@ const NotificationsPage = () => {
   );
 };
 
-export default NotificationsPage;
+export default NotificationsPersonal;

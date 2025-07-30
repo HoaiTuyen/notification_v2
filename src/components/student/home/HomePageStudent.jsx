@@ -36,7 +36,7 @@ const HomePageStudent = () => {
     notifications: 0,
     unreadNotifications: 0,
   });
-  
+
   const [notifications, setNotifications] = useState([]);
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,7 +129,7 @@ const HomePageStudent = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-white to-gray-50">
+    <div className="h-full w-full bg-gradient-to-b from-white to-gray-50 overflow-auto">
       <div className="space-y-8 p-8 overflow-y-auto max-h-[700px]">
         {/* Stats Cards */}
         <motion.div
@@ -178,14 +178,12 @@ const HomePageStudent = () => {
                 <CardTitle>Thông báo mới</CardTitle>
                 <Badge variant="outline">{stats.notifications} mới</Badge>
               </div>
-              <CardDescription>
-                Các thông báo mới nhất từ giảng viên và nhóm học tập
-              </CardDescription>
+              <CardDescription>Các thông báo mới nhất</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {notifications.length === 0 ? (
-                  <EmptyState message="Không có thông báo" />
+                  <EmptyState message="Không có thông báo nào" />
                 ) : (
                   notifications
                     .slice(0, 5)

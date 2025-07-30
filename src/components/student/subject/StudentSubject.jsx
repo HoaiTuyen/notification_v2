@@ -46,184 +46,6 @@ import { handleCheckCourseSchedule } from "../../../controller/AccountController
 import { toast } from "react-toastify";
 
 import { Spin } from "antd";
-// Mock data for student courses
-const studentCourses = [
-  {
-    id: 1,
-    code: "CS101",
-    name: "Nhập môn lập trình",
-    instructor: "TS. Nguyễn Văn A",
-    credits: 3,
-    semester: "HK1 2023-2024",
-    schedule: [
-      { day: "Thứ 2", time: "07:00-09:00", room: "A101", type: "Lý thuyết" },
-      { day: "Thứ 4", time: "07:00-09:00", room: "B201", type: "Thực hành" },
-    ],
-    progress: 75,
-    attendance: 18,
-    totalSessions: 20,
-    assignments: 3,
-    completedAssignments: 2,
-    nextClass: "2024-01-15T07:00:00",
-    status: "Đang học",
-    grade: null,
-    description: "Môn học cơ bản về lập trình với ngôn ngữ Python",
-    materials: 12,
-    announcements: 5,
-  },
-  {
-    id: 2,
-    code: "CS201",
-    name: "Cấu trúc dữ liệu và giải thuật",
-    instructor: "ThS. Trần Thị B",
-    credits: 4,
-    semester: "HK1 2023-2024",
-    schedule: [
-      { day: "Thứ 3", time: "09:00-11:00", room: "B201", type: "Lý thuyết" },
-      { day: "Thứ 5", time: "13:00-15:00", room: "C301", type: "Thực hành" },
-    ],
-    progress: 60,
-    attendance: 15,
-    totalSessions: 18,
-    assignments: 4,
-    completedAssignments: 3,
-    nextClass: "2024-01-16T09:00:00",
-    status: "Đang học",
-    grade: null,
-    description: "Học về các cấu trúc dữ liệu cơ bản và nâng cao",
-    materials: 18,
-    announcements: 3,
-  },
-  {
-    id: 3,
-    code: "MATH101",
-    name: "Đại số tuyến tính",
-    instructor: "PGS. Lê Văn C",
-    credits: 3,
-    semester: "HK1 2023-2024",
-    schedule: [
-      { day: "Thứ 2", time: "13:00-15:00", room: "C301", type: "Lý thuyết" },
-      { day: "Thứ 6", time: "07:00-09:00", room: "D101", type: "Bài tập" },
-    ],
-    progress: 85,
-    attendance: 16,
-    totalSessions: 16,
-    assignments: 2,
-    completedAssignments: 2,
-    nextClass: "2024-01-19T07:00:00",
-    status: "Đang học",
-    grade: null,
-    description: "Môn toán cơ sở cho ngành công nghệ thông tin",
-    materials: 8,
-    announcements: 2,
-  },
-  {
-    id: 4,
-    code: "ENG101",
-    name: "Tiếng Anh học thuật",
-    instructor: "ThS. Ngô Thị D",
-    credits: 2,
-    semester: "HK1 2023-2024",
-    schedule: [
-      { day: "Thứ 7", time: "07:00-09:00", room: "E201", type: "Lý thuyết" },
-    ],
-    progress: 90,
-    attendance: 14,
-    totalSessions: 15,
-    assignments: 5,
-    completedAssignments: 5,
-    nextClass: "2024-01-20T07:00:00",
-    status: "Hoàn thành",
-    grade: "A",
-    description: "Phát triển kỹ năng tiếng Anh học thuật",
-    materials: 15,
-    announcements: 1,
-  },
-];
-
-const upcomingClasses = [
-  {
-    id: 1,
-    courseCode: "CS101",
-    courseName: "Nhập môn lập trình",
-    time: "07:00-09:00",
-    date: "2024-01-15",
-    room: "A101",
-    type: "Lý thuyết",
-    instructor: "TS. Nguyễn Văn A",
-  },
-  {
-    id: 2,
-    courseCode: "CS201",
-    courseName: "Cấu trúc dữ liệu và giải thuật",
-    time: "09:00-11:00",
-    date: "2024-01-16",
-    room: "B201",
-    type: "Lý thuyết",
-    instructor: "ThS. Trần Thị B",
-  },
-  {
-    id: 3,
-    courseCode: "MATH101",
-    courseName: "Đại số tuyến tính",
-    time: "07:00-09:00",
-    date: "2024-01-19",
-    room: "D101",
-    type: "Bài tập",
-    instructor: "PGS. Lê Văn C",
-  },
-];
-
-const weeklySchedule = [
-  {
-    day: "Thứ 2",
-    slots: [
-      { time: "07:00-09:00", course: "CS101", room: "A101", type: "Lý thuyết" },
-      {
-        time: "13:00-15:00",
-        course: "MATH101",
-        room: "C301",
-        type: "Lý thuyết",
-      },
-    ],
-  },
-  {
-    day: "Thứ 3",
-    slots: [
-      { time: "09:00-11:00", course: "CS201", room: "B201", type: "Lý thuyết" },
-    ],
-  },
-  {
-    day: "Thứ 4",
-    slots: [
-      { time: "07:00-09:00", course: "CS101", room: "B201", type: "Thực hành" },
-    ],
-  },
-  {
-    day: "Thứ 5",
-    slots: [
-      { time: "13:00-15:00", course: "CS201", room: "C301", type: "Thực hành" },
-    ],
-  },
-  {
-    day: "Thứ 6",
-    slots: [
-      { time: "07:00-09:00", course: "MATH101", room: "D101", type: "Bài tập" },
-    ],
-  },
-  {
-    day: "Thứ 7",
-    slots: [
-      {
-        time: "07:00-09:00",
-        course: "ENG101",
-        room: "E201",
-        type: "Lý thuyết",
-      },
-    ],
-  },
-  { day: "Chủ nhật", slots: [] },
-];
 
 export default function StudentCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -342,7 +164,7 @@ export default function StudentCoursesPage() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white p-0 ">
+      <div className="h-full w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-10 overflow-y-auto max-h-[700px]">
           {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -350,19 +172,16 @@ export default function StudentCoursesPage() {
               <h1 className="text-3xl font-bold tracking-tight">
                 Môn học của tôi
               </h1>
-              <p className="text-muted-foreground">
-                Quản lý và theo dõi tiến độ học tập của bạn
-              </p>
             </div>
           </div>
 
           {/* Quick Stats */}
 
           <Tabs defaultValue="courses" className="space-y-4">
-            <TabsList>
+            {/* <TabsList>
               <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
-              {/* <TabsTrigger value="timetable">Lịch học</TabsTrigger> */}
-            </TabsList>
+              <TabsTrigger value="timetable">Lịch học</TabsTrigger>
+            </TabsList> */}
 
             <TabsContent value="courses" className="space-y-4">
               <div className="flex gap-4 md:flex-row md:items-center">

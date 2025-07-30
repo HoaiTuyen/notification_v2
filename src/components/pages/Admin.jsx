@@ -12,7 +12,14 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 const { Header, Sider, Content } = Layout;
-import { Sheet, Send, MessageSquare, Bell, Inbox } from "lucide-react";
+import {
+  Sheet,
+  Send,
+  MessageSquare,
+  Bell,
+  Inbox,
+  GraduationCap,
+} from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
@@ -90,6 +97,11 @@ const AdminDashboard = () => {
       key: "sent-notification",
       icon: <Bell size={16} />,
       label: "Thông báo đã gửi",
+    },
+    {
+      key: "academic",
+      icon: <GraduationCap size={16} />,
+      label: "Quản lý niên khoá",
     },
     {
       key: "department",

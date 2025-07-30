@@ -168,16 +168,13 @@ const StudentProfilePage = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-h-screen w-full bg-white p-0 ">
+      <div className="h-full w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-10">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-3xl font-bold tracking-tight">
                 Thông tin cá nhân
               </h2>
-              <p className="text-muted-foreground">
-                Quản lý thông tin cá nhân và học tập của bạn
-              </p>
             </div>
             <Button
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -198,9 +195,9 @@ const StudentProfilePage = () => {
           </div>
 
           <Tabs defaultValue="personal" className="space-y-4">
-            <TabsList>
+            {/* <TabsList>
               <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             <TabsContent
               value="personal"

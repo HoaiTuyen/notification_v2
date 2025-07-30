@@ -194,11 +194,19 @@ const EmployeeCreateNotification = () => {
     const countWords = (text) =>
       text.trim().split(/\s+/).filter(Boolean).length;
 
+    const isAllNumbersOrSymbols = (text) => {
+      const onlyNumbers = /^[\d\s-]+$/;
+      const onlySymbols = /^[^\w\s]+$/;
+      return onlyNumbers.test(text) || onlySymbols.test(text);
+    };
+
     if (!formData.title.trim()) {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     } else {
       if (countWords(formData.title) < 3) {
         newErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+      } else if (isAllNumbersOrSymbols(formData.title)) {
+        newErrors.title = "Tiêu đề không được chỉ chứa số hoặc ký tự đặc biệt";
       }
     }
 
@@ -207,6 +215,9 @@ const EmployeeCreateNotification = () => {
     } else {
       if (countWords(formData.content) < 3) {
         newErrors.content = "Nội dung phải có ít nhất 3 từ";
+      } else if (isAllNumbersOrSymbols(formData.content)) {
+        newErrors.content =
+          "Nội dung không được chỉ chứa số hoặc ký tự đặc biệt";
       }
     }
 
@@ -218,8 +229,6 @@ const EmployeeCreateNotification = () => {
     });
 
     setErrors(newErrors);
-
-    // Trả về true nếu không có lỗi
     return Object.keys(newErrors).length === 0;
   };
 
@@ -235,6 +244,12 @@ const EmployeeCreateNotification = () => {
     const countWords = (text) =>
       text.trim().split(/\s+/).filter(Boolean).length;
 
+    const isAllNumbersOrSymbols = (text) => {
+      const onlyNumbers = /^[\d\s-]+$/;
+      const onlySymbols = /^[^\w\s]+$/;
+      return onlyNumbers.test(text) || onlySymbols.test(text);
+    };
+
     setErrors((prev) => {
       const updatedErrors = { ...prev };
 
@@ -243,6 +258,9 @@ const EmployeeCreateNotification = () => {
           updatedErrors.title = "Vui lòng nhập tiêu đề thông báo";
         } else if (countWords(value) < 3) {
           updatedErrors.title = "Tiêu đề phải có ít nhất 3 từ";
+        } else if (isAllNumbersOrSymbols(value)) {
+          updatedErrors.title =
+            "Tiêu đề không được chỉ chứa số hoặc ký tự đặc biệt";
         } else {
           delete updatedErrors.title;
         }
@@ -253,6 +271,9 @@ const EmployeeCreateNotification = () => {
           updatedErrors.content = "Vui lòng nhập nội dung thông báo";
         } else if (countWords(value) < 3) {
           updatedErrors.content = "Nội dung phải có ít nhất 3 từ";
+        } else if (isAllNumbersOrSymbols(value)) {
+          updatedErrors.content =
+            "Nội dung không được chỉ chứa số hoặc ký tự đặc biệt";
         } else {
           delete updatedErrors.content;
         }

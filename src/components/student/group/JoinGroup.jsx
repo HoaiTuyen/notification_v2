@@ -32,7 +32,8 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
     code: "",
   });
   const { setLoading } = useLoading();
-  const handleSubmitJoin = async () => {
+  const handleSubmitJoin = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
       setError("");
@@ -52,6 +53,14 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+  const validateForm = (e) => {
+    e.preventDefault();
+    if (!form?.code) {
+      setError("Mã nhóm không được để trống");
+      return;
+    }
+    return true;
+  };
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val == onClose()}>
@@ -66,27 +75,33 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">Mã nhóm</Label>
-              <div className="flex space-x-2">
-                <Input
-                  id="code"
-                  placeholder="Nhập mã nhóm (ví dụ: ad99kol)"
-                  value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
-                />
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-                  onClick={() => handleSubmitJoin()}
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+            <form onSubmit={handleSubmitJoin}>
+              <div className="space-y-2">
+                <Label htmlFor="code">Mã nhóm</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="code"
+                    placeholder="Nhập mã nhóm (ví dụ: ad99kol)"
+                    value={form.code}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    required
+                    onBlur={validateForm}
+                  />
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                    type="submit"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                {error && (
+                  <p className="text-sm text-red-600 text-center mt-2">
+                    {error}
+                  </p>
+                )}
               </div>
-            </div>
+            </form>
           </CardContent>
-          {error && (
-            <p className="text-sm text-red-600 text-center mt-2">{error}</p>
-          )}
         </Card>
       </DialogContent>
     </Dialog>

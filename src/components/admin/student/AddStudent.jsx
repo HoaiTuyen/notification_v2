@@ -184,31 +184,90 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
   const validateField = (field, value) => {
     let message = "";
-    const trimmed = value.trim();
+    const trimmed = value?.trim?.() || "";
+
+    const idRegex = /^[A-Z][A-Z0-9]*$/;
+    const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const isCapitalized = (str) => {
+      return str
+        .split(" ")
+        .every(
+          (word) =>
+            word.length > 0 &&
+            word[0] === word[0].toUpperCase() &&
+            word.slice(1) === word.slice(1).toLowerCase()
+        );
+    };
 
     switch (field) {
       case "id":
-        if (!trimmed) message = "Mã sinh viên không được để trống";
-        else if (!/^[A-Z][A-Z0-9_]*$/.test(trimmed))
-          message = "Chỉ bao gồm chữ in hoa, số hoặc dấu gạch dưới";
+        if (!trimmed) {
+          message = "Mã sinh viên không được để trống";
+        } else if (trimmed.length < 10) {
+          message = "Mã sinh viên phải ít nhất 10 ký tự";
+        } else if (!idRegex.test(trimmed)) {
+          message =
+            "Mã sinh viên phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa và số";
+        }
         break;
+
       case "firstName":
+        if (!trimmed) {
+          message = "Họ không được để trống";
+        } else if (trimmed.length < 3) {
+          message = "Họ phải ít nhất 3 ký tự";
+        } else if (!nameRegex.test(trimmed)) {
+          message =
+            "Họ chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt";
+        } else if (!isCapitalized(trimmed)) {
+          message =
+            "Họ phải viết hoa chữ cái đầu của mỗi từ (ví dụ: 'Nguyen Van')";
+        }
+        break;
+
       case "lastName":
-        if (!trimmed) message = "Trường này không được để trống";
+        if (!trimmed) {
+          message = "Tên không được để trống";
+        } else if (trimmed.length < 1) {
+          message = "Tên phải ít nhất 1 ký tự";
+        } else if (!nameRegex.test(trimmed)) {
+          message =
+            "Tên chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt";
+        } else if (!isCapitalized(trimmed)) {
+          message = "Tên phải viết hoa chữ cái đầu của mỗi từ (ví dụ: 'An')";
+        }
         break;
+
       case "email":
-        if (!trimmed) message = "Email không được để trống";
-        else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(trimmed))
-          message = "Email không hợp lệ";
+        if (!trimmed) {
+          message = "Email không được để trống";
+        } else if (!emailRegex.test(trimmed)) {
+          message = "Email không hợp lệ. Vui lòng nhập đúng định dạng email.";
+        }
         break;
+
       case "username":
-        if (!trimmed) message = "Username không được để trống";
+        if (!trimmed) {
+          message = "Username không được để trống";
+        }
         break;
+
       case "password":
-        if (!trimmed) message = "Password không được để trống";
-        else if (trimmed.length < 6)
+        if (!trimmed) {
+          message = "Mật khẩu không được để trống";
+        } else if (trimmed.length < 6) {
           message = "Mật khẩu phải có ít nhất 6 ký tự";
+        }
         break;
+
+      case "dateOfBirth":
+        if (!validateBirthDate(trimmed, minAge, minBirthDate)) {
+          message = birthMsg;
+        }
+        break;
+
       default:
         break;
     }

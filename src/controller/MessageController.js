@@ -1,4 +1,8 @@
-import { send_message, list_message } from "../servicers/MessageServicer";
+import {
+  send_message,
+  list_message,
+  revoke_message,
+} from "../servicers/MessageServicer";
 
 export const handleSendMessage = async (groupId, message) => {
   try {
@@ -25,6 +29,23 @@ export const handleListMessage = async (groupId, page, size) => {
   } catch (error) {
     if (error) {
       const errMsg = error.response?.data?.message || "Lấy tin nhắn thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleRevokeMessage = async (messageId, userId) => {
+  try {
+    const response = await revoke_message(messageId, userId);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Thu hồi tin nhắn thất bại";
       const status = error.response?.status || 500;
       return {
         status,
