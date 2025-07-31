@@ -266,7 +266,7 @@ const Lecturer = () => {
                         colSpan={7}
                         className="text-center justify-center py-6 text-gray-500"
                       >
-                        {debouncedSearchTerm && selectStatus
+                        {debouncedSearchTerm || selectStatus !== "all"
                           ? "Không tìm thấy giảng viên phù hợp"
                           : "Chưa có giảng viên nào"}
                       </TableCell>

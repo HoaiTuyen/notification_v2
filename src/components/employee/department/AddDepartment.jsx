@@ -50,15 +50,25 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
       if (!value.trim()) error = "Mã khoa không được để trống";
       else if (value.length < 4) error = "Mã khoa ít nhất 4 ký tự";
       else if (value.length > 10) error = "Mã khoa không được quá 10 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9]*$/.test(value))
-        error = "Mã khoa phải bắt đầu bằng chữ cái và chỉ gồm chữ cái hoặc số";
+      else if (!/^[A-Z][A-Z0-9]*$/.test(value))
+        error =
+          "Mã khoa phải bắt đầu bằng chữ cái in hoa và chỉ gồm chữ in hoa hoặc số";
     }
 
     if (field === "name") {
-      if (!value.trim()) error = "Tên khoa không được để trống";
-      else if (value.length < 5) error = "Tên khoa ít nhất 5 ký tự";
-      else if (!/^[\p{L} ]+$/u.test(value))
+      if (!value.trim()) {
+        error = "Tên khoa không được để trống";
+      } else if (value.length < 5) {
+        error = "Tên khoa ít nhất 5 ký tự";
+      } else if (!/^[\p{L} ]+$/u.test(value)) {
         error = "Tên khoa chỉ chứa chữ cái và khoảng trắng";
+      } else {
+        const words = value.trim().split(/\s+/);
+        const firstWord = words[0];
+        if (firstWord[0] !== firstWord[0].toUpperCase()) {
+          error = "Từ đầu tiên của tên khoa phải viết hoa";
+        }
+      }
     }
 
     if (field === "description") {
@@ -95,6 +105,13 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
         setLoading(false);
         return;
       }
+      if (!/^[A-Z][A-Z0-9]*$/.test(form.id)) {
+        toast.error(
+          "Mã khoa phải bắt đầu bằng chữ cái in hoa và chỉ gồm chữ in hoa hoặc số"
+        );
+        setLoading(false);
+        return;
+      }
 
       // Validate tên khoa
       if (!form.name.trim()) {
@@ -111,6 +128,13 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
         toast.error(
           "Tên khoa chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt"
         );
+        setLoading(false);
+        return;
+      }
+      const words = form.name.trim().split(/\s+/);
+      const firstWord = words[0];
+      if (firstWord[0] !== firstWord[0].toUpperCase()) {
+        toast.error("Từ đầu tiên của tên khoa phải viết hoa chữ cái đầu");
         setLoading(false);
         return;
       }

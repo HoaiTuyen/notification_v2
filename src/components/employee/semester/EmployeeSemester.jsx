@@ -147,7 +147,8 @@ const EmployeeSemester = () => {
             <AddSemester
               open={openModal}
               onClose={() => {
-                setOpenModal(false), setSelectSemester(null);
+                setOpenModal(false);
+                setSelectSemester(null);
               }}
               onSuccess={() => fetchListSemester(pageFromUrl)}
               semester={selectSemester}
@@ -284,7 +285,10 @@ const EmployeeSemester = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             semester={selectSemester}
-            onSuccess={() => fetchListSemester(pageFromUrl)}
+            onSuccess={() => {
+              fetchListSemester(pageFromUrl);
+              setSelectSemester(null);
+            }}
           />
         )}
         {pagination.totalElements >= 10 && (

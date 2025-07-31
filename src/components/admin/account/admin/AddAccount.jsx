@@ -206,6 +206,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                       setErrors((prev) => ({ ...prev, username: "" }));
                     }
                   }}
+                  maxLength={50}
                   onBlur={() => validateField("username", form.username)}
                   required
                   pattern="^[A-Za-z][A-Za-z0-9]{4,}$"
@@ -233,6 +234,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                       }}
                       onBlur={() => validateField("password", form.password)}
                       required
+                      maxLength={50}
                       minLength={6}
                       title="Mật khẩu phải có ít nhất 6 ký tự"
                       className="pr-10"
@@ -299,6 +301,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
               variant="outline"
               onClick={() => {
                 onClose();
+                setErrors({});
                 setForm({
                   id: "",
                   username: "",

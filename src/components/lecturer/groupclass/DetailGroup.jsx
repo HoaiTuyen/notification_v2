@@ -101,6 +101,8 @@ const DetailGroupLecturer = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [page, setPage] = useState(0);
   const [expandedComments, setExpandedComments] = useState({}); // { [notificationId]: boolean }
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
 
   // Auto-scroll to bottom when chat tab is active or messages change
 
@@ -276,8 +278,9 @@ const DetailGroupLecturer = () => {
       setIsSending(false);
     }
   };
-  const handleRevokeMessageGroup = async (messageId) => {
+  const handleRevokeMessageGroup = async (messageId, userId) => {
     console.log(messageId);
+    console.log(userId);
     try {
       const response = await handleRevokeMessage(messageId, userId);
       console.log(response);
@@ -1256,11 +1259,23 @@ const DetailGroupLecturer = () => {
                                             className="text-red-500 cursor-pointer"
                                             onClick={() =>
                                               handleRevokeMessageGroup(
-                                                message.id
+                                                message.id,
+                                                message.userId
                                               )
                                             }
                                           >
                                             Thu hồi
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem
+                                            className="text-red-500 cursor-pointer"
+                                            // onClick={() =>
+                                            //   handleRevokeMessageGroup(
+                                            //     message.id,
+                                            //     message.userId
+                                            //   )
+                                            // }
+                                          >
+                                            Chỉnh sửa
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>

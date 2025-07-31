@@ -143,7 +143,8 @@ const Semester = () => {
             <AddSemester
               open={openModal}
               onClose={() => {
-                setOpenModal(false), setSelectSemester(null);
+                setOpenModal(false);
+                setSelectSemester(null);
               }}
               onSuccess={() => fetchListSemester(pageFromUrl)}
               semester={selectSemester}
@@ -283,7 +284,10 @@ const Semester = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             semester={selectSemester}
-            onSuccess={() => fetchListSemester(pageFromUrl)}
+            onSuccess={() => {
+              fetchListSemester(pageFromUrl);
+              setSelectSemester(null);
+            }}
           />
         )}
         {pagination.totalPages >= 10 && (

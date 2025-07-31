@@ -31,34 +31,35 @@ import {
   Edit,
   Calendar,
   FileText,
+  Trash2,
 } from "lucide-react";
 import {
   handleListNotification,
   handleSearchNotification,
+  handleListNotificationPersonal,
 } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
-import { handleListDepartment } from "../../../controller/DepartmentController";
 import { Pagination, Spin } from "antd";
 import dayjs from "dayjs";
 import DeleteNotification from "./DeleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
 import UpdateNotification from "./UpdateNotification";
 import Reports from "./reports/Reports";
-const EmployeeSentNotifications = () => {
+import { jwtDecode } from "jwt-decode";
+const EmployeeSentNotificationsPersonal = () => {
   const navigate = useNavigate();
+  const token = localStorage.getItem("access_token");
+  const { userId } = jwtDecode(token);
+
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
-
   const searchFromUrl = searchParams.get("search") || "";
   const typeFromUrl = searchParams.get("type") || "all";
-  const departmentFromUrl = searchParams.get("department") || "all";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [type, setType] = useState([]);
   const [selectType, setSelectType] = useState(typeFromUrl);
-  const [selectDepartment, setSelectDepartment] = useState(departmentFromUrl);
   const [dataNotify, setDataNotify] = useState([]);
-  const [dataDepartment, setDataDepartment] = useState([]);
   const [openModalDelete, setModalDelete] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotify, setSelectNotify] = useState([]);
@@ -80,25 +81,22 @@ const EmployeeSentNotifications = () => {
       const keyword = debouncedSearchTerm.trim();
       const isKeywordEmpty = keyword === "";
       const isTypeAll = selectType === "all";
-      const isDepartmentAll = selectDepartment === "all";
 
       let response;
 
-      if (isKeywordEmpty && isTypeAll && isDepartmentAll) {
-        response = await handleListNotification(
-          "desc",
+      if (isKeywordEmpty && isTypeAll) {
+        response = await handleListNotificationPersonal(
+          userId,
           page - 1,
           pagination.pageSize
         );
       } else {
         const keywordParam = keyword;
         const typeParam = isTypeAll ? "" : selectType;
-        const departmentParam = isDepartmentAll ? "" : selectDepartment;
 
         response = await handleSearchNotification(
           keywordParam,
           typeParam,
-          departmentParam,
           page - 1,
           pagination.pageSize
         );
@@ -139,50 +137,31 @@ const EmployeeSentNotifications = () => {
       setType(listNotifyType.data.notificationTypes);
     }
   };
-  const fetchDepartment = async () => {
-    try {
-      const listDepartment = await handleListDepartment(0, 100);
-      if (listDepartment?.data) {
-        setDataDepartment(listDepartment.data.departments);
-      }
-    } catch (e) {
-      console.log(e);
-      setDataDepartment([]);
-    }
-  };
   useEffect(() => {
     setSearchParams({
       search: debouncedSearchTerm,
       type: selectType,
-      department: selectDepartment,
       page: pageFromUrl,
     });
-  }, [debouncedSearchTerm, selectType, selectDepartment, pageFromUrl]);
+  }, [debouncedSearchTerm, selectType, pageFromUrl]);
 
   useEffect(() => {
     fetchListNotification(pageFromUrl);
     fetchNotifyType();
-    fetchDepartment();
-  }, [
-    pageFromUrl,
-    debouncedSearchTerm,
-    selectType,
-    selectDepartment,
-    forceReload,
-  ]);
+  }, [pageFromUrl, debouncedSearchTerm, selectType, forceReload]);
 
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&department=${selectDepartment}&page=${pagination.current}`
+      `/nhan-vien/sent-notification-personal/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
   const handleWapper = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&department=${selectDepartment}&page=${pagination.current}`
+      `/nhan-vien/sent-notification-personal/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
 
@@ -193,11 +172,11 @@ const EmployeeSentNotifications = () => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="h-full w-full bg-white p-0 overflow-auto">
+      <div className="h-wull w-full bg-white p-0 overflow-auto">
         <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Thông báo chung</h1>
+              <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
             </div>
             <Button
               variant="outline"
@@ -215,7 +194,7 @@ const EmployeeSentNotifications = () => {
           {/* Statistics */}
 
           {/* Filters */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
@@ -244,7 +223,7 @@ const EmployeeSentNotifications = () => {
                     <SelectValue placeholder="Loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả loại thông báo</SelectItem>
+                    <SelectItem value="all">Tất cả loại</SelectItem>
                     {type.length === 0 ? (
                       <SelectItem>Trống</SelectItem>
                     ) : (
@@ -254,32 +233,17 @@ const EmployeeSentNotifications = () => {
                     )}
                   </SelectContent>
                 </Select>
-                <Select
-                  value={selectDepartment}
-                  onValueChange={(value) => setSelectDepartment(value)}
-                >
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="Loại thông báo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả khoa</SelectItem>
-                    {dataDepartment.length === 0 ? (
-                      <SelectItem>Trống</SelectItem>
-                    ) : (
-                      dataDepartment.map((item) => (
-                        <SelectItem value={item.name}>{item.name}</SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Notifications List */}
           <Card className="overflow-x-auto max-h-[800px]">
             <CardHeader>
               <CardTitle>Danh sách thông báo</CardTitle>
+              <CardDescription>
+                Hiển thị {pagination.totalElements} thông báo
+              </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto max-h-[400px]">
               <div className="space-y-4 cursor-pointer">
@@ -322,7 +286,7 @@ const EmployeeSentNotifications = () => {
                                 <Calendar className="h-4 w-4" />
                                 <span>
                                   {dayjs(notification.createdAt).format(
-                                    "DD/MM/YYYY"
+                                    "DD/MM/YYYY HH:mm"
                                   )}
                                 </span>
                               </div>
@@ -341,7 +305,7 @@ const EmployeeSentNotifications = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            {/* <Button
+                            <Button
                               size="sm"
                               variant="outline"
                               className="cursor-pointer"
@@ -352,19 +316,19 @@ const EmployeeSentNotifications = () => {
                               }}
                             >
                               <Edit className="h-4 w-4" />
-                            </Button> */}
-                            {/* <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectNotify(notification);
-                              setModalDelete(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button> */}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectNotify(notification);
+                                setModalDelete(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -389,25 +353,22 @@ const EmployeeSentNotifications = () => {
               notify={selectNotify}
             />
           )}
-          {pagination.total >= 10 && (
-            <div className="flex justify-center mt-4">
-              <Pagination
-                current={pagination.current}
-                pageSize={pagination.pageSize}
-                showSizeChanger={false}
-                total={pagination.total}
-                onChange={(page) => {
-                  const params = new URLSearchParams({
-                    search: debouncedSearchTerm,
-                    type: selectType,
-                    department: selectDepartment,
-                    page: page.toString(),
-                  });
-                  setSearchParams(params);
-                }}
-              />
-            </div>
-          )}
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              showSizeChanger={false}
+              total={pagination.total}
+              onChange={(page) => {
+                const params = new URLSearchParams({
+                  search: debouncedSearchTerm,
+                  type: selectType,
+                  page: page.toString(),
+                });
+                setSearchParams(params);
+              }}
+            />
+          </div>
         </div>
         {openModalDelete && (
           <DeleteNotification
@@ -438,7 +399,6 @@ const EmployeeSentNotifications = () => {
               setSearchParams({
                 search: searchTerm.trim(),
                 type: selectType,
-                department: selectDepartment,
                 page: targetPage.toString(),
               });
 
@@ -453,4 +413,4 @@ const EmployeeSentNotifications = () => {
     </motion.div>
   );
 };
-export default EmployeeSentNotifications;
+export default EmployeeSentNotificationsPersonal;

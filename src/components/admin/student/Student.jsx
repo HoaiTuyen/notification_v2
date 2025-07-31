@@ -265,7 +265,7 @@ const Student = () => {
                         colSpan={8}
                         className="text-center py-6 text-gray-500"
                       >
-                        {debouncedSearchTerm
+                        {debouncedSearchTerm || selectStatus !== "all"
                           ? "Không tìm thấy sinh viên phù hợp"
                           : "Không có sinh viên nào"}
                       </TableCell>

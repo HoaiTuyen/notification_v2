@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Dialog,
@@ -16,13 +16,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadCloud, Plus, X } from "lucide-react";
 import { handleCreateNotificationGroup } from "../../../../controller/NotificationGroupController";
 import { useLoading } from "../../../../context/LoadingProvider";
+import StudentSelect from "react-select";
+import { handleDetailGroup } from "../../../../controller/GroupController";
 const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
   const { groupId } = useParams();
   const { setLoading } = useLoading();
+  const [students, setStudents] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [formData, setFormData] = useState({
     groupId: groupId,
     title: "",
     content: "",
+    studentIds: [],
     files: [],
     displayNames: [""],
   });
@@ -30,6 +35,23 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
 
   const [submitting, setSubmitting] = useState(false);
 
+  const fetchListStudent = async () => {
+    try {
+      const detailGroup = await handleDetailGroup(groupId);
+      console.log(detailGroup);
+      if (detailGroup?.data && detailGroup.status === 200) {
+        const formatted = detailGroup.data.members.map((s) => ({
+          value: s.fullName,
+          label: `${s.id} - ${s.fullName}`,
+          ...s,
+        }));
+        setStudents(formatted);
+      }
+    } catch (e) {
+      setStudents([]);
+      console.error("Lỗi khi fetch chi tiết nhóm học tập:", e);
+    }
+  };
   const handleFileChange = (file, index) => {
     const newFiles = [...formData.files];
     newFiles[index] = file;
@@ -151,6 +173,10 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchListStudent();
+  }, []);
   if (!open) return null;
   const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
   return (
@@ -229,6 +255,19 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
               {errors.content && (
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label className="mb-2">Sinh viên</Label>
+              <StudentSelect
+                isMulti
+                name="students"
+                options={students}
+                value={selectedStudents}
+                onChange={(selected) => setSelectedStudents(selected)}
+                className="react-select-container"
+                classNamePrefix="select"
+                placeholder="Chọn sinh viên theo mã, tên"
+              />
             </div>
 
             {formData.displayNames.map((name, index) => (

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useWebSocket from "../../config/Websorket";
 import { handleLogout } from "@/controller/AuthController";
 import { toast } from "react-toastify";
+import { toast as toastHot } from "react-hot-toast";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Layout, Menu, Button, Drawer, Grid, Dropdown } from "antd";
 import {
@@ -98,9 +99,7 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           parsedMessage.type = "ChungToanTruong";
-
-          console.log("Received general notification:", parsedMessage);
-
+          toastHot.success("Bạn có thông báo mới");
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];
@@ -114,7 +113,7 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           parsedMessage.type = "ChungToanTruong";
-
+          toastHot.success("Bạn có thông báo mới");
           console.log(parsedMessage);
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
@@ -135,6 +134,7 @@ const Student = () => {
             isRead: false,
           };
           console.log(parsedMessage);
+          toastHot.success("Bạn có thông báo mới");
 
           setNotificationList((prev) => {
             if (prev.some((item) => item.title === parsedMessage.title))
@@ -151,7 +151,7 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received personal notification:", parsedMessage);
-
+          toastHot.success("Bạn có thông báo mới");
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];

@@ -73,6 +73,8 @@ import LecturerEmployee from "../components/employee/lecturer/Lecturer";
 import ChangePasswordLecturer from "../components/lecturer/ChangePassword";
 import ChangePasswordEmployee from "../components/employee/ChangePassword";
 import EmployeeListClassOfDepartment from "../components/employee/department/listClassByDepartment/ListClassByDepartment";
+import EmployeeSentNotificationsPersonal from "../components/employee/notification/SentNotificationPersonal";
+import EmployeeNotificationDetailPersonal from "../components/employee/notification/DetailNotificationPersonal";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -178,6 +180,7 @@ function AppRoutes() {
               path="sentNotification"
               element={<LecturerSentNotifications />}
             />
+
             <Route
               path="sentNotification/:notificationId"
               element={<LecturerNotificationDetail />}
@@ -214,6 +217,14 @@ function AppRoutes() {
             <Route
               path="sent-notification/:notificationId"
               element={<EmployeeNotificationDetail />}
+            />
+            <Route
+              path="sent-notification-personal"
+              element={<EmployeeSentNotificationsPersonal />}
+            />
+            <Route
+              path="sent-notification-personal/:notificationId"
+              element={<EmployeeNotificationDetailPersonal />}
             />
             <Route path="study-module" element={<StudyModule />} />
             <Route

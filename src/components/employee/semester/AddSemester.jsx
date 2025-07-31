@@ -39,7 +39,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
     switch (field) {
       case "id":
         if (!value.trim()) message = "Mã học kỳ không được để trống";
-        else if (value.length < 3) message = "Ít nhất 3 chữ số";
+        else if (value.length !== 3) message = "Mã học kỳ phải đúng 3 chữ số";
         else if (!/^[0-9]+$/.test(value)) message = "Chỉ được chứa số";
         break;
       case "nameSemester":
@@ -70,10 +70,11 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       toast.error("Mã học kỳ không được để trống");
       return;
     }
-    if (form.id.length < 3) {
-      toast.error("Mã học kỳ ít nhất 3 ký tự");
+    if (form.id.length !== 3) {
+      toast.error("Mã học kỳ phải đúng 3 ký tự");
       return;
     }
+
     if (!idRegex.test(form.id)) {
       toast.error("Mã học kỳ chỉ được chứa số");
       return;
@@ -208,7 +209,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 onBlur={() => validateField("id", form.id)}
                 required
                 minLength={3}
-                pattern="^[0-9]+$"
+                pattern="^[0-9]{3}$"
+                title="Mã học kỳ phải đúng 3 chữ số"
+                disabled={checkEdit}
               />
               <p className="text-red-500 min-h-[20px] text-sm">
                 {errors.id || "\u00A0"}
@@ -234,6 +237,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                   required
                   minLength={3}
                   pattern="^[\p{L}][\p{L}0-9 ]*$"
+                  title="Tên học kỳ phải bắt đầu bằng chữ, chỉ chứa chữ/số/khoảng trắng"
                 />
                 <p className="text-red-500 min-h-[20px] text-sm">
                   {errors.nameSemester || "\u00A0"}

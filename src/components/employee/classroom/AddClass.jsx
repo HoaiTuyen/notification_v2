@@ -30,13 +30,13 @@ import { useLoading } from "../../../context/LoadingProvider";
 import { handleListAcademic } from "../../../controller/AcademicController";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   const { setLoading } = useLoading();
+  const [academicYears, setAcademicYears] = useState([]);
 
   const checkEdit = !!classRoom?.id;
   const [errors, setErrors] = useState({});
 
   const [teachers, setTeachers] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [academicYears, setAcademicYears] = useState([]);
   const [form, setForm] = useState({
     id: classRoom?.id || "",
     name: classRoom?.name || "",
@@ -52,28 +52,23 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
 
     if (res?.data && res?.status === 200) {
       setTeachers(res.data.teachers);
-    } else {
-      setTeachers([]);
     }
   };
   const listDepartment = async () => {
     const res = await handleListDepartment(0, 100);
     if (res?.data && res?.status === 200) {
       setDepartments(res.data.departments);
-    } else {
-      setDepartments([]);
     }
   };
-  const listAcademicYear = async () => {
+  const fetchListAcademicYear = async () => {
     try {
-      const res = await handleListAcademic(0, 100);
-      if (res?.data && res?.status === 200) {
-        setAcademicYears(res.data.academicYears);
-      } else {
-        setAcademicYears([]);
+      const listAcademic = await handleListAcademic(0, 100);
+      console.log(listAcademic);
+      if (listAcademic?.data && listAcademic?.status === 200) {
+        setAcademicYears(listAcademic.data.academicYears);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
     }
   };
   const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -84,15 +79,17 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     if (field === "id") {
       if (!value.trim()) error = "Mã lớp không được để trống";
       else if (value.length < 5) error = "Mã lớp ít nhất 5 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value))
-        error = "Mã lớp phải bắt đầu bằng chữ cái và chỉ gồm chữ, số hoặc _";
+      else if (!/^[A-Z][A-Z0-9_]*$/.test(value))
+        error =
+          "Mã lớp phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số hoặc dấu gạch dưới";
     }
 
     if (field === "name") {
       if (!value.trim()) error = "Tên lớp không được để trống";
       else if (value.length < 5) error = "Tên lớp ít nhất 5 ký tự";
-      else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value))
-        error = "Tên lớp phải bắt đầu bằng chữ cái và chỉ gồm chữ, số hoặc _";
+      else if (!/^[A-Z][A-Z0-9_]*$/.test(value))
+        error =
+          "Tên lớp phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số hoặc dấu gạch dưới";
     }
 
     if (field === "description") {
@@ -128,8 +125,6 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     e.preventDefault();
     try {
       const isEmpty = (val) => !val || !val.trim();
-
-      // Validate mã lớp
       if (isEmpty(form.id)) {
         toast.error("Mã lớp không được để trống");
         return;
@@ -138,9 +133,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         toast.error("Mã lớp ít nhất 5 ký tự");
         return;
       }
-      if (!/^[A-Za-z][A-Za-z0-9]*$/.test(form.id.trim())) {
+      if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(form.id.trim())) {
         toast.error(
-          "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái hoặc số"
+          "Mã lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ cái, số hoặc dấu gạch dưới"
         );
         return;
       }
@@ -154,9 +149,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         toast.error("Tên lớp ít nhất 5 ký tự");
         return;
       }
-      if (!/^[A-Za-z][A-Za-z0-9 ]*$/.test(form.name.trim())) {
+      if (!/^[A-Za-z][A-Za-z0-9_ ]*$/.test(form.name.trim())) {
         toast.error(
-          "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc khoảng trắng"
+          "Tên lớp phải bắt đầu bằng chữ cái và chỉ được chứa chữ, số hoặc dấu gạch dưới"
         );
         return;
       }
@@ -194,7 +189,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   useEffect(() => {
     listTeacher();
     listDepartment();
-    listAcademicYear();
+    fetchListAcademicYear();
   }, []);
   return (
     <>
@@ -225,7 +220,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </Label>
                   <Input
                     id="classId"
-                    placeholder="VD: CNTT"
+                    placeholder="VD: D21_TH12"
                     value={form.id}
                     onChange={(e) => {
                       setForm({ ...form, id: e.target.value });
@@ -292,7 +287,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2   gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="">Giáo viên phụ trách</Label>
                   <Select

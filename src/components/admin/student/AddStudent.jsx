@@ -144,6 +144,10 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
       const payload = {
         ...form,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        username: form.username.trim(),
         classId: form.classId,
         ...(checkEdit
           ? {}
@@ -548,7 +552,22 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               <Button
                 variant="outline"
                 className="cursor-pointer"
-                onClick={() => onClose()}
+                onClick={() => {
+                  onClose();
+                  setErrors({});
+                  setForm({
+                    id: "",
+                    username: "",
+                    password: "",
+                    firstName: "",
+                    lastName: "",
+                    email: "",
+                    gender: "NAM",
+                    status: "ĐANG_HỌC",
+                    classId: "",
+                    className: "",
+                  });
+                }}
               >
                 Hủy
               </Button>

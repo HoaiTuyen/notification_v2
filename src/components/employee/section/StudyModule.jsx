@@ -335,10 +335,7 @@ const StudyModule = () => {
               <CardHeader>
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                   <div>
-                    <CardTitle>Danh sách môn học</CardTitle>
-                    <CardDescription>
-                      Quản lý môn học theo học kỳ
-                    </CardDescription>
+                    <CardTitle>Danh sách lớp học phần</CardTitle>
                   </div>
                   <div className=" space-y-2">
                     <Label>
