@@ -1173,10 +1173,10 @@ const DetailGroupLecturer = () => {
                                     className="cursor-pointer"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setSelectNotificationGroup(
+                                      setSelectNotificationPersonal(
                                         notificationStudent
                                       );
-                                      setOpenModalUpdate(true);
+                                      setOpenModalUpdatePersonal(true);
                                     }}
                                   >
                                     <Pencil className="h-4 w-4" /> Chỉnh sửa
@@ -1673,6 +1673,17 @@ const DetailGroupLecturer = () => {
           <DeleteNotificationPersonal
             open={openModalDeletePersonal}
             onClose={() => setOpenModalDeletePersonal(false)}
+            onSuccess={() => {
+              fetchListNotificationStudent();
+              setSelectNotificationPersonal(null);
+            }}
+            notify={selectNotificationPersonal}
+          />
+        )}
+        {openModalUpdatePersonal && (
+          <UpdateNotificationPersonal
+            open={openModalUpdatePersonal}
+            onClose={() => setOpenModalUpdatePersonal(false)}
             onSuccess={() => {
               fetchListNotificationStudent();
               setSelectNotificationPersonal(null);

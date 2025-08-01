@@ -363,9 +363,9 @@ const AdminCreateNotificationStudent = () => {
                               Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
                             </p>
                           )}
-                        {errors.studentIds && (
+                        {errors.students && (
                           <p className="text-sm text-red-600">
-                            {errors.studentIds}
+                            {errors.students}
                           </p>
                         )}
                       </div>
@@ -469,7 +469,7 @@ const AdminCreateNotificationStudent = () => {
                         <div className="flex flex-col">
                           <Input
                             type="file"
-                            accept="application/pdf"
+                            accept=".pdf, image/*, .xls, .xlsx"
                             onChange={(e) => {
                               const newFiles = [...files];
                               newFiles[index] = e.target.files[0];

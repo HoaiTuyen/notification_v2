@@ -256,19 +256,6 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
             </div>
-            {/* <div className="space-y-2">
-              <Label className="mb-2">Sinh viên</Label>
-              <StudentSelect
-                isMulti
-                name="students"
-                options={students}
-                value={selectedStudents}
-                onChange={(selected) => setSelectedStudents(selected)}
-                className="react-select-container"
-                classNamePrefix="select"
-                placeholder="Chọn sinh viên theo mã, tên"
-              />
-            </div> */}
 
             {formData.displayNames.map((name, index) => (
               <div
@@ -276,15 +263,9 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
                 className="space-y-1 border p-4 rounded-md relative"
               >
                 <Label>file {index + 1}</Label>
-                {/* <Input
-                type="text"
-                value={name}
-                placeholder="VD: Tài liệu chương 1"
-                onChange={(e) => handleDisplayNameChange(e.target.value, index)}
-              /> */}
                 <Input
                   type="file"
-                  accept=".pdf,.docx,.xlsx"
+                  accept=".pdf, image/*, .xls, .xlsx"
                   className="mt-2"
                   onChange={(e) => handleFileChange(e.target.files[0], index)}
                 />

@@ -328,11 +328,13 @@ import { useLoading } from "../../../context/LoadingProvider";
 import { v4 as uuidv4 } from "uuid";
 
 const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
+  console.log("UpdateNotification notify:", notify);
   const [formData, setFormData] = useState({ id: "", title: "", content: "" });
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState([]);
   const [publicIdsToDelete, setPublicIdsToDelete] = useState([]);
   const { setLoading } = useLoading();
+  const [sendEmail, setSendEmail] = useState(false);
 
   useEffect(() => {
     if (notify && open) {
@@ -423,7 +425,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
     form.append("id", formData.id);
     form.append("title", formData.title);
     form.append("content", formData.content);
-
+    form.append("isMail", sendEmail ? "true" : "false");
     // FIXED: Chỉ gửi file mới có File object
     let fileIndex = 0;
     files.forEach((f) => {
@@ -551,6 +553,32 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
             </div>
+            {notify?.scope === "CA_NHAN" && notify?.students?.length > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-md space-y-2">
+                <div>
+                  <Label className="font-semibold">
+                    Danh sách sinh viên nhận thông báo:
+                  </Label>
+                  <ul className="list-disc list-inside text-sm mt-1 text-blue-900">
+                    {notify.students.map((id) => (
+                      <li key={id}>{id}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="sendEmail"
+                    type="checkbox"
+                    checked={sendEmail}
+                    onChange={() => setSendEmail((prev) => !prev)}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="sendEmail" className="text-sm text-blue-800">
+                    Gửi email cho sinh viên
+                  </label>
+                </div>
+              </div>
+            )}
 
             {files.map((f) => (
               <div key={f.uuid} className="space-y-2 p-4 border rounded-lg">
