@@ -2,6 +2,7 @@ import {
   send_message,
   list_message,
   revoke_message,
+  update_message,
 } from "../servicers/MessageServicer";
 
 export const handleSendMessage = async (groupId, message) => {
@@ -46,6 +47,23 @@ export const handleRevokeMessage = async (messageId, userId) => {
     if (error) {
       const errMsg =
         error.response?.data?.message || "Thu hồi tin nhắn thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleUpdateMessage = async (messageId, newMessage, userId) => {
+  try {
+    const response = await update_message(messageId, newMessage, userId);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Cập nhật tin nhắn thất bại";
       const status = error.response?.status || 500;
       return {
         status,

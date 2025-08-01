@@ -4,6 +4,7 @@ import {
   detailNotificationGroup,
   deleteNotificationGroup,
   updateNotificationGroup,
+  createNotificationGroupPersonal,
 } from "../servicers/NotificationGroup";
 export const handleCreateNotificationGroup = async (formData) => {
   try {
@@ -16,6 +17,25 @@ export const handleCreateNotificationGroup = async (formData) => {
         message: response.message,
       };
     }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+export const handleCreateNotificationGroupPersonal = async (formData) => {
+  try {
+    const response = await createNotificationGroupPersonal(formData);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("Error fetching departments:", error);
     return {
@@ -66,6 +86,7 @@ export const handleDetailNotificationGroup = async (id) => {
 export const handleDeleteNotificationGroup = async (id) => {
   try {
     const response = await deleteNotificationGroup(id);
+    console.log(response);
     return response;
   } catch (error) {
     if (error) {

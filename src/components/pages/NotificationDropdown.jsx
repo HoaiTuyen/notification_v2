@@ -70,10 +70,12 @@ const NotificationDropdown = ({
   const handleNotificationClick = async (item) => {
     console.log(item);
     const groupId = !!item.groupId;
-    const link = groupId
+    let link = groupId
       ? `/sinh-vien/group-study/${item.groupId}`
       : `/sinh-vien/notification/${item.id}`;
-
+    if (item.type === "NHOM_HOC_TAP") {
+      link = `/sinh-vien/group-study/${item.groupId}`;
+    }
     if (!item.isRead) {
       const res = await handleMakeNotificationRead(userId, item.id, item.type);
 

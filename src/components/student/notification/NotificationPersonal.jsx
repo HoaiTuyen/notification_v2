@@ -85,6 +85,7 @@ const NotificationsPersonal = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(res);
       }
 
       if (res?.data) {
@@ -145,17 +146,24 @@ const NotificationsPersonal = () => {
     fetchNotifications(pageFromUrl);
     fetchNotificationTypes();
   }, [searchParams]);
-  const onViewDetail = (id, e) => {
+  const onViewDetail = (type, id, e) => {
+    console.log(type);
     e.stopPropagation();
-    navigate(
-      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
-    );
+    if (type === "NHOM_HOC_TAP") {
+      navigate(
+        `/sinh-vien/notification-personal/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+      );
+    } else {
+      navigate(
+        `/sinh-vien/notification/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+      );
+    }
   };
 
   const NotificationCard = ({ notification }) => (
     <div
       className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-      onClick={(e) => onViewDetail(notification.id, e)}
+      onClick={(e) => onViewDetail(notification.type, notification.id, e)}
     >
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">

@@ -42,6 +42,7 @@ import HomePageStudent from "../components/student/home/HomePageStudent";
 import StudentSubject from "../components/student/subject/StudentSubject";
 import ChangePasswordPage from "../components/student/ChangePassword";
 import NotificationsPersonal from "../components/student/notification/NotificationPersonal";
+import NotificationPersonalDetail from "../components/student/notification/DetailNotificationGroup";
 //Lecturer
 import TeacherProfile from "../components/lecturer/SettingLecturer";
 import LecturerCreateNotification from "../components/lecturer/notification/CreateNotification";
@@ -283,6 +284,10 @@ function AppRoutes() {
             <Route
               path="notification-personal"
               element={<NotificationsPersonal />}
+            />
+            <Route
+              path="notification-personal/:notificationId"
+              element={<NotificationPersonalDetail />}
             />
           </Route>
           <Route path="*" element={<NotFound />} />

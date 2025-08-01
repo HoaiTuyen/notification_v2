@@ -11,6 +11,8 @@ import {
   kickMember,
   createReplyNotificationGroup,
   listReplyNotificationGroup,
+  detailNotificationGroup,
+  listNotificationGroupStudent,
 } from "../servicers/GroupServicer";
 
 export const handleListGroup = async (page, pageSize) => {
@@ -224,6 +226,38 @@ export const handleListReplyNotificationGroup = async (id) => {
   } catch (error) {
     if (error) {
       const errMsg = error.response?.data?.message || "Đã có lỗi xảy ra";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleDetailNotificationGroup = async (id) => {
+  try {
+    const response = await detailNotificationGroup(id);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg = error.response?.data?.message || "Đã xảy ra lỗi";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleListNotificationGroupStudent = async (id) => {
+  try {
+    const response = await listNotificationGroupStudent(id);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg = error.response?.data?.message || "Đã xảy ra lỗi";
       const status = error.response?.status || 500;
       return {
         status,

@@ -14,11 +14,15 @@ import { toast } from "react-toastify";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadCloud, Plus, X } from "lucide-react";
-import { handleCreateNotificationGroup } from "../../../../controller/NotificationGroupController";
-import { useLoading } from "../../../../context/LoadingProvider";
+import { handleCreateNotificationGroupPersonal } from "../../../../../controller/NotificationGroupController";
+import { useLoading } from "../../../../../context/LoadingProvider";
 import StudentSelect from "react-select";
-import { handleDetailGroup } from "../../../../controller/GroupController";
-const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
+import { handleDetailGroup } from "../../../../../controller/GroupController";
+const LecturerCreateGroupNotificationPersonal = ({
+  open,
+  onClose,
+  onSuccess,
+}) => {
   const { groupId } = useParams();
   const { setLoading } = useLoading();
   const [students, setStudents] = useState([]);
@@ -144,8 +148,9 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
       setSubmitting(true);
       setLoading(true);
       const form = new FormData();
+      const studentIds = selectedStudents.map((s) => s.studentId);
       form.append("groupId", formData.groupId);
-
+      form.append("studentIds", studentIds);
       form.append("title", formData.title);
       form.append("content", formData.content);
 
@@ -156,8 +161,9 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
         }
       });
 
-      const res = await handleCreateNotificationGroup(form);
-      if (res?.data && res?.status === 201) {
+      const res = await handleCreateNotificationGroupPersonal(form);
+      console.log(res);
+      if (res?.status === 201) {
         onSuccess();
         window.dispatchEvent(new Event("notification-sent"));
         toast.success(res.message || "Tạo thông báo thành công!");
@@ -256,7 +262,7 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
             </div>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Label className="mb-2">Sinh viên</Label>
               <StudentSelect
                 isMulti
@@ -268,7 +274,7 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
                 classNamePrefix="select"
                 placeholder="Chọn sinh viên theo mã, tên"
               />
-            </div> */}
+            </div>
 
             {formData.displayNames.map((name, index) => (
               <div
@@ -324,4 +330,4 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
     </div>
   );
 };
-export default LecturerCreateGroupNotification;
+export default LecturerCreateGroupNotificationPersonal;

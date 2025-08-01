@@ -67,56 +67,7 @@ const DetailGroupStudent = () => {
   const token = localStorage.getItem("access_token");
   const { userId } = jwtDecode(token);
   const [expandedComments, setExpandedComments] = useState({});
-  // useEffect(() => {
-  //   if (connected) {
-  //     console.log("Kết nối WebSocket thành công!");
-  //   }
-  // }, [connected]);
-  // useEffect(() => {
-  //   if (!stompClient?.current || !connected || !groupStudyId) return;
 
-  //   const sub = stompClient.current.subscribe(
-  //     `/notification/chat_message/${groupStudyId}`,
-  //     (message) => {
-  //       const parsed = JSON.parse(message.body);
-  //       const newMsg = {
-  //         id: parsed.messageId,
-  //         sender: parsed.fullName,
-  //         content: parsed.message,
-  //         timestamp: parsed.createdAt,
-  //         avatar: parsed.avatarUrl,
-  //         userId: parsed.userId,
-  //         isTeacher: parsed.isTeacher || false,
-  //       };
-
-  //       setMessages((prev) => {
-  //         const tempIndex = prev.findIndex(
-  //           (m) =>
-  //             m.id.startsWith("temp-") &&
-  //             m.content === newMsg.content &&
-  //             m.userId === newMsg.userId
-  //         );
-  //         if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-  //         if (tempIndex !== -1) {
-  //           const updated = [...prev];
-  //           updated[tempIndex] = newMsg;
-  //           return updated;
-  //         }
-
-  //         return [...prev, newMsg];
-  //       });
-
-  //       setTimeout(() => {
-  //         requestAnimationFrame(() => {
-  //           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  //         });
-  //       }, 100);
-  //     }
-  //   );
-
-  //   return () => sub.unsubscribe();
-  // }, [stompClient, connected, groupStudyId]);
   const scrollToBottom = (behavior = "smooth") => {
     if (messagesEndRef.current && scrollRef.current) {
       // Method 1: Scroll the container to bottom
@@ -134,7 +85,7 @@ const DetailGroupStudent = () => {
     }
   };
   useEffect(() => {
-    if (!stompClient?.current || !connected || !groupStudyId) return;
+    if (!connected || !stompClient.current || !groupStudyId) return;
 
     const sub = stompClient.current.subscribe(
       `/notification/chat_message/${groupStudyId}`,
@@ -144,42 +95,43 @@ const DetailGroupStudent = () => {
         const newMsg = {
           id: parsed.messageId,
           sender: parsed.fullName,
-          content: parsed.message,
+          message: parsed.message,
           timestamp: parsed.createdAt || new Date().toISOString(),
           avatar: parsed.avatarUrl,
           userId: parsed.userId,
           isTeacher: parsed.isTeacher || false,
-          recalled: parsed.recalled || false,
+          status: parsed.status || "",
         };
 
+        // setMessages((prev) => {
+        //   const tempIndex = prev.findIndex(
+        //     (m) =>
+        //       m.id.startsWith("temp-") &&
+        //       m.content === newMsg.content &&
+        //       m.userId === newMsg.userId
+        //   );
+
+        //   if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+        //   if (tempIndex !== -1) {
+        //     const updated = [...prev];
+        //     updated[tempIndex] = newMsg;
+        //     return updated;
+        //   }
+
+        //   return [...prev, newMsg];
+        // });
         setMessages((prev) => {
-          console.log(prev);
-          const tempIndex = prev.findIndex(
-            (m) =>
-              m.id.startsWith("temp-") &&
-              m.content === newMsg.content &&
-              m.userId === newMsg.userId
-          );
-
-          // Nếu đã có real message trùng id → bỏ qua
+          // Tránh trùng lặp nếu WebSocket gửi lại
           if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-          if (tempIndex !== -1) {
-            const updated = [...prev];
-            updated[tempIndex] = newMsg;
-            return updated;
-          }
 
           return [...prev, newMsg];
         });
-
-        // ✅ Cuộn xuống cuối
-        setTimeout(() => scrollToBottom(), 100);
       }
     );
 
     return () => sub.unsubscribe();
-  }, [stompClient, connected, groupStudyId]);
+  }, [connected, stompClient.current, groupStudyId]);
 
   const [imageUser, setImageUser] = useState("");
   const [initialLoaded, setInitialLoaded] = useState(false);
@@ -287,16 +239,17 @@ const DetailGroupStudent = () => {
 
     try {
       const res = await handleListMessage(groupStudyId, pageRef.current, 6);
+      console.log(res);
       if (res?.data) {
         const newMessages = res.data.messages.map((m) => ({
           id: m.messageId,
           sender: m.fullName,
-          content: m.message,
+          message: m.message,
           timestamp: m.createdAt,
           avatar: m.avatarUrl,
           userId: m.userId,
           isTeacher: false,
-          recalled: m.recalled || false,
+          status: m.status,
         }));
 
         setMessages((prev) => {
@@ -339,25 +292,13 @@ const DetailGroupStudent = () => {
   // };
 
   const handleSendMessageGroup = async () => {
-    const content = newMessage.trim();
-    if (content === "") return;
+    const message = newMessage.trim();
+    if (message === "") return;
 
-    const tempMessage = {
-      id: `temp-${Date.now()}`,
-      sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
-      content,
-      timestamp: new Date().toISOString(),
-      avatar: imageUser,
-      isTeacher: userDetail?.role === "TEACHER",
-      userId,
-    };
-
-    setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
-    setNewMessage("");
-
+    setNewMessage(""); // ✅ Clear input ngay
     try {
-      await handleSendMessage(groupStudyId, content);
-      // WebSocket sẽ update lại tin chính xác sau
+      await handleSendMessage(groupStudyId, message);
+      // ✅ Không cần thêm tin nhắn vào UI — WebSocket sẽ tự xử lý
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
     }
@@ -470,12 +411,12 @@ const DetailGroupStudent = () => {
           const newMessages = res.data.messages.map((m) => ({
             id: m.messageId,
             sender: m.fullName,
-            content: m.message,
+            message: m.message,
             timestamp: m.createdAt,
             avatar: m.avatarUrl,
             userId: m.userId,
             isTeacher: false,
-            recalled: m.recalled || false,
+            status: m.status,
           }));
 
           setMessages(newMessages.reverse());
@@ -963,7 +904,7 @@ const DetailGroupStudent = () => {
                             "day"
                           );
                         const isOwnMessage = message?.userId === userId;
-                        const isLast = index === messages.length - 1;
+
                         return (
                           <div key={index}>
                             {showDate && (
@@ -1021,7 +962,6 @@ const DetailGroupStudent = () => {
                                       )}
                                     </div>
                                   )}
-
                                   <div
                                     className={`flex items-center ${
                                       isOwnMessage
@@ -1029,48 +969,64 @@ const DetailGroupStudent = () => {
                                         : "flex-row-reverse"
                                     }`}
                                   >
-                                    {isOwnMessage && (
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <button>
-                                            <EllipsisVertical
-                                              size={16}
-                                              className="mb-3 mr-2 text-gray-400 cursor-pointer"
-                                            />
-                                          </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                          <DropdownMenuItem
-                                            className="text-red-500 cursor-pointer"
-                                            onClick={() =>
-                                              handleRevokeMessageGroup(
-                                                message.id
-                                              )
-                                            }
-                                          >
-                                            Thu hồi
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    )}
+                                    {isOwnMessage &&
+                                      message.status !== "DA_THU_HOI" && (
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <button>
+                                              <EllipsisVertical
+                                                size={16}
+                                                className="mb-3 mr-2 text-gray-400 cursor-pointer"
+                                              />
+                                            </button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent>
+                                            <DropdownMenuItem
+                                              className="text-red-500 cursor-pointer"
+                                              onClick={() =>
+                                                handleRevokeMessageGroup(
+                                                  message.id,
+                                                  message.userId
+                                                )
+                                              }
+                                            >
+                                              Thu hồi
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                              className="text-black cursor-pointer"
+                                              // onClick={() =>
+                                              //   handleRevokeMessageGroup(
+                                              //     message.id,
+                                              //     message.userId
+                                              //   )
+                                              // }
+                                            >
+                                              Chỉnh sửa
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      )}
 
                                     <div>
                                       <div
                                         className={`rounded-lg px-3 py-2 ${
-                                          isOwnMessage
+                                          isOwnMessage &&
+                                          message.status !== "DA_THU_HOI"
                                             ? "bg-blue-600 text-white"
-                                            : message.isTeacher
-                                            ? "bg-green-100 text-green-900"
                                             : "bg-gray-100 text-gray-900"
+                                          // : message.isTeacher &&
+                                          //   message.status !== "DA_THU_HOI"
+                                          // ? "bg-green-100 text-green-900"
+                                          // : "bg-gray-100 text-gray-900"
                                         }`}
                                       >
-                                        {message.recalled ? (
-                                          <p className="text-sm italic text-gray-500">
-                                            Tin nhắn đã được thu hồi
+                                        {message.status === "DA_THU_HOI" ? (
+                                          <p className="text-sm  border-white  text-gray-500">
+                                            {message.message}
                                           </p>
                                         ) : (
                                           <p className="text-sm">
-                                            {message.content}
+                                            {message.message}
                                           </p>
                                         )}
                                       </div>
@@ -1095,7 +1051,7 @@ const DetailGroupStudent = () => {
                           </div>
                         );
                       })}
-                      <div ref={messagesEndRef} />
+                      <div key={messages.length} ref={messagesEndRef}></div>
                     </div>
                   </div>
                 </CardContent>

@@ -14,9 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, FileText, Calendar, User, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
-import { handleDetailNotification } from "../../../controller/NotificationController";
-const StudentNotificationDetail = () => {
+import { handleDetailNotificationGroup } from "../../../controller/GroupController";
+const DetailNotificationGroup = () => {
   const { notificationId } = useParams();
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -24,22 +25,18 @@ const StudentNotificationDetail = () => {
   const page = searchParams.get("page") || "1";
   const search = searchParams.get("search") || "";
   const type = searchParams.get("type") || "all";
-  const slug = searchParams.get("slug");
   console.log(type, search, page);
   const [notification, setNotification] = useState(null);
-  const [checkGroup, setCheckGroup] = useState(false);
-  const [checkPersonal, setCheckPersonal] = useState(false);
+
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const res = await handleDetailNotification(notificationId);
+        const res = await handleDetailNotificationGroup(notificationId);
         console.log(res);
         setLoading(false);
         if (res?.data) {
           setNotification(res.data);
-          setCheckPersonal(res.data.scope === "CA_NHAN");
-          setCheckGroup(res.data.scope === "NHOM_HOC_TAP");
         }
       } catch (error) {
         console.log(error.message || "Lỗi khi tải thông tin.");
@@ -64,35 +61,18 @@ const StudentNotificationDetail = () => {
       transition={{ duration: 0.2 }}
     >
       <div className="h-full max-h-[750px] overflow-y-auto p-10 bg-white space-y-6">
-        {slug === "NHOM_HOC_TAP" ||
-        slug === "CA_NHAN" ||
-        slug === "TOAN_TRUONG" ? (
-          <Button
-            variant="ghost"
-            className="cursor-pointer"
-            onClick={() =>
-              navigate(
-                `/sinh-vien/notification-personal?search=${search}&type=${type}&page=${page}`
-              )
-            }
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            className="cursor-pointer"
-            onClick={() =>
-              navigate(
-                `/sinh-vien/notification-all?search=${search}&type=${type}&page=${page}`
-              )
-            }
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          className="cursor-pointer"
+          onClick={() =>
+            navigate(
+              `/sinh-vien/notification-personal?search=${search}&type=${type}&page=${page}`
+            )
+          }
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Quay lại
+        </Button>
 
         <Card>
           <CardHeader>
@@ -121,22 +101,9 @@ const StudentNotificationDetail = () => {
                         className="w-[100px]"
                       />
                     ) : (
-                      notification?.notificationType && (
+                      notification?.groupName && (
                         <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                          {notification.notificationType}
-                        </span>
-                      )
-                    )}
-                    {loading ? (
-                      <Skeleton.Input
-                        active
-                        size="small"
-                        className="w-[100px]"
-                      />
-                    ) : (
-                      notification?.departmentName && (
-                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-                          {notification.departmentName}
+                          Nhóm học tập: {notification.groupName}
                         </span>
                       )
                     )}
@@ -192,4 +159,4 @@ const StudentNotificationDetail = () => {
   );
 };
 
-export default StudentNotificationDetail;
+export default DetailNotificationGroup;

@@ -73,14 +73,21 @@ const useWebSocket = () => {
     );
     const stompClient = Stomp.over(socket);
 
-    // Optional: turn off verbose logging
-    stompClient.debug = (msg) => console.log("[STOMP DEBUG]:", msg);
+    stompClient.debug = () => {}; // tắt log STOMP
+
+    stompClient.onWebSocketClose = (e) => {
+      console.warn("⚠️ WebSocket closed. Attempting reconnect in 5s", e);
+      setConnected(false);
+      setTimeout(() => {
+        connectWebSocket(); // 🔁 Tự động reconnect
+      }, 5000);
+    };
 
     stompClient.connect(
       {},
       () => {
         console.log("✅ Connected to WebSocket");
-        stompClientRef.current = stompClient;
+        stompClientRef.current = stompClient; // Gán ngay sau connect
         setConnected(true);
         setError(null);
       },
@@ -88,6 +95,9 @@ const useWebSocket = () => {
         console.error("❌ WebSocket error:", err);
         setConnected(false);
         setError(err?.message || "WebSocket connection failed");
+        setTimeout(() => {
+          connectWebSocket(); // 🔁 Tự động reconnect nếu lỗi
+        }, 5000);
       }
     );
   };

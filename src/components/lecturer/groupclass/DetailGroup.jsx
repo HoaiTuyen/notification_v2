@@ -51,14 +51,19 @@ import { handleTeacherDetail } from "../../../controller/TeacherController";
 import {
   handleCreateReplyNotificationGroup,
   handleListReplyNotificationGroup,
+  handleListNotificationGroupStudent,
 } from "../../../controller/GroupController";
 import {
   handleListMessage,
   handleSendMessage,
   handleRevokeMessage,
+  handleUpdateMessage,
 } from "../../../controller/MessageController";
 import useWebSocket from "../../../config/Websorket";
 import { Badge } from "@/components/ui/badge";
+import CreateNotificationPersonal from "./notificationgroup/notificaitonpersonal/CreateNotificationPersonal";
+import UpdateNotificationPersonal from "./notificationgroup/notificaitonpersonal/UpdateNotificationPersonal";
+import DeleteNotificationPersonal from "./notificationgroup/notificaitonpersonal/DeleteNotificationPersonal";
 const DetailGroupLecturer = () => {
   const { connected, stompClient, error } = useWebSocket();
 
@@ -80,6 +85,8 @@ const DetailGroupLecturer = () => {
   const [selectTabs, setSelectTabs] = useState("home");
   const [members, setMembers] = useState([]);
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalCreatePersonal, setOpenModalCreatePersonal] = useState(false);
+  const [dataNotificationStudent, setDataNotificationStudent] = useState([]);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotificationGroup, setSelectNotificationGroup] = useState(null);
@@ -101,9 +108,13 @@ const DetailGroupLecturer = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [page, setPage] = useState(0);
   const [expandedComments, setExpandedComments] = useState({}); // { [notificationId]: boolean }
+  const [isEditing, setIsEditing] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
-
+  const [openModalDeletePersonal, setOpenModalDeletePersonal] = useState(false);
+  const [selectNotificationPersonal, setSelectNotificationPersonal] =
+    useState(null);
+  const [openModalUpdatePersonal, setOpenModalUpdatePersonal] = useState(false);
   // Auto-scroll to bottom when chat tab is active or messages change
 
   const [hasMore, setHasMore] = useState(true);
@@ -127,6 +138,7 @@ const DetailGroupLecturer = () => {
   const fetchListNotificationGroup = async () => {
     try {
       const listNotificationGroup = await handleListNotificationGroup(groupId);
+      console.log(listNotificationGroup);
       if (
         listNotificationGroup?.data ||
         listNotificationGroup?.status === 200
@@ -147,6 +159,24 @@ const DetailGroupLecturer = () => {
       setLoading(false);
     }
   };
+  const fetchListNotificationStudent = async () => {
+    try {
+      const listNotificationGroupStudent =
+        await handleListNotificationGroupStudent(groupId);
+      console.log(listNotificationGroupStudent);
+      if (
+        listNotificationGroupStudent?.data ||
+        listNotificationGroupStudent?.status === 200
+      ) {
+        setDataNotificationStudent(listNotificationGroupStudent.data);
+      } else {
+        setDataNotificationStudent([]);
+      }
+    } catch (e) {
+      console.error("Lỗi khi fetch thông báo nhóm học tập:", e);
+    }
+  };
+
   const fetchDetailUser = async () => {
     try {
       const detailUser = await handleGetDetailUser(userId);
@@ -204,12 +234,12 @@ const DetailGroupLecturer = () => {
         const newMessages = res.data.messages.map((m) => ({
           id: m.messageId,
           sender: m.fullName,
-          content: m.message,
+          message: m.message,
           timestamp: m.createdAt,
           avatar: m.avatarUrl,
           userId: m.userId,
           isTeacher: false,
-          recalled: m.recalled || false,
+          status: m.status,
         }));
 
         setMessages((prev) => {
@@ -230,28 +260,42 @@ const DetailGroupLecturer = () => {
       setIsFetching(false);
     }
   };
-  const handleSendMessageGroup = async () => {
-    const content = newMessage.trim();
-    if (content === "") return;
+  // const handleSendMessageGroup = async () => {
+  //   const content = newMessage.trim();
+  //   if (content === "") return;
 
-    const tempMessage = {
-      id: `temp-${Date.now()}`,
-      sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
-      content,
-      timestamp: new Date().toISOString(),
-      avatar: imageUser,
-      isTeacher: userDetail?.role === "TEACHER",
-      userId,
-    };
-    setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
-    setNewMessage("");
+  //   const tempMessage = {
+  //     id: `temp-${Date.now()}`,
+  //     sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
+  //     content,
+  //     timestamp: new Date().toISOString(),
+  //     avatar: imageUser,
+  //     isTeacher: userDetail?.role === "TEACHER",
+  //     status: "",
+  //     userId,
+  //   };
+  //   setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
+  //   setNewMessage("");
+  //   try {
+  //     await handleSendMessage(groupId, content);
+  //     // WebSocket sẽ update lại tin chính xác sau
+  //   } catch (err) {
+  //     toast.error("Gửi tin nhắn thất bại");
+  //   }
+  // };
+  const handleSendMessageGroup = async () => {
+    const message = newMessage.trim();
+    if (message === "") return;
+
+    setNewMessage(""); // ✅ Clear input ngay
     try {
-      await handleSendMessage(groupId, content);
-      // WebSocket sẽ update lại tin chính xác sau
+      await handleSendMessage(groupId, message);
+      // ✅ Không cần thêm tin nhắn vào UI — WebSocket sẽ tự xử lý
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
     }
   };
+
   const handleCommentChange = (id, value) => {
     setCommentInputs((prev) => ({ ...prev, [id]: value }));
   };
@@ -285,15 +329,49 @@ const DetailGroupLecturer = () => {
       const response = await handleRevokeMessage(messageId, userId);
       console.log(response);
 
-      if (response?.status === 200) {
+      if (response?.status === 204) {
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, recalled: true } : msg
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  status: "DA_THU_HOI",
+                  message: "Tin nhắn đã được thu hồi",
+                }
+              : msg
           )
         );
       }
     } catch (e) {
       console.log(e);
+    }
+  };
+  const handleEditMessage = async (messageId, newMessage, userId) => {
+    try {
+      if (newMessage.trim() === "") return;
+
+      const response = await handleUpdateMessage(messageId, newMessage, userId);
+      console.log(response);
+
+      if (response?.status === 204) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  message: newMessage,
+                  status: "DA_CHINH_SUA",
+                }
+              : msg
+          )
+        );
+        setEditingMessageId(null);
+      } else {
+        toast.error("Chỉnh sửa thất bại");
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Lỗi khi chỉnh sửa tin nhắn");
     }
   };
 
@@ -396,12 +474,12 @@ const DetailGroupLecturer = () => {
           const newMessages = res.data.messages.map((m) => ({
             id: m.messageId,
             sender: m.fullName,
-            content: m.message,
+            message: m.message,
             timestamp: m.createdAt,
             avatar: m.avatarUrl,
             userId: m.userId,
             isTeacher: false,
-            recalled: m.recalled || false,
+            status: m.status || "",
           }));
 
           setMessages(newMessages.reverse());
@@ -427,56 +505,11 @@ const DetailGroupLecturer = () => {
     fetchDetailGroup();
     fetchListNotificationGroup();
     fetchDetailUser();
+    fetchListNotificationStudent();
   }, []);
 
-  // useEffect(() => {
-  //   if (!stompClient?.current || !connected || !groupId) return;
-
-  //   const sub = stompClient.current.subscribe(
-  //     `/notification/chat_message/${groupId}`,
-  //     (message) => {
-  //       const parsed = JSON.parse(message.body);
-  //       const newMsg = {
-  //         id: parsed.messageId,
-  //         sender: parsed.fullName,
-  //         content: parsed.message,
-  //         timestamp: parsed.createdAt,
-  //         avatar: parsed.avatarUrl,
-  //         userId: parsed.userId,
-  //         isTeacher: parsed.isTeacher || false,
-  //       };
-
-  //       setMessages((prev) => {
-  //         const tempIndex = prev.findIndex(
-  //           (m) =>
-  //             m.id.startsWith("temp-") &&
-  //             m.content === newMsg.content &&
-  //             m.userId === newMsg.userId
-  //         );
-  //         if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-  //         if (tempIndex !== -1) {
-  //           const updated = [...prev];
-  //           updated[tempIndex] = newMsg;
-  //           return updated;
-  //         }
-
-  //         return [...prev, newMsg];
-  //       });
-
-  //       setTimeout(() => {
-  //         requestAnimationFrame(() => {
-  //           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  //         });
-  //       }, 100);
-  //     }
-  //   );
-
-  //   return () => sub.unsubscribe();
-  // }, [stompClient, connected, groupId]);
-
   useEffect(() => {
-    if (!stompClient?.current || !connected || !groupId) return;
+    if (!connected || !stompClient.current || !groupId) return;
 
     const sub = stompClient.current.subscribe(
       `/notification/chat_message/${groupId}`,
@@ -486,29 +519,35 @@ const DetailGroupLecturer = () => {
         const newMsg = {
           id: parsed.messageId,
           sender: parsed.fullName,
-          content: parsed.message,
+          message: parsed.message,
           timestamp: parsed.createdAt || new Date().toISOString(),
           avatar: parsed.avatarUrl,
           userId: parsed.userId,
           isTeacher: parsed.isTeacher || false,
-          recalled: parsed.recalled || false,
+          status: parsed.status || "",
         };
 
+        // setMessages((prev) => {
+        //   const tempIndex = prev.findIndex(
+        //     (m) =>
+        //       m.id.startsWith("temp-") &&
+        //       m.content === newMsg.content &&
+        //       m.userId === newMsg.userId
+        //   );
+
+        //   if (prev.some((m) => m.id === newMsg.id)) return prev;
+
+        //   if (tempIndex !== -1) {
+        //     const updated = [...prev];
+        //     updated[tempIndex] = newMsg;
+        //     return updated;
+        //   }
+
+        //   return [...prev, newMsg];
+        // });
         setMessages((prev) => {
-          const tempIndex = prev.findIndex(
-            (m) =>
-              m.id.startsWith("temp-") &&
-              m.content === newMsg.content &&
-              m.userId === newMsg.userId
-          );
-
+          // Tránh trùng lặp nếu WebSocket gửi lại
           if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-          if (tempIndex !== -1) {
-            const updated = [...prev];
-            updated[tempIndex] = newMsg;
-            return updated;
-          }
 
           return [...prev, newMsg];
         });
@@ -516,17 +555,8 @@ const DetailGroupLecturer = () => {
     );
 
     return () => sub.unsubscribe();
-  }, [stompClient, connected, groupId]);
-  // useEffect(() => {
-  //   if (activeTab === "chat" && scrollRef.current) {
-  //     // Use setTimeout to ensure the DOM has updated
-  //     setTimeout(() => {
-  //       if (scrollRef.current) {
-  //         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  //       }
-  //     }, 100);
-  //   }
-  // }, [activeTab, messages]);
+  }, [connected, stompClient.current, groupId]);
+
   useEffect(() => {
     if (activeTab !== "chat") return;
 
@@ -885,164 +915,353 @@ const DetailGroupLecturer = () => {
               </div>
             </TabsContent>
             <TabsContent value="notification">
-              <div className="p-6">
-                {/* Nút Create */}
-                <div className="mb-6 ">
-                  <button
-                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white  py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
-                    onClick={() => setOpenModalCreate(true)}
-                  >
-                    <span className="font-light">＋</span>
-                    Tạo thông báo
-                  </button>
-                  {openModalCreate && (
-                    <LecturerCreateGroupNotification
-                      open={openModalCreate}
-                      onClose={() => setOpenModalCreate(false)}
-                      onSuccess={fetchListNotificationGroup}
-                    />
-                  )}
-                </div>
-
-                {/* Thẻ thông báo */}
-                {notificationGroups.length === 0 ? (
-                  <></>
-                ) : (
-                  notificationGroups.map((notificationGroup) => (
-                    <motion.div
-                      // layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      key={notificationGroup.id}
-                      className="mb-4"
-                    >
-                      <div
-                        key={notificationGroup.id}
-                        className="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between hover:border hover:border-gray-200 transition-all duration-100 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleExpand(notificationGroup, e);
-                        }}
+              <Tabs defaultValue="group" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="group" className="cursor-pointer">
+                    Thông báo chung
+                  </TabsTrigger>
+                  <TabsTrigger value="personal" className="cursor-pointer">
+                    Thông báo riêng cho sinh viên trong nhóm
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="group">
+                  <div className="p-6">
+                    {/* Nút Create */}
+                    <div className="mb-6 ">
+                      <button
+                        className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white  py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
+                        onClick={() => setOpenModalCreate(true)}
                       >
-                        <div className="flex items-center gap-4">
-                          {/* Icon */}
-                          <div className="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center">
-                            <NotepadText size={22} />
-                          </div>
+                        <span className="font-light">＋</span>
+                        Tạo thông báo
+                      </button>
+                      {openModalCreate && (
+                        <LecturerCreateGroupNotification
+                          open={openModalCreate}
+                          onClose={() => setOpenModalCreate(false)}
+                          onSuccess={fetchListNotificationGroup}
+                        />
+                      )}
+                    </div>
 
-                          {/* Nội dung */}
-                          <div className="text-sm font-normal">
-                            {notificationGroup.title}
-                          </div>
-                        </div>
-
-                        {/* Ngày và menu */}
-                        <div className="text-sm text-gray-500 flex items-center gap-4">
-                          <span>
-                            {dayjs(notificationGroup.createdAt).format(
-                              "DD/MM/YYYY"
-                            )}
-                          </span>
-                          {/* <MoreVertical className="cursor-pointer" /> */}
-                          <DropdownMenu asChild>
-                            <DropdownMenuTrigger
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button
-                                variant="ghost"
-                                className="h-8 w-8 p-0 cursor-pointer"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectNotificationGroup(notificationGroup);
-                                  setOpenModalUpdate(true);
-                                }}
-                              >
-                                <Pencil className="h-4 w-4" /> Chỉnh sửa
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                className="text-red-600 cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectNotificationGroup(notificationGroup);
-                                  setOpenModalDelete(true);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      <AnimatePresence>
-                        {expandedId === notificationGroup.id && (
-                          <motion.div
-                            layout
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
+                    {/* Thẻ thông báo */}
+                    {notificationGroups.length === 0 ? (
+                      <></>
+                    ) : (
+                      notificationGroups.map((notificationGroup) => (
+                        <motion.div
+                          // layout
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          key={notificationGroup.id}
+                          className="mb-4"
+                        >
+                          <div
+                            key={notificationGroup.id}
+                            className="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between hover:border hover:border-gray-200 transition-all duration-100 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleExpand(notificationGroup, e);
+                            }}
                           >
-                            {isLoadingDetail ? (
-                              <p className="text-sm text-gray-500">
-                                Đang tải chi tiết...
-                              </p>
-                            ) : (
-                              <>
-                                <p className="text-sm text-gray-800 mb-2">
-                                  Nội dung:
-                                  {detailNotify.content || "Không có nội dung"}
-                                </p>
+                            <div className="flex items-center gap-4">
+                              {/* Icon */}
+                              <div className="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center">
+                                <NotepadText size={22} />
+                              </div>
 
-                                {detailNotify.fileNotifications?.length > 0 && (
-                                  <div className="space-y-2">
-                                    {detailNotify.fileNotifications.map(
-                                      (file, index) => (
-                                        <div
-                                          key={index}
-                                          className="border rounded-lg p-3 flex items-center space-x-4 hover:bg-gray-100 transition-colors"
-                                        >
-                                          <FileText className="text-blue-600" />
-                                          <div className="flex-1">
-                                            {/* <p className="font-medium">
+                              {/* Nội dung */}
+                              <div className="text-sm font-normal">
+                                {notificationGroup.title}
+                              </div>
+                            </div>
+
+                            {/* Ngày và menu */}
+                            <div className="text-sm text-gray-500 flex items-center gap-4">
+                              <span>
+                                {dayjs(notificationGroup.createdAt).format(
+                                  "DD/MM/YYYY"
+                                )}
+                              </span>
+                              {/* <MoreVertical className="cursor-pointer" /> */}
+                              <DropdownMenu asChild>
+                                <DropdownMenuTrigger
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 cursor-pointer"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectNotificationGroup(
+                                        notificationGroup
+                                      );
+                                      setOpenModalUpdate(true);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4" /> Chỉnh sửa
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem
+                                    className="text-red-600 cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectNotificationGroup(
+                                        notificationGroup
+                                      );
+                                      setOpenModalDelete(true);
+                                    }}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                          <AnimatePresence>
+                            {expandedId === notificationGroup.id && (
+                              <motion.div
+                                layout
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
+                              >
+                                {isLoadingDetail ? (
+                                  <p className="text-sm text-gray-500">
+                                    Đang tải chi tiết...
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p className="text-sm text-gray-800 mb-2">
+                                      Nội dung:
+                                      {detailNotify.content ||
+                                        "Không có nội dung"}
+                                    </p>
+
+                                    {detailNotify.fileNotifications?.length >
+                                      0 && (
+                                      <div className="space-y-2">
+                                        {detailNotify.fileNotifications.map(
+                                          (file, index) => (
+                                            <div
+                                              key={index}
+                                              className="border rounded-lg p-3 flex items-center space-x-4 hover:bg-gray-100 transition-colors"
+                                            >
+                                              <FileText className="text-blue-600" />
+                                              <div className="flex-1">
+                                                {/* <p className="font-medium">
                                                 {file.displayName || "Không tên"}
                                               </p> */}
-                                            <p className="text-sm text-gray-500">
-                                              Tệp đính kèm
-                                            </p>
-                                          </div>
-                                          <a
-                                            href={file.fileName}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 underline text-sm"
-                                          >
-                                            Tải xuống
-                                          </a>
-                                        </div>
-                                      )
+                                                <p className="text-sm text-gray-500">
+                                                  Tệp đính kèm
+                                                </p>
+                                              </div>
+                                              <a
+                                                href={file.fileName}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline text-sm"
+                                              >
+                                                Tải xuống
+                                              </a>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
                                     )}
-                                  </div>
+                                  </>
                                 )}
-                              </>
+                              </motion.div>
                             )}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))
-                )}
-              </div>
+                          </AnimatePresence>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+
+                {/* Tab thông báo riêng */}
+                <TabsContent value="personal">
+                  <div className="p-6">
+                    {/* Nút Create */}
+                    <div className="mb-6 ">
+                      <button
+                        className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white  py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
+                        onClick={() => setOpenModalCreatePersonal(true)}
+                      >
+                        <span className="font-light">＋</span>
+                        Tạo thông báo
+                      </button>
+                      {openModalCreatePersonal && (
+                        <CreateNotificationPersonal
+                          open={openModalCreatePersonal}
+                          onClose={() => setOpenModalCreatePersonal(false)}
+                          onSuccess={() => {
+                            setOpenModalCreatePersonal(false);
+                            fetchListNotificationStudent();
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Thẻ thông báo */}
+                    {dataNotificationStudent.length === 0 ? (
+                      <></>
+                    ) : (
+                      dataNotificationStudent.map((notificationStudent) => (
+                        <motion.div
+                          // layout
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          key={notificationStudent.id}
+                          className="mb-4"
+                        >
+                          <div
+                            key={notificationStudent.id}
+                            className="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between hover:border hover:border-gray-200 transition-all duration-100 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleExpand(notificationStudent, e);
+                            }}
+                          >
+                            <div className="flex items-center gap-4">
+                              {/* Icon */}
+                              <div className="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center">
+                                <NotepadText size={22} />
+                              </div>
+
+                              {/* Nội dung */}
+                              <div className="text-sm font-normal">
+                                {notificationStudent.title}
+                              </div>
+                            </div>
+
+                            {/* Ngày và menu */}
+                            <div className="text-sm text-gray-500 flex items-center gap-4">
+                              <span>
+                                {dayjs(notificationStudent.createdAt).format(
+                                  "DD/MM/YYYY"
+                                )}
+                              </span>
+                              {/* <MoreVertical className="cursor-pointer" /> */}
+                              <DropdownMenu asChild>
+                                <DropdownMenuTrigger
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 cursor-pointer"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectNotificationGroup(
+                                        notificationStudent
+                                      );
+                                      setOpenModalUpdate(true);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4" /> Chỉnh sửa
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem
+                                    className="text-red-600 cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectNotificationPersonal(
+                                        notificationStudent
+                                      );
+                                      setOpenModalDeletePersonal(true);
+                                    }}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                          <AnimatePresence>
+                            {expandedId === notificationStudent.id && (
+                              <motion.div
+                                layout
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
+                              >
+                                {isLoadingDetail ? (
+                                  <p className="text-sm text-gray-500">
+                                    Đang tải chi tiết...
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p className="text-sm text-gray-800 mb-2">
+                                      Nội dung:
+                                      {notificationStudent.content ||
+                                        "Không có nội dung"}
+                                    </p>
+
+                                    {notificationStudent.fileNotifications
+                                      ?.length > 0 && (
+                                      <div className="space-y-2">
+                                        {notificationStudent.fileNotifications.map(
+                                          (file, index) => (
+                                            <div
+                                              key={index}
+                                              className="border rounded-lg p-3 flex items-center space-x-4 hover:bg-gray-100 transition-colors"
+                                            >
+                                              <FileText className="text-blue-600" />
+                                              <div className="flex-1">
+                                                {/* <p className="font-medium">
+                                                {file.displayName || "Không tên"}
+                                              </p> */}
+                                                <p className="text-sm text-gray-500">
+                                                  Tệp đính kèm
+                                                </p>
+                                              </div>
+                                              <a
+                                                href={file.fileName}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline text-sm"
+                                              >
+                                                Tải xuống
+                                              </a>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
             <TabsContent value="member">
               <div className="max-w-3xl  py-8 px-4">
@@ -1172,6 +1391,7 @@ const DetailGroupLecturer = () => {
                         </div>
                       )}
                       {messages.map((message, index) => {
+                        console.log(message);
                         const showDate =
                           index === 0 ||
                           !dayjs(messages[index - 1]?.timestamp).isSame(
@@ -1244,65 +1464,66 @@ const DetailGroupLecturer = () => {
                                         : "flex-row-reverse"
                                     }`}
                                   >
-                                    {isOwnMessage && (
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <button>
-                                            <EllipsisVertical
-                                              size={16}
-                                              className="mb-3 mr-2 text-gray-400 cursor-pointer"
-                                            />
-                                          </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                          <DropdownMenuItem
-                                            className="text-red-500 cursor-pointer"
-                                            onClick={() =>
-                                              handleRevokeMessageGroup(
-                                                message.id,
-                                                message.userId
-                                              )
-                                            }
-                                          >
-                                            Thu hồi
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem
-                                            className="text-red-500 cursor-pointer"
-                                            // onClick={() =>
-                                            //   handleRevokeMessageGroup(
-                                            //     message.id,
-                                            //     message.userId
-                                            //   )
-                                            // }
-                                          >
-                                            Chỉnh sửa
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    )}
+                                    {isOwnMessage &&
+                                      message.status !== "DA_THU_HOI" && (
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <button>
+                                              <EllipsisVertical
+                                                size={16}
+                                                className="mb-3 mr-2 text-gray-400 cursor-pointer"
+                                              />
+                                            </button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent>
+                                            <DropdownMenuItem
+                                              className="text-red-500 cursor-pointer"
+                                              onClick={() =>
+                                                handleRevokeMessageGroup(
+                                                  message.id,
+                                                  message.userId
+                                                )
+                                              }
+                                            >
+                                              Thu hồi
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                              className="text-black cursor-pointer"
+                                              onClick={() => {
+                                                setIsEditing(true);
+                                                setEditingMessageId(message.id);
+                                                setEditingContent(
+                                                  message.message
+                                                );
+                                              }}
+                                            >
+                                              Chỉnh sửa
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      )}
 
                                     <div>
                                       <div
                                         className={`rounded-lg px-3 py-2 ${
-                                          isOwnMessage
+                                          isOwnMessage &&
+                                          message.status !== "DA_THU_HOI"
                                             ? "bg-blue-600 text-white"
-                                            : message.isTeacher
-                                            ? "bg-green-100 text-green-900"
                                             : "bg-gray-100 text-gray-900"
                                         }`}
                                       >
-                                        {message.recalled ? (
-                                          <p className="text-sm italic text-gray-500">
-                                            Tin nhắn đã được thu hồi
+                                        {message.status === "DA_THU_HOI" ? (
+                                          <p className="text-sm  border-white  text-gray-500">
+                                            {message.message}
                                           </p>
                                         ) : (
                                           <p className="text-sm">
-                                            {message.content}
+                                            {message.message}
                                           </p>
                                         )}
                                       </div>
                                       <div
-                                        className={`flex ${
+                                        className={`flex  ${
                                           isOwnMessage
                                             ? "justify-start"
                                             : "justify-end"
@@ -1313,6 +1534,11 @@ const DetailGroupLecturer = () => {
                                             "HH:mm"
                                           )}
                                         </p>
+                                        {message.status === "DA_CHINH_SUA" && (
+                                          <span className="text-xs italic text-gray-500 ml-2">
+                                            (đã chỉnh sửa)
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                   </div>
@@ -1322,6 +1548,7 @@ const DetailGroupLecturer = () => {
                           </div>
                         );
                       })}
+
                       <div key={messages.length} ref={messagesEndRef}></div>
                     </div>
                   </div>
@@ -1329,38 +1556,97 @@ const DetailGroupLecturer = () => {
 
                 {/* Message Input */}
                 <div className="border-t p-4">
+                  {isEditing && (
+                    <div className="mb-2 text-sm text-gray-600">
+                      Đang chỉnh sửa tin nhắn...
+                    </div>
+                  )}
+
                   <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Paperclip className="h-4 w-4" />
-                    </Button>
                     <Input
-                      placeholder="Nhập tin nhắn..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      // onKeyDown={handleKeyDown}
+                      placeholder={
+                        isEditing ? "Chỉnh sửa tin nhắn..." : "Nhập tin nhắn..."
+                      }
+                      value={isEditing ? editingContent : newMessage}
+                      onChange={(e) =>
+                        isEditing
+                          ? setEditingContent(e.target.value)
+                          : setNewMessage(e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (isEditing) {
+                            handleEditMessage(
+                              editingMessageId,
+                              editingContent,
+                              userId
+                            );
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          } else {
+                            handleSendMessageGroup();
+                          }
+                        }
+                      }}
                       className="flex-1"
                     />
-                    <Button variant="ghost" size="sm">
-                      <Smile className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={handleSendMessageGroup}
-                      disabled={newMessage.trim() === ""}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
+
+                    {isEditing ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          }}
+                        >
+                          Huỷ
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={editingContent.trim() === ""}
+                          onClick={() => {
+                            handleEditMessage(
+                              editingMessageId,
+                              editingContent,
+                              userId
+                            );
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          }}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          Lưu
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={handleSendMessageGroup}
+                        disabled={newMessage.trim() === ""}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
+        {/* Modal delete, update, out notification group */}
         {openModalDelete && (
           <DeleteNotificationGroup
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
-            onSuccess={() => fetchListNotificationGroup()}
+            onSuccess={() => {
+              fetchListNotificationGroup();
+            }}
             notify={selectNotificationGroup}
           />
         )}
@@ -1380,6 +1666,18 @@ const DetailGroupLecturer = () => {
             author={userId}
             group={groupDetail}
             onSuccess={() => fetchDetailGroup()}
+          />
+        )}
+        {/* Modal delete, update, out notification personal */}
+        {openModalDeletePersonal && (
+          <DeleteNotificationPersonal
+            open={openModalDeletePersonal}
+            onClose={() => setOpenModalDeletePersonal(false)}
+            onSuccess={() => {
+              fetchListNotificationStudent();
+              setSelectNotificationPersonal(null);
+            }}
+            notify={selectNotificationPersonal}
           />
         )}
       </div>

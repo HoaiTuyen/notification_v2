@@ -8,19 +8,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
-import { handleDeleteNotificationGroup } from "../../../../controller/NotificationGroupController";
-import { useLoading } from "../../../../context/LoadingProvider";
-const DeleteNotificationGroup = ({ onOpen, onClose, notify, onSuccess }) => {
+import { handleDeleteNotificationGroup } from "../../../../../controller/NotificationGroupController";
+import { useLoading } from "../../../../../context/LoadingProvider";
+const DeleteNotificationPersonal = ({ open, onClose, notify, onSuccess }) => {
+  console.log(onClose);
   const { setLoading } = useLoading();
 
   const handleDelete = async () => {
     try {
       setLoading(true);
       const response = await handleDeleteNotificationGroup(notify.id);
-      setLoading(false);
+      console.log(response);
       if (response?.status === 204) {
-        toast.success(response.message || "Xóa thông báo nhóm thành công");
         onSuccess();
+        toast.success(response.message || "Xóa thông báo nhóm thành công");
         onClose();
       } else {
         toast.error(response?.message || "Xóa thông báo nhóm thất bại");
@@ -33,7 +34,7 @@ const DeleteNotificationGroup = ({ onOpen, onClose, notify, onSuccess }) => {
   };
 
   return (
-    <Dialog open={onOpen} onOpenChange={(val) => !val && onClose()}>
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Xác nhận xóa</DialogTitle>
@@ -69,4 +70,4 @@ const DeleteNotificationGroup = ({ onOpen, onClose, notify, onSuccess }) => {
     </Dialog>
   );
 };
-export default DeleteNotificationGroup;
+export default DeleteNotificationPersonal;

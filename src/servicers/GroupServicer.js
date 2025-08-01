@@ -78,3 +78,13 @@ export const createReplyNotificationGroup = async (
 export const listReplyNotificationGroup = async (id) => {
   return await api.get(`/study_group_notification/reply_notification/${id}`);
 };
+
+export const detailNotificationGroup = async (id) => {
+  return await api.get(`/study_group_notification/detail_notification/${id}`);
+};
+
+export const listNotificationGroupStudent = async (id) => {
+  return await api.get(
+    `/study_group_notification/list_notifications_student?groupId=${id}`
+  );
+};

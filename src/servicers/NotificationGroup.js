@@ -7,6 +7,17 @@ export const createNotificationGroup = (formData) => {
     },
   });
 };
+export const createNotificationGroupPersonal = (formData) => {
+  return api.post(
+    "/study_group_notification/create_notification_user",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
 
 export const listNotificationGroup = (id) => {
   return api.get(`/study_group_notification/list_notifications?groupId=${id}`);

@@ -22,3 +22,10 @@ export const revoke_message = async (messageId, userId) => {
     userId: userId,
   });
 };
+export const update_message = async (messageId, newMessage, userId) => {
+  return await api.put("/chat_message/update_message", {
+    id: messageId,
+    newMessage: newMessage,
+    userId: userId,
+  });
+};
