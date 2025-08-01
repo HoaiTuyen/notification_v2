@@ -439,6 +439,16 @@ const AdminCreateNotification = () => {
                       )}
                     </div>
 
+                    <p className="text-sm text-red-500 mb-2">
+                      * Chỉ chấp nhận file <strong>PDF</strong>,{" "}
+                      <strong>ảnh</strong> hoặc <strong>Excel</strong> (xls,
+                      xlsx).
+                      <br />* Dung lượng tối đa: <strong>
+                        PDF / Excel
+                      </strong>{" "}
+                      không quá <strong>20MB</strong>, <strong>ảnh</strong>{" "}
+                      không quá <strong>5MB</strong>.
+                    </p>
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}
