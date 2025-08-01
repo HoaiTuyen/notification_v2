@@ -149,6 +149,15 @@ const SentNotificationsPersonal = () => {
     fetchListNotification(pageFromUrl);
     fetchNotifyType();
   }, [pageFromUrl, debouncedSearchTerm, selectType, forceReload]);
+  useEffect(() => {
+    if (selectNotify?.id && dataNotify.length > 0) {
+      const updated = dataNotify.find((n) => n.id === selectNotify.id);
+      if (updated) {
+        console.log("🔁 Cập nhật lại selectNotify sau khi BE trả về:", updated);
+        setSelectNotify(updated);
+      }
+    }
+  }, [dataNotify]);
 
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
@@ -349,7 +358,10 @@ const SentNotificationsPersonal = () => {
             <UpdateNotification
               open={openModalUpdate}
               onClose={() => setOpenModalUpdate(false)}
-              onSuccess={() => fetchListNotification(pageFromUrl)}
+              onSuccess={async () => {
+                await fetchListNotification(pageFromUrl); // ✅ gọi lại dữ liệu mới
+                setOpenModalUpdate(false);
+              }}
               notify={selectNotify}
             />
           )}

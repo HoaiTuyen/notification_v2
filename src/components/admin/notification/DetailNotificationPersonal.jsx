@@ -41,6 +41,7 @@ export default function AdminNotificationDetailPersonal() {
       try {
         setLoading(true);
         const detailNotify = await handleDetailNotification(notificationId);
+        console.log("Detail notify:", detailNotify);
         if (detailNotify?.data) {
           setNotification(detailNotify.data);
         } else {

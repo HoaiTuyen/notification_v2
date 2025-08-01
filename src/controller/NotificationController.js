@@ -143,6 +143,7 @@ export const handleSearchNotification = async (
 };
 
 export const handleUpdateNotification = async (formData) => {
+  console.log(formData);
   try {
     const response = await updateNotification(formData);
 
