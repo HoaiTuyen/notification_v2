@@ -185,7 +185,7 @@ const LecturerAccount = () => {
             }}
           >
             <Plus className="h-4 w-4" /> Tạo tài khoản
-          </Button>
+          </Button> */}
           {openModal && (
             <AddAccountLecturer
               open={openModal}
@@ -198,7 +198,7 @@ const LecturerAccount = () => {
               }}
               users={selectedUser}
             />
-          )} */}
+          )}
         </div>
 
         {/* Card */}
