@@ -204,7 +204,7 @@ const LecturerCreateGroupNotificationPersonal = ({
           <div className="space-y-4">
             <div>
               <Label className="mb-2">
-                Tiêu đề <span className="text-red-500">*</span>
+                Tiêu đề <span className="text-red-500">(*)</span>
               </Label>
               <Input
                 placeholder="Nhập tiêu đề"
@@ -233,7 +233,7 @@ const LecturerCreateGroupNotificationPersonal = ({
 
             <div>
               <Label className="mb-2">
-                Nội dung <span className="text-red-500">*</span>
+                Nội dung <span className="text-red-500">(*)</span>
               </Label>
               <Textarea
                 rows={5}

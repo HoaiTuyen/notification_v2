@@ -190,7 +190,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                 {checkEdit && (
                   <div className="grid gap-2">
                     <Label htmlFor="id">
-                      ID <span className="text-red-500">*</span>
+                      ID <span className="text-red-500">(*)</span>
                     </Label>
                     <Input
                       id="id"
@@ -206,7 +206,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">
-                    Username <span className="text-red-500">*</span>
+                    Username <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="username"
@@ -234,7 +234,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                 ) : (
                   <div className="grid gap-2 relative">
                     <Label htmlFor="password">
-                      Password <span className="text-red-500">*</span>
+                      Password <span className="text-red-500">(*)</span>
                     </Label>
                     <div className="relative">
                       <Input
@@ -296,7 +296,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
               </div> */}
                 <div className="grid gap-2">
                   <Label htmlFor="">
-                    Trạng thái <span className="text-red-500">*</span>
+                    Trạng thái <span className="text-red-500">(*)</span>
                   </Label>
                   <Select
                     value={form.status}
@@ -315,7 +315,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="">
-                    Role <span className="text-red-500">*</span>
+                    Role <span className="text-red-500">(*)</span>
                   </Label>
                   <Select
                     value={form.role}

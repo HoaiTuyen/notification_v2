@@ -309,7 +309,7 @@ const EmployeeCreateNotificationStudent = () => {
                     <div className="space-y-2">
                       <Label htmlFor="title">
                         Tiêu đề thông báo{" "}
-                        <span className="text-red-500">*</span>
+                        <span className="text-red-500">(*)</span>
                       </Label>
                       <Input
                         id="title"
@@ -329,7 +329,7 @@ const EmployeeCreateNotificationStudent = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="studentIds">
-                          Mã sinh viên <span className="text-red-500">*</span>
+                          Mã sinh viên <span className="text-red-500">(*)</span>
                         </Label>
                         {/* <Input
                           id="studentId"
@@ -390,7 +390,7 @@ const EmployeeCreateNotificationStudent = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="content">
-                        Nội dung <span className="text-red-500">*</span>
+                        Nội dung <span className="text-red-500">(*)</span>
                       </Label>
                       <Textarea
                         id="content"

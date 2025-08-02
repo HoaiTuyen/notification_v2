@@ -290,7 +290,7 @@ const EmployeeCreateNotification = () => {
                     <div className="space-y-2">
                       <Label htmlFor="title">
                         Tiêu đề thông báo{" "}
-                        <span className="text-red-500">*</span>
+                        <span className="text-red-500">(*)</span>
                       </Label>
                       <Input
                         id="title"
@@ -417,7 +417,7 @@ const EmployeeCreateNotification = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="content">
-                        Nội dung <span className="text-red-500">*</span>
+                        Nội dung <span className="text-red-500">(*)</span>
                       </Label>
                       <Textarea
                         id="content"

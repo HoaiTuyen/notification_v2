@@ -302,7 +302,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="studentId">
-                    Mã sinh viên <span className="text-red-500">*</span>
+                    Mã sinh viên <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="studentId"
@@ -325,7 +325,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dateOfBirth">
-                    Ngày sinh <span className="text-red-500">*</span>
+                    Ngày sinh <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="dateOfBirth"
@@ -347,7 +347,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="lastName">
-                    Họ <span className="text-red-500">*</span>
+                    Họ <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="lastName"
@@ -370,7 +370,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="firstName">
-                    Tên <span className="text-red-500">*</span>
+                    Tên <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="firstName"
@@ -395,7 +395,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="email">
-                    Email <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="email"
@@ -418,7 +418,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 </div>
                 <div className="grid gap-2 justify-center">
                   <Label htmlFor="gender">
-                    Giới tính <span className="text-red-500">*</span>
+                    Giới tính <span className="text-red-500">(*)</span>
                   </Label>
                   <Select
                     value={form.gender}
@@ -440,7 +440,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="status">
-                    Trạng thái <span className="text-red-500">*</span>
+                    Trạng thái <span className="text-red-500">(*)</span>
                   </Label>
                   <Select
                     value={form.status}
@@ -469,7 +469,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="username">
-                      Username <span className="text-red-500">*</span>
+                      Username <span className="text-red-500">(*)</span>
                     </Label>
                     <Input
                       id="username"
@@ -490,7 +490,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </div>
                   <div className="grid gap-2 relative">
                     <Label htmlFor="password">
-                      Password <span className="text-red-500">*</span>
+                      Password <span className="text-red-500">(*)</span>
                     </Label>
                     <div className="relative">
                       <Input

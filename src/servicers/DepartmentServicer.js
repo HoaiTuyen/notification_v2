@@ -8,7 +8,7 @@ export const addDepartment = async (data) => {
 export const listDepartment = async (page, pageSize) => {
   const response = await api.get("/department/list_departments", {
     params: {
-      page,
+      page: page,
       size: pageSize,
     },
   });

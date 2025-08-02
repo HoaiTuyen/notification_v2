@@ -216,7 +216,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="classId">
-                    Mã lớp <span className="text-red-500">*</span>
+                    Mã lớp <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="classId"
@@ -241,7 +241,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="nameClass">
-                    Tên lớp <span className="text-red-500">*</span>
+                    Tên lớp <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="nameClass"
@@ -265,7 +265,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="nameDescription">
-                    Mô tả <span className="text-red-500">*</span>
+                    Mô tả <span className="text-red-500">(*)</span>
                   </Label>
                   <Textarea
                     id="nameDescription"

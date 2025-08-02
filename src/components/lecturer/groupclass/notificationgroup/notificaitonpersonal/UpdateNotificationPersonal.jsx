@@ -214,7 +214,7 @@
 //           <div className="space-y-4">
 //             <div>
 //               <Label className="mb-2" htmlFor="title">
-//                 Tiêu đề thông báo <span className="text-red-500">*</span>
+//                 Tiêu đề thông báo <span className="text-red-500">(*)</span>
 //               </Label>
 //               <Input
 //                 id="title"
@@ -231,7 +231,7 @@
 
 //             <div>
 //               <Label className="mb-2" htmlFor="content">
-//                 Nội dung thông báo <span className="text-red-500">*</span>
+//                 Nội dung thông báo <span className="text-red-500">(*)</span>
 //               </Label>
 //               <Textarea
 //                 rows={6}

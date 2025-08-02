@@ -21,6 +21,7 @@ const DetailAccount = ({ open, onClose, accountId }) => {
     if (!accountId) return;
     try {
       const response = await handleGetDetailUser(accountId);
+      console.log(response);
 
       if (response.status === 200) {
         setAccount(response.data);
@@ -41,6 +42,19 @@ const DetailAccount = ({ open, onClose, accountId }) => {
     };
   }, [open, accountId, fetchAccountDetail]);
 
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
+
+    return parts
+      .map((part) =>
+        part[0]
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      )
+      .join("");
+  };
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
@@ -53,9 +67,7 @@ const DetailAccount = ({ open, onClose, accountId }) => {
             <div className="flex justify-center">
               <Avatar className="w-20 h-20">
                 <AvatarImage src={account.image} alt="avatar" />
-                <AvatarFallback>
-                  {account.username?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
+                <AvatarFallback>{getInitials(account.fullName)}</AvatarFallback>
               </Avatar>
             </div>
 
@@ -67,6 +79,21 @@ const DetailAccount = ({ open, onClose, accountId }) => {
               <div>
                 <Label className="mb-2">Username</Label>
                 <Input value={account.username} disabled />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2">
+                    {account.studentId ? "MSSV" : "MSGV"}
+                  </Label>
+                  <Input
+                    value={account.studentId || account.teacherId}
+                    disabled
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2">Họ và Tên</Label>
+                  <Input value={account.fullName} disabled />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

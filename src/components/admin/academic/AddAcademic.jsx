@@ -133,7 +133,7 @@ const AddAcademic = ({ open, onClose, onSuccess, academic }) => {
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="academicId">
-                  Mã niên khoá <span className="text-red-500">*</span>
+                  Mã niên khoá <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="academicId"
@@ -163,7 +163,7 @@ const AddAcademic = ({ open, onClose, onSuccess, academic }) => {
 
               <div className="grid gap-2">
                 <Label htmlFor="nameAcademic">
-                  Tên niên khoá <span className="text-red-500">*</span>
+                  Tên niên khoá <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="nameAcademic"

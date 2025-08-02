@@ -195,7 +195,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 <strong>153</strong>: năm học 2015–2016 học kỳ hè
               </p>
               <Label htmlFor="semesterId">
-                Mã học kỳ <span className="text-red-500">*</span>
+                Mã học kỳ <span className="text-red-500">(*)</span>
               </Label>
               <Input
                 id="semesterId"
@@ -220,7 +220,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="nameSemester">
-                  Tên học kỳ <span className="text-red-500">*</span>
+                  Tên học kỳ <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="nameSemester"
@@ -245,7 +245,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="academicYear">
-                  Năm học <span className="text-red-500">*</span>
+                  Năm học <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="academicYear"
@@ -270,7 +270,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="nameSemester">
-                  Ngày bắt đầu <span className="text-red-500">*</span>
+                  Ngày bắt đầu <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="startDate"
@@ -287,7 +287,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="endDate">
-                  Ngày kết thúc <span className="text-red-500">*</span>
+                  Ngày kết thúc <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="endDate"

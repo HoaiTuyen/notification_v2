@@ -259,7 +259,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="teacherId">
-                  Mã giảng viên <span className="text-red-500">*</span>
+                  Mã giảng viên <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="teacherId"
@@ -282,7 +282,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="firstName">
-                  Họ <span className="text-red-500">*</span>
+                  Họ <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="firstName"
@@ -306,7 +306,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="lastName">
-                  Tên <span className="text-red-500">*</span>
+                  Tên <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="lastName"
@@ -331,7 +331,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
 
               <div className="grid gap-2">
                 <Label htmlFor="email">
-                  Email <span className="text-red-500">*</span>
+                  Email <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="email"
@@ -355,7 +355,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="dateOfBirth">
-                  Ngày sinh <span className="text-red-500">*</span>
+                  Ngày sinh <span className="text-red-500">(*)</span>
                 </Label>
                 <Input
                   id="dateOfBirth"
@@ -404,7 +404,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="gender">
-                  Giới tính <span className="text-red-500">*</span>
+                  Giới tính <span className="text-red-500">(*)</span>
                 </Label>
                 <Select
                   value={form.gender}
@@ -429,7 +429,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="status">
-                  Trạng thái <span className="text-red-500">*</span>
+                  Trạng thái <span className="text-red-500">(*)</span>
                 </Label>
                 <Select
                   value={form.status}
@@ -454,7 +454,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">
-                    Username <span className="text-red-500">*</span>
+                    Username <span className="text-red-500">(*)</span>
                   </Label>
                   <Input
                     id="username"
@@ -475,7 +475,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </div>
                 <div className="grid gap-2 relative">
                   <Label htmlFor="password">
-                    Password <span className="text-red-500">*</span>
+                    Password <span className="text-red-500">(*)</span>
                   </Label>
                   <div className="relative">
                     <Input
