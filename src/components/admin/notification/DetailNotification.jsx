@@ -298,21 +298,20 @@ export default function AdminNotificationDetail() {
                       {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
                     </div>
 
-                    {/* Niên khóa */}
-                    {notification.academicYearName && (
+                    {/* {notification.academicYearName && (
                       <Badge className="bg-green-100 text-green-800">
                         Niên khóa: {notification.academicYearName}
                       </Badge>
                     )}
 
-                    {/* Khoa */}
+                  
                     {notification.departmentName && (
                       <Badge className="bg-purple-100 text-purple-800">
                         Khoa: {notification.departmentName}
                       </Badge>
                     )}
 
-                    {/* Loại thông báo */}
+              
                     {notification.notificationType && (
                       <Badge className="bg-yellow-100 text-yellow-800">
                         {notification.notificationType}
@@ -321,6 +320,34 @@ export default function AdminNotificationDetail() {
                     {!notification.academicYearName &&
                       !notification.departmentName &&
                       !notification.notificationType && (
+                        <Badge className="bg-gray-100 text-gray-800">
+                          Toàn trường
+                        </Badge>
+                      )} */}
+                    {[
+                      notification.notificationTypeName && {
+                        label: notification.notificationTypeName,
+                        className: "bg-yellow-100 text-yellow-800",
+                      },
+                      notification.academicYearName && {
+                        label: `Niên khóa: ${notification.academicYearName}`,
+                        className: "bg-green-100 text-green-800",
+                      },
+                      notification.departmentName && {
+                        label: `Khoa: ${notification.departmentName}`,
+                        className: "bg-purple-100 text-purple-800",
+                      },
+                    ]
+                      .filter(Boolean)
+                      .map((item, idx) => (
+                        <Badge key={idx} className={item.className}>
+                          {item.label}
+                        </Badge>
+                      ))}
+
+                    {!notification.academicYearName &&
+                      !notification.departmentName &&
+                      !notification.notificationTypeName && (
                         <Badge className="bg-gray-100 text-gray-800">
                           Toàn trường
                         </Badge>
