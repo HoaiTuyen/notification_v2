@@ -35,7 +35,7 @@ import { handleGetDetailUser } from "../../controller/AccountController";
 import { handleTeacherDetail } from "../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 const EmployeeDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState("home");
+  const [selectedTab, setSelectedTab] = useState("profile");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -49,7 +49,7 @@ const EmployeeDashboard = () => {
   };
 
   const items = [
-    { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
+    // { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
     {
       key: "profile",
       icon: <User size={16} />,

@@ -200,8 +200,7 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="home" replace />} />
-            <Route path="home" element={<HomePageEmployee />} />
+            <Route index element={<Navigate to="profile" replace />} />
             <Route path="profile" element={<EmployeeProfilePage />} />
             <Route
               path="notification-all"

@@ -297,9 +297,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
             <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="studentId">
-                    Mã sinh viên <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="studentId">Mã sinh viên(*)</Label>
                   <Input
                     id="studentId"
                     placeholder="VD: DH52112031"
@@ -320,9 +318,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="dateOfBirth">
-                    Ngày sinh <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="dateOfBirth">Ngày sinh(*)</Label>
                   <Input
                     id="dateOfBirth"
                     type="date"
@@ -342,9 +338,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="lastName">
-                    Họ <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="lastName">Họ(*)</Label>
                   <Input
                     id="lastName"
                     placeholder="Nhập họ sinh viên"
@@ -365,9 +359,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="firstName">
-                    Tên <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="firstName">Tên(*)</Label>
                   <Input
                     id="firstName"
                     placeholder="Nhập tên sinh viên"
@@ -390,9 +382,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">
-                    Email <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="email">Email(*)</Label>
                   <Input
                     id="email"
                     type="email"
@@ -413,9 +403,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </p>
                 </div>
                 <div className="grid gap-2 justify-center">
-                  <Label htmlFor="gender">
-                    Giới tính <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="gender">Giới tính(*)</Label>
                   <Select
                     value={form.gender}
                     onValueChange={(value) =>
@@ -435,9 +423,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="status">
-                    Trạng thái <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="status">Trạng thái(*)</Label>
                   <Select
                     value={form.status}
                     onValueChange={(value) =>
@@ -464,9 +450,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
               {!checkEdit && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="username">
-                      Username <span className="text-red-500">(*)</span>
-                    </Label>
+                    <Label htmlFor="username">Username(*)</Label>
                     <Input
                       id="username"
                       placeholder="Nhập username"
@@ -485,9 +469,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     </p>
                   </div>
                   <div className="grid gap-2 relative">
-                    <Label htmlFor="password">
-                      Password <span className="text-red-500">(*)</span>
-                    </Label>
+                    <Label htmlFor="password">Password(*)</Label>
                     <div className="relative">
                       <Input
                         id="password"

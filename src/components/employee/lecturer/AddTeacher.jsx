@@ -258,9 +258,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="teacherId">
-                  Mã giảng viên <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="teacherId">Mã giảng viên(*)</Label>
                 <Input
                   id="teacherId"
                   placeholder="Nhập mã giảng viên..."
@@ -281,9 +279,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="firstName">
-                  Họ <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="firstName">Họ(*)</Label>
                 <Input
                   id="firstName"
                   type="text"
@@ -305,9 +301,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="lastName">
-                  Tên <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="lastName">Tên(*)</Label>
                 <Input
                   id="lastName"
                   type="text"
@@ -330,9 +324,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email">
-                  Email <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="email">Email(*)</Label>
                 <Input
                   id="email"
                   type="email"
@@ -354,9 +346,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="dateOfBirth">
-                  Ngày sinh <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="dateOfBirth">Ngày sinh(*)</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
@@ -403,9 +393,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="gender">
-                  Giới tính <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="gender">Giới tính(*)</Label>
                 <Select
                   value={form.gender}
                   onValueChange={(value) => {
@@ -428,9 +416,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="status">
-                  Trạng thái <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="status">Trạng thái(*)</Label>
                 <Select
                   value={form.status}
                   onValueChange={(value) => setForm({ ...form, status: value })}
@@ -453,9 +439,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
             {!checkEdit && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="username">
-                    Username <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="username">Username(*)</Label>
                   <Input
                     id="username"
                     placeholder="Nhập username"
@@ -474,9 +458,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   </p>
                 </div>
                 <div className="grid gap-2 relative">
-                  <Label htmlFor="password">
-                    Password <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="password">Password(*)</Label>
                   <div className="relative">
                     <Input
                       id="password"

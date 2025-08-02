@@ -169,9 +169,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
                 </div> */}
 
                 <div className="grid gap-2">
-                  <Label htmlFor="nameGroup">
-                    Tên loại thông báo <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="nameGroup">Tên loại thông báo(*)</Label>
                   <Input
                     id="nameGroup"
                     type="text"

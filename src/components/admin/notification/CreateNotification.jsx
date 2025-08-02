@@ -291,8 +291,8 @@ const AdminCreateNotification = () => {
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="title">
-                        Tiêu đề thông báo{" "}
-                        <span className="text-red-500">(*)</span>
+                        Tiêu đề thông báo (
+                        <span className="text-red-500">*</span>)
                       </Label>
                       <Input
                         id="title"
@@ -418,9 +418,7 @@ const AdminCreateNotification = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">
-                        Nội dung <span className="text-red-500">(*)</span>
-                      </Label>
+                      <Label htmlFor="content">Nội dung(*)</Label>
                       <Textarea
                         id="content"
                         placeholder="Nhập nội dung chi tiết thông báo..."

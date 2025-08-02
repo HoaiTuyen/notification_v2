@@ -199,9 +199,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
             <div className="grid gap-4 py-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="departmentId">
-                    Mã khoa <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="departmentId">Mã khoa(*)</Label>
                   <Input
                     id="departmentId"
                     placeholder="VD: CNTT"
@@ -225,9 +223,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="nameDepartment">
-                    Tên khoa <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="nameDepartment">Tên khoa(*)</Label>
                   <Input
                     id="nameDepartment"
                     type="text"

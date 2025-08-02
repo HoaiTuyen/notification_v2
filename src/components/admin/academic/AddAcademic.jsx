@@ -132,9 +132,7 @@ const AddAcademic = ({ open, onClose, onSuccess, academic }) => {
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="academicId">
-                  Mã niên khoá <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="academicId">Mã niên khoá (*)</Label>
                 <Input
                   id="academicId"
                   placeholder="VD: 2021-2025"
@@ -162,9 +160,7 @@ const AddAcademic = ({ open, onClose, onSuccess, academic }) => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="nameAcademic">
-                  Tên niên khoá <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="nameAcademic">Tên niên khoá (*)</Label>
                 <Input
                   id="nameAcademic"
                   type="text"

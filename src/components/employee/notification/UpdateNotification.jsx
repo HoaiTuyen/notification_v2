@@ -259,7 +259,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
           <div className="space-y-4">
             <div>
               <Label className="mb-2" htmlFor="title">
-                Tiêu đề thông báo <span className="text-red-500">(*)</span>
+                Tiêu đề thông báo(*)
               </Label>
               <Input
                 id="title"
@@ -332,9 +332,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
             </div>
 
             <div>
-              <Label className="mb-2">
-                Nội dung thông báo <span className="text-red-500">(*)</span>
-              </Label>
+              <Label className="mb-2">Nội dung thông báo(*)</Label>
               <Textarea
                 rows={6}
                 value={formData.content}

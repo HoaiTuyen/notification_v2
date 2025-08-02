@@ -189,9 +189,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
               <div className="grid gap-4">
                 {checkEdit && (
                   <div className="grid gap-2">
-                    <Label htmlFor="id">
-                      ID <span className="text-red-500">(*)</span>
-                    </Label>
+                    <Label htmlFor="id">ID(*)</Label>
                     <Input
                       id="id"
                       placeholder=""
@@ -205,9 +203,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="username">
-                    Username <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="username">Username(*)</Label>
                   <Input
                     id="username"
                     placeholder=""
@@ -233,9 +229,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                   <div className="grid gap-2"></div>
                 ) : (
                   <div className="grid gap-2 relative">
-                    <Label htmlFor="password">
-                      Password <span className="text-red-500">(*)</span>
-                    </Label>
+                    <Label htmlFor="password">Password(*)</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -295,9 +289,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                 </div>
               </div> */}
                 <div className="grid gap-2">
-                  <Label htmlFor="">
-                    Trạng thái <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="">Trạng thái(*)</Label>
                   <Select
                     value={form.status}
                     onValueChange={(value) =>
@@ -314,9 +306,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="">
-                    Role <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="">Role(*)</Label>
                   <Select
                     value={form.role}
                     onValueChange={(value) => setForm({ ...form, role: value })}

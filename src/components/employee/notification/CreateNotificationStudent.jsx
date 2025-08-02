@@ -121,6 +121,7 @@ const EmployeeCreateNotificationStudent = () => {
         [field]: value,
       };
 
+      // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
       if (field === "studentIds" && !isValidStudentCode(value)) {
         updated.isMail = false;
       }
@@ -128,30 +129,12 @@ const EmployeeCreateNotificationStudent = () => {
       return updated;
     });
 
-    setErrors((prevErrors) => {
-      const updatedErrors = { ...prevErrors };
-
-      const countWords = (text) =>
-        text.trim().split(/\s+/).filter(Boolean).length;
-
-      if (field === "title") {
-        if (countWords(value) < 3) {
-          updatedErrors.title = "Tiêu đề phải có ít nhất 3 từ";
-        } else {
-          delete updatedErrors.title;
-        }
-      }
-
-      if (field === "content") {
-        if (countWords(value) < 3) {
-          updatedErrors.content = "Nội dung phải có ít nhất 3 từ";
-        } else {
-          delete updatedErrors.content;
-        }
-      }
-
-      return updatedErrors;
-    });
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -184,6 +167,9 @@ const EmployeeCreateNotificationStudent = () => {
         newErrors.content =
           "Nội dung không được chỉ chứa số hoặc ký tự đặc biệt";
       }
+    }
+    if (!formData.studentIds || formData.studentIds.length === 0) {
+      newErrors.studentIds = "Vui lòng chọn ít nhất một sinh viên";
     }
 
     fileDisplayNames.forEach((name, index) => {
@@ -308,8 +294,8 @@ const EmployeeCreateNotificationStudent = () => {
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="title">
-                        Tiêu đề thông báo{" "}
-                        <span className="text-red-500">(*)</span>
+                        Tiêu đề thông báo (
+                        <span className="text-red-500">*</span>)
                       </Label>
                       <Input
                         id="title"
@@ -328,9 +314,7 @@ const EmployeeCreateNotificationStudent = () => {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="studentIds">
-                          Mã sinh viên <span className="text-red-500">(*)</span>
-                        </Label>
+                        <Label htmlFor="studentIds">Mã sinh viên(*)</Label>
                         {/* <Input
                           id="studentId"
                           placeholder="Nhập mã sinh viên (VD: DH52110090)"
@@ -348,9 +332,13 @@ const EmployeeCreateNotificationStudent = () => {
                             onChange={(selected) =>
                               setSelectedStudents(selected)
                             }
-                            className="react-select-container"
                             classNamePrefix="select"
                             placeholder="Chọn sinh viên theo mã, tên hoặc lớp"
+                            className={`react-select-container ${
+                              errors.studentIds
+                                ? "border-2 border-red-500   rounded-md"
+                                : ""
+                            }`}
                           />
                         </div>
 
@@ -389,9 +377,7 @@ const EmployeeCreateNotificationStudent = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="content">
-                        Nội dung <span className="text-red-500">(*)</span>
-                      </Label>
+                      <Label htmlFor="content">Nội dung(*)</Label>
                       <Textarea
                         id="content"
                         placeholder="Nhập nội dung chi tiết thông báo..."
@@ -452,6 +438,7 @@ const EmployeeCreateNotificationStudent = () => {
                         )}
                       </div>
                     ))} */}
+
                     <p className="text-sm text-red-500 mb-2">
                       (*) Lưu ý: Chỉ chấp nhận file .pdf, ảnh hoặc Excel (xls,
                       xlsx).
@@ -491,7 +478,7 @@ const EmployeeCreateNotificationStudent = () => {
                         <div className="flex flex-col">
                           <Input
                             type="file"
-                            accept="application/pdf"
+                            accept=".pdf, image/*, .xls, .xlsx"
                             onChange={(e) => {
                               const newFiles = [...files];
                               newFiles[index] = e.target.files[0];

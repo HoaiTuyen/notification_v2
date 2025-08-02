@@ -203,9 +203,7 @@ const LecturerCreateGroupNotificationPersonal = ({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <Label className="mb-2">
-                Tiêu đề <span className="text-red-500">(*)</span>
-              </Label>
+              <Label className="mb-2">Tiêu đề(*)</Label>
               <Input
                 placeholder="Nhập tiêu đề"
                 value={formData.title}
@@ -232,9 +230,7 @@ const LecturerCreateGroupNotificationPersonal = ({
             </div>
 
             <div>
-              <Label className="mb-2">
-                Nội dung <span className="text-red-500">(*)</span>
-              </Label>
+              <Label className="mb-2">Nội dung(*)</Label>
               <Textarea
                 rows={5}
                 placeholder="Nội dung chi tiết thông báo"

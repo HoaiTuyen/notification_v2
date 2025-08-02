@@ -194,9 +194,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 <strong>152</strong>: năm học 2015–2016 học kỳ 2<br />•{" "}
                 <strong>153</strong>: năm học 2015–2016 học kỳ hè
               </p>
-              <Label htmlFor="semesterId">
-                Mã học kỳ <span className="text-red-500">(*)</span>
-              </Label>
+              <Label htmlFor="semesterId">Mã học kỳ(*)</Label>
               <Input
                 id="semesterId"
                 value={form.id}
@@ -219,9 +217,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             </div>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="nameSemester">
-                  Tên học kỳ <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="nameSemester">Tên học kỳ(*)</Label>
                 <Input
                   id="nameSemester"
                   value={form.nameSemester}
@@ -244,9 +240,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="academicYear">
-                  Năm học <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="academicYear">Năm học(*)</Label>
                 <Input
                   id="academicYear"
                   value={form.academicYear}
@@ -269,9 +263,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             </div>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="nameSemester">
-                  Ngày bắt đầu <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="nameSemester">Ngày bắt đầu(*)</Label>
                 <Input
                   id="startDate"
                   type="date"
@@ -286,9 +278,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="endDate">
-                  Ngày kết thúc <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="endDate">Ngày kết thúc(*)</Label>
                 <Input
                   id="endDate"
                   type="date"

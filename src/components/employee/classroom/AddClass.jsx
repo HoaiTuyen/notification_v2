@@ -215,9 +215,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
             <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="classId">
-                    Mã lớp <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="classId">Mã lớp(*)</Label>
                   <Input
                     id="classId"
                     placeholder="VD: D21_TH12"
@@ -240,9 +238,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="nameClass">
-                    Tên lớp <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="nameClass">Tên lớp(*)</Label>
                   <Input
                     id="nameClass"
                     type="text"
@@ -264,9 +260,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="nameDescription">
-                    Mô tả <span className="text-red-500">(*)</span>
-                  </Label>
+                  <Label htmlFor="nameDescription">Mô tả(*)</Label>
                   <Textarea
                     id="nameDescription"
                     type="text"

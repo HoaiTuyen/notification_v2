@@ -189,7 +189,7 @@ const ClassName = () => {
                     <TableHead className="text-center">Tên lớp</TableHead>
                     <TableHead className="text-center">Mô tả</TableHead>
                     <TableHead className="text-center">
-                      Giáo viên phụ trách
+                      Giảng viên phụ trách
                     </TableHead>
                     <TableHead className="text-center">Khoa</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>

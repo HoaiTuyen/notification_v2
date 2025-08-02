@@ -181,9 +181,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                 </div> */}
 
               <div className="grid gap-2">
-                <Label htmlFor="nameGroup">
-                  Tên nhóm học tập <span className="text-red-500">(*)</span>
-                </Label>
+                <Label htmlFor="nameGroup">Tên nhóm học tập(*)</Label>
                 <Input
                   id="nameGroup"
                   type="text"
@@ -206,7 +204,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
               ) : (
                 <div className="grid gap-2">
                   <Label htmlFor="teacher">
-                    Giáo viên phụ trách <span className="text-red-500">(*)</span>
+                    Giáo viên phụ trách(*)
                   </Label>
                   <Select
                     value={form.userId}
