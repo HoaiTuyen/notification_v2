@@ -177,7 +177,12 @@ export default function EmployeeNotificationDetailPersonal() {
                         Niên khóa: {notification.academicYearName}
                       </Badge>
                     )}
-
+                    {/* Loại thông báo */}
+                    {notification.notificationTypeName && (
+                      <Badge className="bg-yellow-100 text-yellow-800">
+                        {notification.notificationTypeName}
+                      </Badge>
+                    )}
                     {/* Khoa */}
                     {notification.departmentName && (
                       <Badge className="bg-purple-100 text-purple-800">
@@ -185,12 +190,6 @@ export default function EmployeeNotificationDetailPersonal() {
                       </Badge>
                     )}
 
-                    {/* Loại thông báo */}
-                    {notification.notificationTypeName && (
-                      <Badge className="bg-yellow-100 text-yellow-800">
-                        {notification.notificationTypeName}
-                      </Badge>
-                    )}
                     {notification.scope === "CA_NHAN" && (
                       <Badge className="bg-pink-100 text-pink-800">
                         Cá nhân

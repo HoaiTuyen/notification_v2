@@ -288,10 +288,7 @@ const EmployeeCreateNotification = () => {
                 <CardContent>
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">
-                        Tiêu đề thông báo (
-                        <span className="text-red-500">*</span>)
-                      </Label>
+                      <Label htmlFor="title">Tiêu đề thông báo (*)</Label>
                       <Input
                         id="title"
                         placeholder="Nhập tiêu đề thông báo..."

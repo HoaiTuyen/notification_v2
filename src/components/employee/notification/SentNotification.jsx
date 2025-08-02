@@ -280,6 +280,9 @@ const EmployeeSentNotifications = () => {
           <Card className="overflow-x-auto max-h-[800px]">
             <CardHeader>
               <CardTitle>Danh sách thông báo</CardTitle>
+              <CardDescription>
+                Hiển thị {pagination.totalElements} thông báo
+              </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto max-h-[400px]">
               <div className="space-y-4 cursor-pointer">
@@ -322,7 +325,7 @@ const EmployeeSentNotifications = () => {
                                 <Calendar className="h-4 w-4" />
                                 <span>
                                   {dayjs(notification.createdAt).format(
-                                    "DD/MM/YYYY"
+                                    "DD/MM/YYYY HH:mm"
                                   )}
                                 </span>
                               </div>
@@ -342,29 +345,29 @@ const EmployeeSentNotifications = () => {
                               <Eye className="h-4 w-4" />
                             </Button>
                             {/* <Button
-                              size="sm"
-                              variant="outline"
-                              className="cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectNotify(notification);
-                                setOpenModalUpdate(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button> */}
-                            {/* <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectNotify(notification);
-                              setModalDelete(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button> */}
+                                        size="sm"
+                                        variant="outline"
+                                        className="cursor-pointer"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectNotify(notification);
+                                          setOpenModalUpdate(true);
+                                        }}
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-red-600 hover:text-red-700 cursor-pointer"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectNotify(notification);
+                                          setModalDelete(true);
+                                        }}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button> */}
                           </div>
                         </div>
                       </div>
