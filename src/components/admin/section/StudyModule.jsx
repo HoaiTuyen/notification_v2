@@ -342,7 +342,7 @@ const StudyModuleAdmin = () => {
                   </div>
                   <div className=" space-y-2">
                     <Label>
-                      Chọn thời gian gửi thông báo theo lich học phần
+                      Chọn thời gian gửi thông báo theo lịch học phần
                     </Label>
                     <div className="flex items-center gap-3">
                       <TimePicker
