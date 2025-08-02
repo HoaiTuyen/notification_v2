@@ -168,6 +168,9 @@ const AdminCreateNotificationStudent = () => {
           "Nội dung không được chỉ chứa số hoặc ký tự đặc biệt";
       }
     }
+    if (!formData.studentIds || formData.studentIds.length === 0) {
+      newErrors.studentIds = "Vui lòng chọn ít nhất một sinh viên";
+    }
 
     fileDisplayNames.forEach((name, index) => {
       if (files[index] && !name.trim()) {
@@ -331,9 +334,13 @@ const AdminCreateNotificationStudent = () => {
                             onChange={(selected) =>
                               setSelectedStudents(selected)
                             }
-                            className="react-select-container"
                             classNamePrefix="select"
                             placeholder="Chọn sinh viên theo mã, tên hoặc lớp"
+                            className={`react-select-container ${
+                              errors.studentIds
+                                ? "border border-red-500 rounded-md"
+                                : ""
+                            }`}
                           />
                         </div>
 
@@ -363,9 +370,9 @@ const AdminCreateNotificationStudent = () => {
                               Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
                             </p>
                           )}
-                        {errors.students && (
+                        {errors.studentIds && (
                           <p className="text-sm text-red-600">
-                            {errors.students}
+                            {errors.studentIds}
                           </p>
                         )}
                       </div>
