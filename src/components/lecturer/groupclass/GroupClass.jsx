@@ -155,7 +155,12 @@ const GroupClassTeacher = () => {
                 </div>
               ) : (
                 groups.map((group) => (
-                  <Card className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between">
+                  <Card
+                    className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between cursor-pointer"
+                    onClick={() => {
+                      navigate(`/giang-vien/group-class/${group.id}`);
+                    }}
+                  >
                     {/* Header - ảnh nền + tên + giảng viên */}
                     <div
                       className="relative h-28 px-4 py-3 text-white"
@@ -166,12 +171,7 @@ const GroupClassTeacher = () => {
                       }}
                     >
                       <div className="relative z-10 flex justify-between">
-                        <h2
-                          className="text-lg font-semibold truncate cursor-pointer"
-                          onClick={() => {
-                            navigate(`/giang-vien/group-class/${group.id}`);
-                          }}
-                        >
+                        <h2 className="text-lg font-semibold truncate cursor-pointer">
                           {group.name}
                         </h2>
                         <DropdownMenu asChild>

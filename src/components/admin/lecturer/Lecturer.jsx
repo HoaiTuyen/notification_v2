@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, User } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -46,7 +46,7 @@ import {
 import { Pagination, Spin } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportTeacherModal from "./ImportTeacherModal";
-
+import DetailTeacher from "./DetailTeacher";
 const Lecturer = () => {
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,6 +58,7 @@ const Lecturer = () => {
   const [teachers, setTeachers] = useState([]);
   const [selectTeacher, setSelectTeacher] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openModalDetail, setOpenModalDetail] = useState(false);
   const [selectStatus, setSelectStatus] = useState(statusFromUrl || "all");
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -241,13 +242,16 @@ const Lecturer = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>MSGV</TableHead>
-                    <TableHead>Họ và tên</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Khoa</TableHead>
-                    <TableHead className="justify-start">Giới tính</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Thao tác</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">MSGV</TableHead>
+                    <TableHead className="text-center">Họ và tên</TableHead>
+                    <TableHead className="text-center">Email</TableHead>
+                    <TableHead className="text-center">Khoa</TableHead>
+                    <TableHead className="justify-start text-center">
+                      Giới tính
+                    </TableHead>
+                    <TableHead className="text-center">Trạng thái</TableHead>
+                    <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -272,37 +276,58 @@ const Lecturer = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    teachers.map((teacher) => (
+                    teachers.map((teacher, index) => (
                       <TableRow
                         className="border border-gray-200"
                         key={teacher.id}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
+                        </TableCell>
+
+                        <TableCell className="text-center">
                           {teacher.id}
                         </TableCell>
-                        <TableCell title={teacher.firstName}>
+                        <TableCell
+                          title={teacher.firstName}
+                          className="text-center"
+                        >
                           <div className="max-w-[150px] truncate ">
                             {teacher.firstName} {teacher.lastName}
                           </div>
                         </TableCell>
-                        <TableCell title={teacher.email}>
-                          <div className="max-w-[150px] truncate ">
-                            {teacher.email}
-                          </div>
+                        <TableCell
+                          title={teacher.email}
+                          className="text-center max-w-[150px] truncate"
+                        >
+                          {teacher.email}
                         </TableCell>
-                        <TableCell title={teacher.departmentName}>
-                          <div className="max-w-[150px] truncate ">
-                            {teacher.departmentName || "Trống"}
-                          </div>
+                        <TableCell
+                          title={teacher.departmentName}
+                          className="text-center max-w-[150px] truncate"
+                        >
+                          {teacher.departmentName || "Trống"}
                         </TableCell>
 
-                        <TableCell title={teacher.gender}>
+                        <TableCell
+                          title={teacher.gender}
+                          className="text-center"
+                        >
                           {renderGender(teacher.gender)}
                         </TableCell>
                         {teacher.status == "ĐANG_CÔNG_TÁC" ? (
-                          <TableCell>Đang công tác</TableCell>
+                          <TableCell className="text-center">
+                            Đang công tác
+                          </TableCell>
                         ) : (
-                          <TableCell>Chuyển công tác</TableCell>
+                          <TableCell className="text-center">
+                            Chuyển công tác
+                          </TableCell>
                         )}
 
                         <TableCell className="text-center align-middle">
@@ -318,6 +343,15 @@ const Lecturer = () => {
                             <DropdownMenuContent side="left">
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  setSelectTeacher(teacher);
+                                  setOpenModalDetail(true);
+                                }}
+                              >
+                                <User className="mr-2 h-4 w-4" /> Xem chi tiết
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openModalEdit(teacher)}
@@ -351,6 +385,13 @@ const Lecturer = () => {
             onClose={() => setOpenModalDelete(false)}
             teacher={selectTeacher}
             onSuccess={() => fetchListTeacher(pageFromUrl)}
+          />
+        )}
+        {openModalDetail && (
+          <DetailTeacher
+            open={openModalDetail}
+            onClose={() => setOpenModalDetail(false)}
+            teacher={selectTeacher}
           />
         )}
         {pagination.total >= 10 && (

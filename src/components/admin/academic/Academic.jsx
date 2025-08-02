@@ -158,8 +158,9 @@ const Academic = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>Mã niên khoá</TableHead>
-                    <TableHead>Tên niên khoá</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Mã niên khoá</TableHead>
+                    <TableHead className="text-center">Tên niên khoá</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -167,7 +168,7 @@ const Academic = () => {
                   {loading ? (
                     <TableRow>
                       <TableCell
-                        colSpan={3}
+                        colSpan={4}
                         className="text-center py-6 text-gray-500"
                       >
                         <Spin size="large" />
@@ -176,31 +177,37 @@ const Academic = () => {
                   ) : academic.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={3}
+                        colSpan={4}
                         className="text-center py-6 text-gray-500"
                       >
                         "Chưa có niên khoá nào"
                       </TableCell>
                     </TableRow>
                   ) : (
-                    academic.map((academic) => (
+                    academic.map((academic, index) => (
                       <TableRow
                         className="border border-gray-200"
                         key={academic.id}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
+                        </TableCell>
+                        <TableCell className="font-medium text-center">
                           {academic.id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={academic.name}
                         >
-                          <div className="flex items-center">
-                            {academic.name}
-                          </div>
+                          {academic.name}
                         </TableCell>
 
-                        <TableCell className="text-center align-middle">
+                        <TableCell className="text-center align-middle ">
                           <DropdownMenu asChild>
                             <DropdownMenuTrigger>
                               <Button

@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import dayjs from "dayjs";
-const DetailStudentOfClass = ({ open, onClose, student }) => {
+const DetailStudent = ({ open, onClose, student }) => {
   console.log(student);
   function filterStatus(status) {
     switch (status) {
@@ -103,7 +103,7 @@ const DetailStudentOfClass = ({ open, onClose, student }) => {
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Thông tin sinh viên</DialogTitle>
-          <DialogDescription>Chi tiết thông tin và cá nhân</DialogDescription>
+          <DialogDescription>Chi tiết thông tin cá nhân</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -166,4 +166,4 @@ const DetailStudentOfClass = ({ open, onClose, student }) => {
   );
 };
 
-export default DetailStudentOfClass;
+export default DetailStudent;

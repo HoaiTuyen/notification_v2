@@ -191,9 +191,11 @@ const NotificationType = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên loại thông báo</TableHead>
-                    <TableHead>Mô tả</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">
+                      Tên loại thông báo
+                    </TableHead>
+                    <TableHead className="text-center">Mô tả</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -221,17 +223,18 @@ const NotificationType = () => {
                         key={notiType.id}
                         className="border border-gray-200"
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
                           {(pagination.current - 1) * pagination.pageSize +
                             index +
                             1}
                         </TableCell>
-                        <TableCell className="max-w-[180px] truncate" title="">
-                          <div className="flex items-center">
-                            {notiType.name}
-                          </div>
+                        <TableCell
+                          className="max-w-[180px] truncate text-center"
+                          title={notiType.name}
+                        >
+                          {notiType.name}
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center">
                           {notiType.description || "Trống"}
                         </TableCell>
 

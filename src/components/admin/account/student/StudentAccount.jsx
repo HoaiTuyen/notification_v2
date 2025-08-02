@@ -109,6 +109,7 @@ const StudentAccount = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(response);
       }
 
       if (response?.status === 200 && response?.data) {
@@ -177,7 +178,7 @@ const StudentAccount = () => {
               }}
             />
           )}
-          <Button
+          {/* <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
               setOpenModal(true);
@@ -198,7 +199,7 @@ const StudentAccount = () => {
               }}
               users={selectedUser}
             />
-          )}
+          )} */}
         </div>
 
         {/* Card */}
@@ -239,10 +240,12 @@ const StudentAccount = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Username</TableHead>
-                    <TableHead className="justify-start">Trạng thái</TableHead>
-                    <TableHead className="">Role</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Username</TableHead>
+                    <TableHead className="text-center">MSSV</TableHead>
+                    <TableHead className="text-center">Họ và Tên</TableHead>
+                    <TableHead className="text-center">Trạng thái</TableHead>
+                    <TableHead className="text-center">Role</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -270,21 +273,29 @@ const StudentAccount = () => {
                   ) : (
                     users.map((user, index) => (
                       <TableRow className="border border-gray-200" key={index}>
-                        <TableCell className="font-medium pl-3.5">
+                        <TableCell className="font-medium pl-3.5 text-center">
                           {(pagination.current - 1) * pagination.pageSize +
                             index +
                             1}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={user.username}
                         >
-                          <div className="flex items-center">
-                            {user.username}
-                          </div>
+                          {user.username}
                         </TableCell>
-                        <TableCell>{user.status}</TableCell>
-                        <TableCell className="">{user.role}</TableCell>
+                        <TableCell className="text-center">
+                          {user.studentId}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.fullName}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.status}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.role}
+                        </TableCell>
 
                         <TableCell className="text-center align-middle">
                           <DropdownMenu asChild>

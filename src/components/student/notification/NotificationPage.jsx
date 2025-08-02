@@ -22,6 +22,7 @@ import {
   Mail,
   MailOpen,
   Calendar,
+  Clock1,
 } from "lucide-react";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
@@ -155,6 +156,11 @@ const NotificationsPage = () => {
         </p>
       </div>
       <div className="flex items-center text-xs text-gray-500 ml-4">
+        <div className="flex items-center pr-3">
+          <Clock1 className="h-3 w-3 mr-1" />
+          {dayjs(notification.createdAt).format("HH:mm")}
+        </div>
+
         <Calendar className="h-3 w-3 mr-1" />
         {dayjs(notification.createdAt).format("DD/MM/YYYY")}
       </div>

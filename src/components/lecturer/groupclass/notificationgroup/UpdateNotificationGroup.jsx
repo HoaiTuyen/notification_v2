@@ -735,16 +735,13 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateFormUpdate()) return;
-
     setLoading(true);
     const form = new FormData();
     form.append("id", formData.id);
     form.append("title", formData.title);
     form.append("content", formData.content);
     form.append("groupId", formData.groupId);
-
     let fileIndex = 0;
     files.forEach((f) => {
       if (f.file instanceof File) {

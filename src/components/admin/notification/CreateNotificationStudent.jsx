@@ -436,6 +436,12 @@ const AdminCreateNotificationStudent = () => {
                       </div>
                     ))} */}
 
+                    <p className="text-sm text-red-500 mb-2">
+                      (*) Lưu ý: Chỉ chấp nhận file .pdf, ảnh hoặc Excel (xls,
+                      xlsx).
+                      <br />
+                      (*) Dung lượng tối đa: nhỏ hơn 20MB
+                    </p>
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}
@@ -531,11 +537,10 @@ const AdminCreateNotificationStudent = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <AlertCircle className="h-5 w-5" />
-                    Một vài gợi ý
+                    Một vài lưu ý
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  <p>• Sử dụng tiêu đề ngắn gọn và rõ ràng</p>
                   <p>• Chọn loại thông báo phù hợp để sinh viên dễ phân loại</p>
                   <p>• Kiểm tra kỹ đối tượng nhận trước khi gửi</p>
                 </CardContent>

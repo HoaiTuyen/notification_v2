@@ -142,7 +142,10 @@ const GroupStudyStudent = () => {
                 groups.map((group) => (
                   <Card
                     key={group.groupId}
-                    className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between"
+                    className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between cursor-pointer"
+                    onClick={() => {
+                      navigate(`/sinh-vien/group-study/${group.groupId}`);
+                    }}
                   >
                     {/* Header - ảnh nền + tên + giảng viên */}
                     <div
@@ -159,11 +162,6 @@ const GroupStudyStudent = () => {
                           <h2
                             className="text-lg font-semibold truncate cursor-pointer"
                             title={group.groupName}
-                            onClick={() => {
-                              navigate(
-                                `/sinh-vien/group-study/${group.groupId}`
-                              );
-                            }}
                           >
                             {group.groupName}
                           </h2>

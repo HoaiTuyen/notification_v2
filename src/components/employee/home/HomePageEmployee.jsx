@@ -77,6 +77,7 @@ const HomePageEmployee = () => {
     try {
       setLoading(true);
       const response = await handleStatisticalShare();
+      console.log(response);
       if (response?.data && response?.status === 200) {
         setCountStudent(response?.data?.totalStudent);
         setCountLecturer(response?.data?.totalTeacher);

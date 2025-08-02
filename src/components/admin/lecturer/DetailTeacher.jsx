@@ -22,18 +22,18 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import dayjs from "dayjs";
-const DetailStudentOfClass = ({ open, onClose, student }) => {
-  console.log(student);
+const DetailTeacher = ({ open, onClose, teacher }) => {
+  console.log(teacher);
   function filterStatus(status) {
     switch (status) {
-      case "ĐANG_HỌC":
+      case "ĐANG_CÔNG_TÁC":
         return {
-          label: "Đang học",
+          label: "Đang công tác",
           className: "bg-green-100 text-green-800",
         };
-      case "BẢO_LƯU":
+      case "CHUYỂN_CÔNG_TÁC":
         return {
-          label: "Bảo lưu",
+          label: "Chuyển công tác",
           className: "bg-yellow-100 text-yellow-800",
         };
       case "ĐÃ_TỐT_NGHIỆP":
@@ -96,27 +96,29 @@ const DetailStudentOfClass = ({ open, onClose, student }) => {
       )
       .join("");
   };
-  const fullName = `${student.firstName} ${student.lastName}`;
+  const fullName = `${teacher.firstName} ${teacher.lastName}`;
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle>Thông tin sinh viên</DialogTitle>
-          <DialogDescription>Chi tiết thông tin và cá nhân</DialogDescription>
+          <DialogTitle>Thông tin giảng viên</DialogTitle>
+          <DialogDescription>Chi tiết thông tin cá nhân</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={student.avatar} alt="" />
+              <AvatarImage src={teacher.avatar} alt="" />
               <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
             </Avatar>
             <div>
               <h3 className="text-lg font-semibold">
-                {student.firstName} {student.lastName}
+                {teacher.firstName} {teacher.lastName}
               </h3>
-              <p className="text-muted-foreground">MSSV: {student.id}</p>
+              <p className="text-muted-foreground">
+                Mã giảng viên: {teacher.id}
+              </p>
               {/* {getStatusBadge(selectedStudent.status)} */}
             </div>
           </div>
@@ -127,35 +129,32 @@ const DetailStudentOfClass = ({ open, onClose, student }) => {
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  {student.email}
+                  {teacher.email}
                 </div>
                 <div className="flex items-center gap-2">
                   <Landmark className="h-4 w-4" />
-                  {student.departmentName}
+                  {teacher.departmentName}
                 </div>
-                <div className="flex items-center gap-2">
-                  <School className="h-4 w-4" />
-                  {student.className}
-                </div>
+
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  {dayjs(student.dateOfBirth).format("DD/MM/YYYY")}
+                  {dayjs(teacher.dateOfBirth).format("DD/MM/YYYY")}
                 </div>
               </div>
             </div>
             <div className="space-y-2 pt-8">
               <div className="space-y-1 text-sm">
-                {renderGender(student.gender)}
+                {renderGender(teacher.gender)}
 
                 <div className="flex items-center gap-2">
                   <CircleCheck className="h-4 w-4" />
-                  <Badge className={filterStatus(student.status).className}>
-                    {filterStatus(student.status).label}
+                  <Badge className={filterStatus(teacher.status).className}>
+                    {filterStatus(teacher.status).label}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <User2 className="h-4 w-4" />
-                  {student.userName || "Trống"}
+                  {teacher.userName || "Trống"}
                 </div>
               </div>
             </div>
@@ -166,4 +165,4 @@ const DetailStudentOfClass = ({ open, onClose, student }) => {
   );
 };
 
-export default DetailStudentOfClass;
+export default DetailTeacher;

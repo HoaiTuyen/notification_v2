@@ -177,7 +177,7 @@ const LecturerAccount = () => {
               }}
             />
           )}
-          <Button
+          {/* <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
               setOpenModal(true);
@@ -198,7 +198,7 @@ const LecturerAccount = () => {
               }}
               users={selectedUser}
             />
-          )}
+          )} */}
         </div>
 
         {/* Card */}
@@ -239,10 +239,12 @@ const LecturerAccount = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Username</TableHead>
-                    <TableHead className="justify-start">Trạng thái</TableHead>
-                    <TableHead className="">Role</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Username</TableHead>
+                    <TableHead className="text-center">MSGV</TableHead>
+                    <TableHead className="text-center">Họ và Tên</TableHead>
+                    <TableHead className="text-center">Trạng thái</TableHead>
+                    <TableHead className="text-center">Role</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -250,7 +252,7 @@ const LecturerAccount = () => {
                   {loading ? (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={7}
                         className="text-center py-6 text-gray-500"
                       >
                         <Spin size="large" />
@@ -259,7 +261,7 @@ const LecturerAccount = () => {
                   ) : users.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={7}
                         className="text-center py-6 text-gray-500"
                       >
                         {debouncedSearchTerm
@@ -276,15 +278,23 @@ const LecturerAccount = () => {
                             1}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={user.username}
                         >
-                          <div className="flex items-center">
-                            {user.username}
-                          </div>
+                          {user.username}
                         </TableCell>
-                        <TableCell>{user.status}</TableCell>
-                        <TableCell className="">{user.role}</TableCell>
+                        <TableCell className="text-center">
+                          {user.teacherId || "Trống"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.fullName || "Trống"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.status}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {user.role}
+                        </TableCell>
 
                         <TableCell className="text-center align-middle">
                           <DropdownMenu asChild>

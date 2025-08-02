@@ -194,7 +194,9 @@ const AdminDashboard = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
-      console.log(req);
+      if (req?.data?.image) {
+        setUserImage(req.data.image);
+      }
 
       // if (req?.data) {
       //   const userData = req.data;

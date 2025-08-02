@@ -174,10 +174,12 @@ const Group = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên nhóm</TableHead>
-                    <TableHead>Giáo viên phụ trách</TableHead>
-                    <TableHead>Mã code</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Tên nhóm</TableHead>
+                    <TableHead className="text-center">
+                      Giáo viên phụ trách
+                    </TableHead>
+                    <TableHead className="text-center">Mã code</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -205,17 +207,26 @@ const Group = () => {
                   ) : (
                     groups.map((group, index) => (
                       <TableRow className="border border-gray-200">
-                        <TableCell className="font-medium">
-                          {index + 1}
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={group.name}
                         >
-                          <div className="flex items-center">{group.name}</div>
+                          {group.name}
                         </TableCell>
-                        <TableCell className="">{group.userName}</TableCell>
-                        <TableCell className="">{group.code}</TableCell>
+                        <TableCell className="text-center">
+                          {group.userName}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {group.code}
+                        </TableCell>
 
                         <TableCell className="text-center align-middle">
                           <DropdownMenu asChild>

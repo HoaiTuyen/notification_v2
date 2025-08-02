@@ -185,11 +185,13 @@ const ClassName = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên lớp</TableHead>
-                    <TableHead>Mô tả</TableHead>
-                    <TableHead>Giáo viên phụ trách</TableHead>
-                    <TableHead>Khoa</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Tên lớp</TableHead>
+                    <TableHead className="text-center">Mô tả</TableHead>
+                    <TableHead className="text-center">
+                      Giáo viên phụ trách
+                    </TableHead>
+                    <TableHead className="text-center">Khoa</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -217,26 +219,28 @@ const ClassName = () => {
                   ) : (
                     classRoom.map((item, index) => (
                       <TableRow className="border border-gray-200" key={index}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
                           {(pagination.current - 1) * pagination.pageSize +
                             index +
                             1}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={item.name}
                         >
-                          <div className="flex items-center">{item.name}</div>
+                          {item.name}
                         </TableCell>
-                        <TableCell className="">{item?.description}</TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center">
+                          {item?.description}
+                        </TableCell>
+                        <TableCell className="text-center">
                           {item.teacherName === null
                             ? "Trống"
                             : item.teacherName}
                           {/* {getTeacherName(item.teacherName)} */}
                         </TableCell>
 
-                        <TableCell className="">
+                        <TableCell className="text-center">
                           {item.departmentName === null
                             ? "Trống"
                             : item.departmentName}

@@ -186,11 +186,11 @@ const Semester = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên học kỳ</TableHead>
-                    <TableHead>Năm học</TableHead>
-                    <TableHead>Ngày bắt đầu</TableHead>
-                    <TableHead>Ngày kết thúc</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Tên học kỳ</TableHead>
+                    <TableHead className="text-center">Năm học</TableHead>
+                    <TableHead className="text-center">Ngày bắt đầu</TableHead>
+                    <TableHead className="text-center">Ngày kết thúc</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -218,24 +218,27 @@ const Semester = () => {
                   ) : (
                     semesters.map((semester, index) => (
                       <TableRow className="border border-gray-200">
-                        <TableCell className="font-medium">
-                          {index + 1}
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={semester.nameSemester}
                         >
-                          <div className="flex items-center">
-                            {semester.nameSemester}
-                          </div>
+                          {semester.nameSemester}
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center">
                           {semester.academicYear}
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center">
                           {handleFormatDate(semester.startDate)}
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center">
                           {handleFormatDate(semester.endDate)}
                         </TableCell>
 

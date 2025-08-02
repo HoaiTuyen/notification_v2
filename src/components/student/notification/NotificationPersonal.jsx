@@ -22,6 +22,7 @@ import {
   Mail,
   MailOpen,
   Calendar,
+  Clock1,
 } from "lucide-react";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
@@ -162,15 +163,29 @@ const NotificationsPersonal = () => {
 
   const NotificationCard = ({ notification }) => (
     <div
-      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+      className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
       onClick={(e) => onViewDetail(notification.type, notification.id, e)}
     >
-      <div className="flex-1 min-w-0">
+      {/* <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">
           {notification.title}
         </p>
       </div>
       <div className="flex items-center text-xs text-gray-500 ml-4">
+        <Calendar className="h-3 w-3 mr-1" />
+        {dayjs(notification.createdAt).format("DD/MM/YYYY")}
+      </div> */}
+      <div className="flex min-w-0">
+        <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">
+          {notification.title}
+        </p>
+      </div>
+      <div className="flex items-center text-xs text-gray-500 ml-4">
+        <div className="flex items-center pr-3">
+          <Clock1 className="h-3 w-3 mr-1" />
+          {dayjs(notification.createdAt).format("HH:mm")}
+        </div>
+
         <Calendar className="h-3 w-3 mr-1" />
         {dayjs(notification.createdAt).format("DD/MM/YYYY")}
       </div>

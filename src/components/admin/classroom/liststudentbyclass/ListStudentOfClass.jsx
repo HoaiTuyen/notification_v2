@@ -38,6 +38,7 @@ const ListStudentOfClass = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [studentByClass, setStudentByClass] = useState([]);
+
   const [openUpload, setOpenUpload] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -138,13 +139,14 @@ const ListStudentOfClass = () => {
             </h2>
           </div>
           <div>
-            {[...new Set(studentByClass.map((item) => item.className))].map(
+            <span className="font-medium mr-2">Lớp: {classId}</span>
+            {/* {[...new Set(studentByClass.map((item) => item.className))].map(
               (className) => (
                 <span key={className} className="font-medium mr-2">
-                  Lớp: {className}
+                  Lớp: {className || classId}
                 </span>
               )
-            )}
+            )} */}
             <Badge>{dataClass.totalElements}</Badge>
           </div>
         </div>
@@ -161,7 +163,8 @@ const ListStudentOfClass = () => {
                   className="flex items-center cursor-pointer"
                   onClick={() => setOpenUpload(true)}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách sinh viên
+                  thuộc lớp
                 </Button>
                 {openUpload && (
                   <ImportStudentOfClassModal
@@ -191,16 +194,13 @@ const ListStudentOfClass = () => {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-1/6">Mã SV</TableHead>
-                    <TableHead className="w-1/6">Họ và tên</TableHead>
-                    <TableHead className="w-1/6">Email</TableHead>
-                    <TableHead className="w-1/6 text-center">
-                      Giới tính
-                    </TableHead>
-                    <TableHead className="w-1/6 text-center">Lớp</TableHead>
-                    <TableHead className="w-1/6  text-center">
-                      Trạng thái
-                    </TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Mã SV</TableHead>
+                    <TableHead className="text-center">Họ và tên</TableHead>
+                    <TableHead className="text-center">Email</TableHead>
+                    <TableHead className="text-center">Giới tính</TableHead>
+                    <TableHead className="text-center">Lớp</TableHead>
+                    <TableHead className="text-center">Trạng thái</TableHead>
                     {/* <TableHead className="w-1/6 text-center">
                       Thao tác
                     </TableHead> */}
@@ -210,14 +210,14 @@ const ListStudentOfClass = () => {
                   {studentByClass.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className="text-center h-24 text-muted-foreground"
                       >
                         Không có sinh viên nào
                       </TableCell>
                     </TableRow>
                   ) : (
-                    studentByClass.map((student) => (
+                    studentByClass.map((student, index) => (
                       <TableRow
                         key={student.id}
                         className="cursor-pointer"
@@ -226,13 +226,20 @@ const ListStudentOfClass = () => {
                           setOpenDetail(true);
                         }}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
+                        </TableCell>
+                        <TableCell className="font-medium text-center">
                           {student.id}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           {student.firstName} {student.lastName}
                         </TableCell>
-                        <TableCell>{student.email}</TableCell>
+                        <TableCell className="text-center">
+                          {student.email}
+                        </TableCell>
                         <TableCell className="text-center">
                           {renderGender(student.gender)}
                         </TableCell>

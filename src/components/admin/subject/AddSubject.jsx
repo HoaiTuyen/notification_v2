@@ -229,7 +229,6 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                     }}
                     required
                     minLength={3}
-                    pattern="^[\p{L}][\p{L}0-9 ]*$"
                     title="Tên môn học phải bắt đầu bằng chữ cái, chỉ chứa chữ, số và khoảng trắng, và ít nhất 3 ký tự"
                     onBlur={(e) => validateField("name", e.target.value)}
                   />

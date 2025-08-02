@@ -4,6 +4,7 @@ import AppRoutes from "./routes";
 // import { Toaster } from "@/components/ui/sonner";
 import { Toaster } from "react-hot-toast";
 import { LoadingProvider } from "./context/LoadingProvider";
+import NetworkHandler from "./config/NetworkStatus";
 function App() {
   return (
     <>
@@ -24,6 +25,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
+      <NetworkHandler />
     </>
   );
 }

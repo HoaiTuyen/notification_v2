@@ -152,7 +152,8 @@ const ListClassOfDepartment = () => {
                   className="flex items-center cursor-pointer"
                   onClick={() => setOpenUpload(true)}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+                  <Upload className="mr-2 h-4 w-4" /> Nhập danh sách lớp thuộc
+                  khoa
                 </Button>
                 {openUpload && (
                   <ImportClassOfDepartmentModal
@@ -182,13 +183,13 @@ const ListClassOfDepartment = () => {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-1/6">STT</TableHead>
-                    <TableHead className="w-1/6">Tên lớp</TableHead>
-                    <TableHead className="w-1/6">Mô tả</TableHead>
-                    <TableHead className="w-1/6 text-center">
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Tên lớp</TableHead>
+                    <TableHead className="text-center">Mô tả</TableHead>
+                    <TableHead className="text-center">
                       Giáo viên phụ trách
                     </TableHead>
-                    <TableHead className="w-1/6  text-center">Khoa</TableHead>
+                    <TableHead className="text-center">Khoa</TableHead>
                     {/* <TableHead className="w-1/6 text-center">
                       Thao tác
                     </TableHead> */}
@@ -198,7 +199,7 @@ const ListClassOfDepartment = () => {
                   {loading ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={5}
                         className="text-center h-24 text-muted-foreground"
                       >
                         <Spin size="large" />
@@ -207,7 +208,7 @@ const ListClassOfDepartment = () => {
                   ) : classByDepartment.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={5}
                         className="text-center h-24 text-muted-foreground"
                       >
                         {debouncedSearchTerm
@@ -218,13 +219,17 @@ const ListClassOfDepartment = () => {
                   ) : (
                     classByDepartment.map((classes, index) => (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
                           {(pagination.current - 1) * pagination.pageSize +
                             index +
                             1}
                         </TableCell>
-                        <TableCell>{classes.name}</TableCell>
-                        <TableCell>{classes.description}</TableCell>
+                        <TableCell className="text-center">
+                          {classes.name}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {classes.description}
+                        </TableCell>
                         <TableCell className="text-center">
                           {classes.teacherName || "Trống"}
                         </TableCell>

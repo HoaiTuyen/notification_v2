@@ -188,9 +188,10 @@ const Department = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>Mã khoa</TableHead>
-                    <TableHead>Tên Khoa</TableHead>
-                    <TableHead> Mô tả</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Mã khoa</TableHead>
+                    <TableHead className="text-center">Tên Khoa</TableHead>
+                    <TableHead className="text-center"> Mô tả</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -216,23 +217,29 @@ const Department = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    departments.map((department) => (
+                    departments.map((department, index) => (
                       <TableRow
                         className="border border-gray-200"
                         key={department.id}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
+                        </TableCell>
+                        <TableCell className="font-medium text-center">
                           {department.id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={department.name}
                         >
-                          <div className="flex items-center">
-                            {department.name}
-                          </div>
+                          {department.name}
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="text-center max-w-[180px] truncate ">
                           {department.description}
                         </TableCell>
 
