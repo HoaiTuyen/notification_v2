@@ -36,19 +36,24 @@ import useDebounce from "../../../hooks/useDebounce";
 import { motion } from "framer-motion";
 import { Spin } from "antd";
 import { toast } from "react-toastify";
+import { handleListDepartment } from "../../../controller/DepartmentController";
 const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
   const typeFromUrl = searchParams.get("type") || "all";
+  const departmentFromUrl = searchParams.get("department") || "all";
 
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [selectedType, setSelectedType] = useState(typeFromUrl);
+  const [selectedDepartment, setSelectedDepartment] =
+    useState(departmentFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const [notifications, setNotifications] = useState([]);
   const [notificationTypes, setNotificationTypes] = useState([]);
+  const [department, setDepartment] = useState([]);
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -67,40 +72,116 @@ const NotificationsPage = () => {
     );
   };
 
-  const fetchNotifications = async (page = 1) => {
-    try {
-      const type = selectedType === "all" ? null : selectedType;
-      const keyword = debouncedSearchTerm.trim();
-      let res;
-      setLoading(true);
+  // const fetchNotifications = async (page = 1) => {
+  //   try {
+  //     const keyword = debouncedSearchTerm.trim();
+  //     const isKeywordEmpty = keyword === "";
+  //     const type = selectedType === "all" ? null : selectedType;
+  //     const department =
+  //       selectedDepartment === "all" ? null : selectedDepartment;
+  //     console.log(type, department);
+  //     let res;
+  //     setLoading(true);
 
-      if (keyword) {
-        res = await handleSearchNotification(
-          keyword,
-          type,
-          page,
-          pagination.pageSize
-        );
-      } else {
-        res = await handleListNotification(
+  //     if (isKeywordEmpty && type === null && department === null) {
+  //       res = await handleListNotification(
+  //         "desc",
+  //         page - 1,
+  //         pagination.pageSize
+  //       );
+  //     } else {
+  //       res = await handleSearchNotification(
+  //         keyword,
+  //         type,
+  //         department,
+  //         page,
+  //         pagination.pageSize
+  //       );
+  //     }
+
+  //     if (res?.data) {
+  //       setNotifications(res.data.notifications);
+  //       setPagination({
+  //         current: page,
+  //         pageSize: res.data.pageSize,
+  //         total: res.data.totalElements,
+  //         totalPages: res.data.totalPages,
+  //       });
+  //     }
+  //   } catch (e) {
+  //     toast.error(e.response?.data?.message || "Lỗi khi tải thông báo");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const fetchListNotification = async (page = 1) => {
+    try {
+      setLoading(true);
+      const keyword = debouncedSearchTerm.trim();
+      const isKeywordEmpty = keyword === "";
+      const isTypeAll = selectedType === "all";
+      const isDepartmentAll = selectedDepartment === "all";
+
+      let response;
+
+      if (isKeywordEmpty && isTypeAll && isDepartmentAll) {
+        response = await handleListNotification(
           "desc",
           page - 1,
-          pagination.pageSize,
-          type
+          pagination.pageSize
         );
+        console.log(response);
+      } else {
+        const keywordParam = keyword;
+        const typeParam = isTypeAll ? "" : selectedType;
+        const departmentParam = isDepartmentAll ? "" : selectedDepartment;
+
+        response = await handleSearchNotification(
+          keywordParam,
+          typeParam,
+          departmentParam,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(response);
       }
 
-      if (res?.data) {
-        setNotifications(res.data.notifications);
+      if (response?.data) {
+        setNotifications(response.data.notifications);
         setPagination({
           current: page,
-          pageSize: res.data.pageSize,
-          total: res.data.totalElements,
-          totalPages: res.data.totalPages,
+          pageSize: response.data.pageSize,
+          total: response.data.totalElements,
+          totalPages: response.data.totalPages,
+          totalElements: response.data.totalElements,
         });
+
+        // setTotalSent(response.data.totalElements);
+      } else {
+        setNotifications([]);
+        setPagination({
+          current: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 0,
+          totalElements: 0,
+        });
+        // setTotalSent(0);
       }
     } catch (e) {
-      toast.error(e.response?.data?.message || "Lỗi khi tải thông báo");
+      toast.error("Đã xảy ra lỗi khi tải thông báo");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchDepartment = async () => {
+    try {
+      setLoading(true);
+      const res = await handleListDepartment(0, 100);
+      setLoading(false);
+      setDepartment(res?.data?.departments || []);
+    } catch (e) {
+      toast.error(e.response.data.message || "Lỗi khi tải phòng ban");
     } finally {
       setLoading(false);
     }
@@ -122,26 +203,32 @@ const NotificationsPage = () => {
   useEffect(() => {
     const currentSearch = searchParams.get("search") || "";
     const currentType = searchParams.get("type") || "all";
-    const currentPage = searchParams.get("page") || "1";
+    const currentDepartment = searchParams.get("department") || "all";
 
-    if (currentSearch !== debouncedSearchTerm || currentType !== selectedType) {
+    if (
+      currentSearch !== debouncedSearchTerm ||
+      currentType !== selectedType ||
+      currentDepartment !== selectedDepartment
+    ) {
       setSearchParams({
         search: debouncedSearchTerm,
         type: selectedType,
+        department: selectedDepartment,
         page: "1", // reset trang khi lọc thay đổi
       });
     }
-  }, [debouncedSearchTerm, selectedType]);
+  }, [debouncedSearchTerm, selectedType, selectedDepartment]);
 
   // Fetch lại dữ liệu khi URL param thay đổi
   useEffect(() => {
-    fetchNotifications(pageFromUrl);
+    fetchListNotification(pageFromUrl);
     fetchNotificationTypes();
+    fetchDepartment();
   }, [searchParams]);
   const onViewDetail = (id, e) => {
     e.stopPropagation();
     navigate(
-      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&page=${pagination.current}`
     );
   };
 
@@ -211,8 +298,24 @@ const NotificationsPage = () => {
                     <SelectValue placeholder="Loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả loại</SelectItem>
+                    <SelectItem value="all">Tất cả loại thông báo</SelectItem>
                     {notificationTypes.map((item) => (
+                      <SelectItem key={item.name} value={item.name}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedDepartment}
+                  onValueChange={(value) => setSelectedDepartment(value)}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Phòng ban" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả khoa</SelectItem>
+                    {department.map((item) => (
                       <SelectItem key={item.name} value={item.name}>
                         {item.name}
                       </SelectItem>
@@ -270,6 +373,7 @@ const NotificationsPage = () => {
                   setSearchParams({
                     search: debouncedSearchTerm,
                     type: selectedType,
+                    department: selectedDepartment,
                     page: page.toString(),
                   });
                 }}

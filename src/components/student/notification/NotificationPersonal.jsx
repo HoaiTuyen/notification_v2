@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
-
+import { DatePicker } from "antd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,12 +36,17 @@ import useDebounce from "../../../hooks/useDebounce";
 import { motion } from "framer-motion";
 import { Spin } from "antd";
 import { toast } from "react-toastify";
-import { handleListNotificationByStudent } from "../../../controller/AccountController";
+import {
+  handleListNotificationByStudent,
+  handleSearchNotificationByStudent,
+} from "../../../controller/AccountController";
+import { handleListDepartment } from "../../../controller/DepartmentController";
 import { jwtDecode } from "jwt-decode";
 const NotificationsPersonal = () => {
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("access_token");
   const { userId } = jwtDecode(token);
+  console.log(userId);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -53,7 +58,10 @@ const NotificationsPersonal = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [notificationTypes, setNotificationTypes] = useState([]);
-
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -73,24 +81,61 @@ const NotificationsPersonal = () => {
 
   const fetchNotifications = async (page = 1) => {
     try {
-      const type = selectedType === "all" ? null : selectedType;
-      const keyword = debouncedSearchTerm.trim();
-      let res;
       setLoading(true);
 
-      if (keyword) {
-        res = await handleSearchNotification(keyword, type, 0, 100);
+      const keyword = debouncedSearchTerm.trim();
+      const hasKeyword = !!keyword;
+      const hasType = selectedType !== "all";
+      const hasDepartment = selectedDepartment !== "all";
+      const hasFromDate = !!fromDate;
+      const hasToDate = !!toDate;
+
+      const shouldSearch =
+        hasKeyword || hasType || hasDepartment || hasFromDate || hasToDate;
+
+      let res;
+
+      if (shouldSearch) {
+        const type = hasType ? selectedType : "";
+        const department = hasDepartment ? selectedDepartment : "";
+        const fromDateFormatted = fromDate
+          ? dayjs(fromDate).format("YYYY-MM-DDTHH:mm:ss")
+          : undefined;
+        const toDateFormatted = toDate
+          ? dayjs(toDate).format("YYYY-MM-DDTHH:mm:ss")
+          : undefined;
+
+        console.log("🔍 Searching with filters:", {
+          userId,
+          keyword,
+          departmentId: department,
+          notificationTypeId: type,
+          fromDate: fromDateFormatted,
+          toDate: toDateFormatted,
+        });
+
+        res = await handleSearchNotificationByStudent(
+          userId,
+          keyword,
+          department,
+          type,
+          fromDateFormatted,
+          toDateFormatted,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(res);
       } else {
+        console.log("📄 No filter/search —> default list");
         res = await handleListNotificationByStudent(
           userId,
           page - 1,
           pagination.pageSize
         );
-        console.log(res);
       }
 
       if (res?.data) {
-        setNotifications(res.data.responses);
+        setNotifications(res.data.responses || []);
         setPagination({
           current: page,
           pageSize: pagination.pageSize,
@@ -101,8 +146,8 @@ const NotificationsPersonal = () => {
       } else {
         setNotifications([]);
         setPagination({
-          current: page,
-          pageSize: pagination.pageSize,
+          current: 1,
+          pageSize: 10,
           total: 0,
           totalPages: 0,
           totalElements: 0,
@@ -127,6 +172,18 @@ const NotificationsPersonal = () => {
       setLoading(false);
     }
   };
+  const fetchDepartments = async () => {
+    try {
+      setLoading(true);
+      const res = await handleListDepartment(0, 100);
+      setLoading(false);
+      setDepartments(res?.data?.departments || []);
+    } catch (e) {
+      toast.error(e.response.data.message || "Lỗi khi tải phòng ban");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const currentSearch = searchParams.get("search") || "";
@@ -146,17 +203,18 @@ const NotificationsPersonal = () => {
   useEffect(() => {
     fetchNotifications(pageFromUrl);
     fetchNotificationTypes();
-  }, [searchParams]);
+    fetchDepartments();
+  }, [searchParams, fromDate, toDate, selectedDepartment]);
   const onViewDetail = (type, id, e) => {
     console.log(type);
     e.stopPropagation();
     if (type === "NHOM_HOC_TAP") {
       navigate(
-        `/sinh-vien/notification-personal/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+        `/sinh-vien/notification-personal/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&fromDate=${fromDate}&toDate=${toDate}&page=${pagination.current}`
       );
     } else {
       navigate(
-        `/sinh-vien/notification/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+        `/sinh-vien/notification/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&fromDate=${fromDate}&toDate=${toDate}&page=${pagination.current}`
       );
     }
   };
@@ -238,14 +296,46 @@ const NotificationsPersonal = () => {
                     <SelectValue placeholder="Loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả loại</SelectItem>
+                    <SelectItem value="all">Tất cả loại thông báo</SelectItem>
                     {notificationTypes.map((item) => (
-                      <SelectItem key={item.name} value={item.name}>
+                      <SelectItem key={item.id} value={item.id}>
                         {item.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+
+                {/* <Select
+                  value={selectedDepartment}
+                  onValueChange={(value) => setSelectedDepartment(value)}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Phòng ban" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả khoa</SelectItem>
+                    {departments.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select> */}
+
+                <DatePicker
+                  placeholder="Từ ngày"
+                  className="w-full md:w-40"
+                  value={fromDate}
+                  onChange={(date) => setFromDate(date)}
+                  format="DD/MM/YYYY"
+                />
+                <DatePicker
+                  placeholder="Đến ngày"
+                  className="w-full md:w-40"
+                  value={toDate}
+                  onChange={(date) => setToDate(date)}
+                  format="DD/MM/YYYY"
+                />
               </div>
             </CardContent>
           </Card>

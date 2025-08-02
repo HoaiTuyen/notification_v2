@@ -108,6 +108,29 @@ export const listNotificationByStudent = async (StudentId, page, size) => {
     },
   });
 };
+export const searchNotificationByStudent = async (
+  StudentId,
+  keyword,
+  department,
+  type,
+  fromDate,
+  toDate,
+  page,
+  size
+) => {
+  return api.get("/account/list_notifications", {
+    params: {
+      userId: StudentId,
+      ...(keyword && { keyword }),
+      ...(department && { departmentId: department }),
+      ...(type && { notificationTypeId: type }),
+      ...(fromDate && { fromDate }),
+      ...(toDate && { toDate }),
+      page,
+      size,
+    },
+  });
+};
 export const unreadCountNotificationUser = async (userId) => {
   return api.post(`/account/count_all_notification/${userId}`);
 };

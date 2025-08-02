@@ -54,6 +54,7 @@ import {
   handleSendMessage,
   handleListMessage,
   handleRevokeMessage,
+  handleUpdateMessage,
 } from "../../../controller/MessageController";
 
 const DetailGroupStudent = () => {
@@ -132,7 +133,6 @@ const DetailGroupStudent = () => {
 
     return () => sub.unsubscribe();
   }, [connected, stompClient.current, groupStudyId]);
-
   const [imageUser, setImageUser] = useState("");
   const [initialLoaded, setInitialLoaded] = useState(false);
 
@@ -152,6 +152,9 @@ const DetailGroupStudent = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
   const backUrl = location.state?.from || "/sinh-vien/group-study";
   const fetchDetailGroup = async () => {
     setLoadingPage(true);
@@ -331,21 +334,56 @@ const DetailGroupStudent = () => {
       setIsSending(false);
     }
   };
-  const handleRevokeMessageGroup = async (messageId) => {
+  const handleRevokeMessageGroup = async (messageId, userId) => {
     console.log(messageId);
+    console.log(userId);
     try {
       const response = await handleRevokeMessage(messageId, userId);
       console.log(response);
 
-      if (response?.status === 200) {
+      if (response?.status === 204) {
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, recalled: true } : msg
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  status: "DA_THU_HOI",
+                  message: "Tin nhắn đã được thu hồi",
+                }
+              : msg
           )
         );
       }
     } catch (e) {
       console.log(e);
+    }
+  };
+  const handleEditMessage = async (messageId, newMessage, userId) => {
+    try {
+      if (newMessage.trim() === "") return;
+
+      const response = await handleUpdateMessage(messageId, newMessage, userId);
+      console.log(response);
+
+      if (response?.status === 204) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  message: newMessage,
+                  status: "DA_CHINH_SUA",
+                }
+              : msg
+          )
+        );
+        setEditingMessageId(null);
+      } else {
+        toast.error("Chỉnh sửa thất bại");
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Lỗi khi chỉnh sửa tin nhắn");
     }
   };
   const toggleExpandComments = (id) => {
@@ -994,12 +1032,13 @@ const DetailGroupStudent = () => {
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                               className="text-black cursor-pointer"
-                                              // onClick={() =>
-                                              //   handleRevokeMessageGroup(
-                                              //     message.id,
-                                              //     message.userId
-                                              //   )
-                                              // }
+                                              onClick={() => {
+                                                setIsEditing(true);
+                                                setEditingMessageId(message.id);
+                                                setEditingContent(
+                                                  message.message
+                                                );
+                                              }}
                                             >
                                               Chỉnh sửa
                                             </DropdownMenuItem>
@@ -1014,10 +1053,6 @@ const DetailGroupStudent = () => {
                                           message.status !== "DA_THU_HOI"
                                             ? "bg-blue-600 text-white"
                                             : "bg-gray-100 text-gray-900"
-                                          // : message.isTeacher &&
-                                          //   message.status !== "DA_THU_HOI"
-                                          // ? "bg-green-100 text-green-900"
-                                          // : "bg-gray-100 text-gray-900"
                                         }`}
                                       >
                                         {message.status === "DA_THU_HOI" ? (
@@ -1057,11 +1092,8 @@ const DetailGroupStudent = () => {
                 </CardContent>
 
                 {/* Message Input */}
-                <div className="border-t p-4">
+                {/* <div className="border-t p-4">
                   <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Paperclip className="h-4 w-4" />
-                    </Button>
                     <Input
                       placeholder="Nhập tin nhắn..."
                       value={newMessage}
@@ -1069,9 +1101,7 @@ const DetailGroupStudent = () => {
                       onKeyDown={handleKeyDown}
                       className="flex-1"
                     />
-                    <Button variant="ghost" size="sm">
-                      <Smile className="h-4 w-4" />
-                    </Button>
+
                     <Button
                       onClick={handleSendMessageGroup}
                       disabled={newMessage.trim() === ""}
@@ -1079,6 +1109,86 @@ const DetailGroupStudent = () => {
                     >
                       <Send className="h-4 w-4" />
                     </Button>
+                  </div>
+                </div> */}
+                <div className="border-t p-4">
+                  {isEditing && (
+                    <div className="mb-2 text-sm text-gray-600">
+                      Đang chỉnh sửa tin nhắn...
+                    </div>
+                  )}
+
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder={
+                        isEditing ? "Chỉnh sửa tin nhắn..." : "Nhập tin nhắn..."
+                      }
+                      value={isEditing ? editingContent : newMessage}
+                      onChange={(e) =>
+                        isEditing
+                          ? setEditingContent(e.target.value)
+                          : setNewMessage(e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (isEditing) {
+                            handleEditMessage(
+                              editingMessageId,
+                              editingContent,
+                              userId
+                            );
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          } else {
+                            handleSendMessageGroup();
+                          }
+                        }
+                      }}
+                      className="flex-1"
+                    />
+
+                    {isEditing ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          }}
+                        >
+                          Huỷ
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={editingContent.trim() === ""}
+                          onClick={() => {
+                            handleEditMessage(
+                              editingMessageId,
+                              editingContent,
+                              userId
+                            );
+                            setIsEditing(false);
+                            setEditingMessageId(null);
+                            setEditingContent("");
+                          }}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          Lưu
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={handleSendMessageGroup}
+                        disabled={newMessage.trim() === ""}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>

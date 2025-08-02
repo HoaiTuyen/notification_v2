@@ -18,6 +18,7 @@ import {
   makeNotificationRead,
   makeAllNotificationRead,
   changePassword,
+  searchNotificationByStudent,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page = 0, pageSize = 1000) => {
@@ -323,6 +324,41 @@ export const handleListNotificationByStudent = async (
   }
 };
 
+export const handleSearchNotificationByStudent = async (
+  StudentId,
+  keyword,
+  department,
+  type,
+  fromDate,
+  toDate,
+  page,
+  size
+) => {
+  try {
+    const response = await searchNotificationByStudent(
+      StudentId,
+      keyword,
+      department,
+      type,
+      fromDate,
+      toDate,
+      page,
+      size
+    );
+
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Lấy danh sách thông báo thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
 export const handleUnreadCountNotificationUser = async (userId) => {
   try {
     const response = await unreadCountNotificationUser(userId);
