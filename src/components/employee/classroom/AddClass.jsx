@@ -92,11 +92,6 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
           "Tên lớp phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số hoặc dấu gạch dưới";
     }
 
-    if (field === "description") {
-      if (!value.trim()) error = "Mô tả không được để trống";
-      else if (countWords(value) < 3) error = "Mô tả phải chứa ít nhất 3 từ";
-    }
-
     setErrors((prev) => ({ ...prev, [field]: error }));
   };
 
@@ -260,30 +255,22 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="nameDescription">Mô tả(*)</Label>
+                  <Label htmlFor="nameDescription">Mô tả</Label>
                   <Textarea
                     id="nameDescription"
                     type="text"
                     value={form.description}
                     onChange={(e) => {
                       setForm({ ...form, description: e.target.value });
-                      if (errors.description) {
-                        setErrors((prev) => ({ ...prev, description: "" }));
-                      }
                     }}
                     required
                     className="max-h-[100px] overflow-y-auto"
-                    onBlur={(e) => validateField("description", e.target.value)}
-                    title="Mô tả phải chứa ít nhất 3 từ"
                   />
-                  <p className="text-red-500 min-h-[20px] text-sm">
-                    {errors.description || "\u00A0"}
-                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-2   gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="">Giáo viên phụ trách</Label>
+                  <Label htmlFor="">Giảng viên phụ trách</Label>
                   <Select
                     value={form.teacherId}
                     onValueChange={(value) =>

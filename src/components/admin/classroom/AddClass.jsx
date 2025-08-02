@@ -270,7 +270,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
               </div>
               <div className="grid grid-cols-2   gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="">Giáo viên phụ trách</Label>
+                  <Label htmlFor="">Giảng viên phụ trách</Label>
                   <Select
                     value={form.teacherId}
                     onValueChange={(value) =>

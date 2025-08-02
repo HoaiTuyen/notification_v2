@@ -40,7 +40,19 @@ const DetailAccount = ({ open, onClose, accountId }) => {
       setAccount(null);
     };
   }, [open, accountId, fetchAccountDetail]);
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
 
+    return parts
+      .map((part) =>
+        part[0]
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      )
+      .join("");
+  };
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
@@ -54,7 +66,7 @@ const DetailAccount = ({ open, onClose, accountId }) => {
               <Avatar className="w-20 h-20">
                 <AvatarImage src={account.image} alt="avatar" />
                 <AvatarFallback>
-                  {account.username?.charAt(0).toUpperCase() || "U"}
+                  {getInitials(account.fullName) || "U"}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -68,7 +80,16 @@ const DetailAccount = ({ open, onClose, accountId }) => {
                 <Label className="mb-2">Username</Label>
                 <Input value={account.username} disabled />
               </div>
-
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2">MSGV</Label>
+                  <Input value={account.teacherId} disabled />
+                </div>
+                <div>
+                  <Label className="mb-2">Họ và Tên</Label>
+                  <Input value={account.fullName} disabled />
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-2">Trạng thái</Label>

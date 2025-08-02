@@ -59,6 +59,10 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
       setError("Mã nhóm không được để trống");
       return;
     }
+    if (form.code.trim().length > 7) {
+      setError("Mã nhóm không được vượt quá 7 ký tự");
+      return false;
+    }
     return true;
   };
 

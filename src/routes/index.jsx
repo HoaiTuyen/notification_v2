@@ -271,7 +271,7 @@ function AppRoutes() {
             <Route path="subject" element={<StudentSubject />} />
             <Route path="notification-all" element={<NotificationsPage />} />
             <Route
-              path="notification/:notificationId"
+              path="notification-all/:notificationId"
               element={<StudentNotificationDetail />}
             />
             <Route path="group-study" element={<GroupStudyStudent />} />

@@ -189,11 +189,13 @@ const EmployeeClassName = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên lớp</TableHead>
-                    <TableHead>Mô tả</TableHead>
-                    <TableHead>Giáo viên phụ trách</TableHead>
-                    <TableHead>Khoa</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Tên lớp</TableHead>
+                    <TableHead className="text-center">Mô tả</TableHead>
+                    <TableHead className="text-center">
+                      Giảng viên phụ trách
+                    </TableHead>
+                    <TableHead className="text-center">Khoa</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -218,35 +220,39 @@ const EmployeeClassName = () => {
                   ) : (
                     classRoom.map((item, index) => (
                       <TableRow className="border border-gray-200" key={index}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
                           {(pagination.current - 1) * pagination.pageSize +
                             index +
                             1}
                         </TableCell>
-                        <TableCell title={item.name}>
-                          <div className="max-w-[180px] truncate">
-                            {item.name}
-                          </div>
+                        <TableCell
+                          title={item.name}
+                          className="text-center max-w-[180px] truncate"
+                        >
+                          {item.name}
                         </TableCell>
-                        <TableCell title={item.description}>
-                          <div className="max-w-[180px] truncate">
-                            {item?.description}
-                          </div>
+                        <TableCell
+                          title={item.description}
+                          className="max-w-[180px] truncate text-center"
+                        >
+                          {item?.description}
                         </TableCell>
-                        <TableCell title={item.teacherName}>
-                          <div className="max-w-[180px] truncate">
-                            {item.teacherName === null
-                              ? "Trống"
-                              : item.teacherName}
-                          </div>
+                        <TableCell
+                          title={item.teacherName}
+                          className="text-center max-w-[180px] truncate"
+                        >
+                          {item.teacherName === null
+                            ? "Trống"
+                            : item.teacherName}
                         </TableCell>
 
-                        <TableCell title={item.departmentName}>
-                          <div className="max-w-[180px] truncate">
-                            {item.departmentName === null
-                              ? "Trống"
-                              : item.departmentName}
-                          </div>
+                        <TableCell
+                          title={item.departmentName}
+                          className="text-center max-w-[180px] truncate"
+                        >
+                          {item.departmentName === null
+                            ? "Trống"
+                            : item.departmentName}
                         </TableCell>
 
                         <TableCell className="text-center align-middle">

@@ -530,7 +530,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <Label>Tiêu đề</Label>
+              <Label className="mb-2">Tiêu đề</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
@@ -542,7 +542,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
             </div>
 
             <div>
-              <Label>Nội dung</Label>
+              <Label className="mb-2">Nội dung</Label>
               <Textarea
                 rows={5}
                 value={formData.content}
@@ -556,7 +556,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
             {notify?.scope === "CA_NHAN" && notify?.students?.length > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-md space-y-2">
                 <div>
-                  <Label className="font-semibold">
+                  <Label className="mb-2">
                     Danh sách sinh viên nhận thông báo:
                   </Label>
                   <ul className="list-disc list-inside text-sm mt-1 text-blue-900">
@@ -580,11 +580,10 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
               </div>
             )}
 
-            {files.map((f) => (
+            {/* {files.map((f) => (
               <div key={f.uuid} className="space-y-2 p-4 border rounded-lg">
                 <Label>File</Label>
-
-                {/* Display Name Input */}
+               
                 <div>
                   <Label className="text-sm">Tên hiển thị</Label>
                   <Input
@@ -606,7 +605,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                   )}
                 </div>
 
-                {/* Show existing file info */}
+               
                 {f.isOld && typeof f.file === "string" && (
                   <div className="text-sm text-gray-600 flex justify-between items-center bg-gray-50 p-2 rounded">
                     <span>File hiện tại: {f.file.split("/").pop()}</span>
@@ -621,14 +620,14 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                   </div>
                 )}
 
-                {/* Show new file info */}
+              
                 {f.file instanceof File && (
                   <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
                     File mới được chọn: {f.file.name}
                   </div>
                 )}
 
-                {/* File Input */}
+                
                 <div>
                   <Label className="text-sm">
                     {f.isOld ? "Thay thế file (tùy chọn)" : "Chọn file"}
@@ -654,11 +653,97 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                   <X className="w-4 h-4 text-red-500" />
                 </Button>
               </div>
+            ))} */}
+            {files.map((f) => (
+              <div
+                key={f.uuid}
+                className="flex items-start justify-between p-4 border rounded-lg"
+              >
+                {/* Bên trái: nội dung file */}
+                <div className="space-y-2 flex-1 pr-4">
+                  <Label className="mb-2">File</Label>
+
+                  {/* Display Name Input */}
+                  <div>
+                    <Label className="mb-2">Tên hiển thị</Label>
+                    <Input
+                      value={f.displayName}
+                      onChange={(e) =>
+                        handleDisplayNameChange(f.uuid, e.target.value)
+                      }
+                      placeholder="Nhập tên hiển thị cho file"
+                      className={
+                        errors[`fileDisplayName-${f.uuid}`]
+                          ? "border-red-500"
+                          : ""
+                      }
+                    />
+                    {errors[`fileDisplayName-${f.uuid}`] && (
+                      <p className="text-sm text-red-600">
+                        {errors[`fileDisplayName-${f.uuid}`]}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Show existing file info */}
+                  {f.isOld && typeof f.file === "string" && (
+                    <div className="text-sm text-gray-600 flex justify-between items-center bg-gray-50 p-2 rounded">
+                      <span>File hiện tại: {f.file.split("/").pop()}</span>
+                      <a
+                        href={f.file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        Xem file
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Show new file info */}
+                  {f.file instanceof File && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                      File mới được chọn: {f.file.name}
+                    </div>
+                  )}
+
+                  {/* File Input */}
+                  <div>
+                    <Label className="mb-2">
+                      {f.isOld ? "Thay thế file (tùy chọn)" : "Chọn file"}
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".pdf, image/*, .xls, .xlsx"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          handleFileChange(f.uuid, file);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Bên phải: nút xoá */}
+                <div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer"
+                    onClick={() => handleRemoveFile(f.uuid)}
+                  >
+                    <X className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
             ))}
 
             <Button
               type="button"
               variant="secondary"
+              className="cursor-pointer"
               onClick={() =>
                 setFiles([
                   ...files,
@@ -671,10 +756,16 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
           </div>
 
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={onClose}>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={onClose}
+            >
               Hủy
             </Button>
-            <Button type="submit">Cập nhật thông báo</Button>
+            <Button className="cursor-pointer" type="submit">
+              Cập nhật thông báo
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

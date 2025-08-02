@@ -73,17 +73,18 @@ const AdminCreateNotification = () => {
     form.append("content", formData.content);
     form.append("notificationType", formData.notificationType);
     form.append("departmentId", formData.departmentId);
-    form.append("academicYear", formData.academicYear);
+    form.append("academicYearId", formData.academicYear);
+    console.log(formData.academicYear);
     form.append("studentId", formData.studentId);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
       form.append(`files[${index}]`, files[index]);
     });
-    console.log(form);
 
     try {
       setIsLoading(true);
       setLoading(true);
+      console.log(form);
       const res = await handleCreateNotification(form);
 
       if (res.status === 201) {
@@ -290,10 +291,7 @@ const AdminCreateNotification = () => {
                 <CardContent>
                   <form onSubmit={hanndleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">
-                        Tiêu đề thông báo (
-                        <span className="text-red-500">*</span>)
-                      </Label>
+                      <Label htmlFor="title">Tiêu đề thông báo ( *)</Label>
                       <Input
                         id="title"
                         placeholder="Nhập tiêu đề thông báo..."

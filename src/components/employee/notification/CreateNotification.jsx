@@ -73,7 +73,7 @@ const EmployeeCreateNotification = () => {
     form.append("content", formData.content);
     form.append("notificationType", formData.notificationType);
     form.append("departmentId", formData.departmentId);
-    form.append("academicYear", formData.academicYear);
+    form.append("academicYearId", formData.academicYear);
     form.append("studentId", formData.studentId);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);

@@ -250,7 +250,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <div>
-              <Label>Môn học(*)</Label>
+              <Label className="mb-2">Môn học(*)</Label>
               <Select
                 options={subjectOptions}
                 value={subjectOptions.find(
@@ -269,7 +269,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
               />
             </div>
             <div>
-              <Label>Giảng viên(*)</Label>
+              <Label className="mb-2">Giảng viên(*)</Label>
               <Select
                 options={teacherOptions}
                 value={teacherOptions.find(
@@ -288,7 +288,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
               />
             </div>
             <div>
-              <Label>Học kỳ(*)</Label>
+              <Label className="mb-2">Học kỳ(*)</Label>
               <Select
                 options={semesterOptions}
                 value={semesterOptions.find(
@@ -307,7 +307,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
               />
             </div>
             <div>
-              <Label>Nhóm(*)</Label>
+              <Label className="mb-2">Nhóm(*)</Label>
               <Input
                 value={form.groupId}
                 onChange={(e) => setForm({ ...form, groupId: e.target.value })}
@@ -345,7 +345,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <Label>Lịch học(*)</Label>
+              <Label className="mb-2">Lịch học(*)</Label>
 
               {form.courseSchedules.map((item, index) => (
                 <div
@@ -354,7 +354,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                 >
                   <div className="flex flex-wrap gap-2 items-end">
                     <div className="flex flex-col gap-1">
-                      <Label>Phòng(*)</Label>
+                      <Label className="mb-2">Phòng(*)</Label>
                       <Input
                         placeholder="Phòng"
                         value={item.room}
@@ -366,7 +366,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <Label>Thứ(*)</Label>
+                      <Label className="mb-2">Thứ(*)</Label>
                       <Input
                         type="number"
                         min={2}
@@ -380,7 +380,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <Label>Tiết bắt đầu(*)</Label>
+                      <Label className="mb-2">Tiết bắt đầu(*)</Label>
                       <Input
                         type="number"
                         min={1}
@@ -397,7 +397,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <Label>Tiết kết thúc(*)</Label>
+                      <Label className="mb-2">Tiết kết thúc(*)</Label>
                       <Input
                         type="number"
                         min={1}

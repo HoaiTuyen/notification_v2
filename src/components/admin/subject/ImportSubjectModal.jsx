@@ -109,9 +109,6 @@ const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Nhập danh sách môn học</DialogTitle>
-            <DialogDescription>
-              Nhập danh sách môn học từ file CSV hoặc Excel
-            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-8">

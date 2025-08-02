@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, User } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -46,6 +46,7 @@ import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportStudentModal from "./ImportStudentModal";
 import { Spin } from "antd";
+import DetailStudent from "./DetailStudent";
 const StudentEmployee = () => {
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,6 +58,7 @@ const StudentEmployee = () => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openModalDetail, setOpenModalDetail] = useState(false);
   const [selectStatus, setSelectStatus] = useState(statusFromUrl || "all");
   const [openUpload, setOpenUpload] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -243,14 +245,15 @@ const StudentEmployee = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>MSSV</TableHead>
-                    <TableHead>Họ và tên</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Lớp</TableHead>
-                    <TableHead>Khoa</TableHead>
-                    <TableHead className="justify-start">Giới tính</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Thao tác</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">MSSV</TableHead>
+                    <TableHead className="text-center">Họ và tên</TableHead>
+                    <TableHead className="text-center">Email</TableHead>
+                    <TableHead className="text-center">Lớp</TableHead>
+                    <TableHead className="text-center">Khoa</TableHead>
+                    <TableHead className="text-center">Giới tính</TableHead>
+                    <TableHead className="text-center">Trạng thái</TableHead>
+                    <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -269,40 +272,56 @@ const StudentEmployee = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    students.map((student) => (
+                    students.map((student, index) => (
                       <TableRow
                         className="border border-gray-200"
                         key={student?.id}
                       >
-                        <TableCell className="font-medium" title={student?.id}>
+                        <TableCell className="font-medium text-center">
+                          {Number.isFinite(pagination.current) &&
+                          Number.isFinite(pagination.pageSize)
+                            ? (pagination.current - 1) * pagination.pageSize +
+                              index +
+                              1
+                            : index + 1}
+                        </TableCell>
+                        <TableCell className="text-center" title={student?.id}>
                           {student?.id}
                         </TableCell>
                         <TableCell
                           title={student?.firstName + " " + student?.lastName}
+                          className="text-center max-w-[160px] truncate"
                         >
-                          <div className="max-w-[160px] truncate">
-                            {student?.firstName} {student?.lastName}
-                          </div>
+                          {student?.firstName} {student?.lastName}
                         </TableCell>
-                        <TableCell title={student?.email}>
-                          <div className="max-w-[100px] truncate">
-                            {student?.email}
-                          </div>
+                        <TableCell
+                          title={student?.email}
+                          className="text-center max-w-[100px] truncate"
+                        >
+                          {student?.email}
                         </TableCell>
-                        <TableCell title={student?.className}>
-                          <div className="max-w-[100px] truncate">
-                            {student?.className || "Trống"}
-                          </div>
+                        <TableCell
+                          title={student?.className}
+                          className="text-center max-w-[100px] truncate"
+                        >
+                          {student?.className || "Trống"}
                         </TableCell>
-                        <TableCell title={student?.departmentName}>
-                          <div className="max-w-[100px] truncate">
-                            {student?.departmentName || "Trống"}
-                          </div>
+                        <TableCell
+                          title={student?.departmentName}
+                          className="text-center max-w-[100px] truncate"
+                        >
+                          {student?.departmentName || "Trống"}
                         </TableCell>
-                        <TableCell title={student?.gender}>
+                        <TableCell
+                          title={student?.gender}
+                          className="text-center"
+                        >
                           {renderGender(student?.gender)}
                         </TableCell>
-                        <TableCell title={student?.status}>
+                        <TableCell
+                          title={student?.status}
+                          className="text-center"
+                        >
                           <Badge
                             className={
                               filterStudents(student?.status).className
@@ -311,7 +330,7 @@ const StudentEmployee = () => {
                             {filterStudents(student?.status).label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="pl-4">
+                        <TableCell className="text-center">
                           <DropdownMenu asChild>
                             <DropdownMenuTrigger>
                               <Button
@@ -324,6 +343,15 @@ const StudentEmployee = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedStudent(student);
+                                  setOpenModalDetail(true);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <User className="mr-2 h-4 w-4" /> Xem chi tiết
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => openModalEdit(student)}
                                 className="cursor-pointer"
@@ -351,6 +379,13 @@ const StudentEmployee = () => {
             </div>
           </CardContent>
         </Card>
+        {openModalDetail && (
+          <DetailStudent
+            open={openModalDetail}
+            onClose={() => setOpenModalDetail(false)}
+            student={selectedStudent}
+          />
+        )}
         {openModalDelete && (
           <DeleteStudent
             open={openModalDelete}

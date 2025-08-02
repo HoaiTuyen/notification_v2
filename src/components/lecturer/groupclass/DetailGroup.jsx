@@ -260,29 +260,7 @@ const DetailGroupLecturer = () => {
       setIsFetching(false);
     }
   };
-  // const handleSendMessageGroup = async () => {
-  //   const content = newMessage.trim();
-  //   if (content === "") return;
 
-  //   const tempMessage = {
-  //     id: `temp-${Date.now()}`,
-  //     sender: `${userDetail?.firstName || ""} ${userDetail?.lastName || ""}`,
-  //     content,
-  //     timestamp: new Date().toISOString(),
-  //     avatar: imageUser,
-  //     isTeacher: userDetail?.role === "TEACHER",
-  //     status: "",
-  //     userId,
-  //   };
-  //   setMessages((prev) => [...prev, tempMessage]); // 👉 thêm ngay vào UI
-  //   setNewMessage("");
-  //   try {
-  //     await handleSendMessage(groupId, content);
-  //     // WebSocket sẽ update lại tin chính xác sau
-  //   } catch (err) {
-  //     toast.error("Gửi tin nhắn thất bại");
-  //   }
-  // };
   const handleSendMessageGroup = async () => {
     const message = newMessage.trim();
     if (message === "") return;

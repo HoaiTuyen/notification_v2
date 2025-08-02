@@ -192,9 +192,10 @@ const EmployeeSubject = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>Mã môn học</TableHead>
-                    <TableHead>Tên môn học</TableHead>
-                    <TableHead>Số tín chỉ</TableHead>
+                    <TableHead className="text-center">STT</TableHead>
+                    <TableHead className="text-center">Mã môn học</TableHead>
+                    <TableHead className="text-center">Tên môn học</TableHead>
+                    <TableHead className="text-center">Số tín chỉ</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -215,23 +216,28 @@ const EmployeeSubject = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    subjects.map((subject) => (
+                    subjects.map((subject, index) => (
                       <TableRow
                         className="border border-gray-200"
                         key={subject.id}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
+                        </TableCell>
+                        <TableCell className="font-medium text-center">
                           {subject.id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[180px] truncate"
+                          className="max-w-[180px] truncate text-center"
                           title={subject.name}
                         >
-                          <div className="flex items-center">
-                            {subject.name}
-                          </div>
+                          {subject.name}
                         </TableCell>
-                        <TableCell className="pl-7">{subject.credit}</TableCell>
+                        <TableCell className="text-center">
+                          {subject.credit}
+                        </TableCell>
 
                         <TableCell className="text-center align-middle">
                           <DropdownMenu asChild>

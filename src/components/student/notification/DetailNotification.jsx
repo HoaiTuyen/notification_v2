@@ -111,51 +111,69 @@ const StudentNotificationDetail = () => {
                       notification?.title || "Trống"
                     )}
                   </CardTitle>
-
-                  {/* Badge container */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {loading ? (
-                      <Skeleton.Input
-                        active
-                        size="small"
-                        className="w-[100px]"
-                      />
-                    ) : (
-                      notification?.notificationType && (
-                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                          {notification.notificationType}
-                        </span>
-                      )
-                    )}
-                    {loading ? (
-                      <Skeleton.Input
-                        active
-                        size="small"
-                        className="w-[100px]"
-                      />
-                    ) : (
-                      notification?.departmentName && (
-                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-                          {notification.departmentName}
-                        </span>
-                      )
-                    )}
-                  </div>
                 </div>
 
-                <CardDescription className="flex items-center space-x-4 mt-2 text-sm">
-                  <span className="flex items-center">
+                <CardDescription className="flex items-center flex-wrap gap-2 text-sm mt-1">
+                  {/* Ngày tạo */}
+                  <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {loading ? (
-                      <Skeleton.Input
-                        active
-                        size="small"
-                        className="w-[100px]"
-                      />
-                    ) : (
-                      dayjs(notification.createdAt).format("DD/MM/YYYY")
+                    {dayjs(notification?.createdAt).format("DD/MM/YYYY HH:mm")}
+                  </div>
+
+                  {/* {notification.academicYearName && (
+                                      <Badge className="bg-green-100 text-green-800">
+                                        Niên khóa: {notification.academicYearName}
+                                      </Badge>
+                                    )}
+                
+                                  
+                                    {notification.departmentName && (
+                                      <Badge className="bg-purple-100 text-purple-800">
+                                        Khoa: {notification.departmentName}
+                                      </Badge>
+                                    )}
+                
+                              
+                                    {notification.notificationType && (
+                                      <Badge className="bg-yellow-100 text-yellow-800">
+                                        {notification.notificationType}
+                                      </Badge>
+                                    )}
+                                    {!notification.academicYearName &&
+                                      !notification.departmentName &&
+                                      !notification.notificationType && (
+                                        <Badge className="bg-gray-100 text-gray-800">
+                                          Toàn trường
+                                        </Badge>
+                                      )} */}
+                  {[
+                    notification?.notificationTypeName && {
+                      label: notification.notificationTypeName,
+                      className: "bg-yellow-100 text-yellow-800",
+                    },
+                    notification?.academicYearName && {
+                      label: `Niên khóa: ${notification.academicYearName}`,
+                      className: "bg-green-100 text-green-800",
+                    },
+                    notification?.departmentName && {
+                      label: `Khoa: ${notification.departmentName}`,
+                      className: "bg-purple-100 text-purple-800",
+                    },
+                  ]
+                    .filter(Boolean)
+                    .map((item, idx) => (
+                      <Badge key={idx} className={item.className}>
+                        {item.label}
+                      </Badge>
+                    ))}
+
+                  {!notification?.academicYearName &&
+                    !notification?.departmentName &&
+                    !notification?.notificationTypeName && (
+                      <Badge className="bg-gray-100 text-gray-800">
+                        Toàn trường
+                      </Badge>
                     )}
-                  </span>
                 </CardDescription>
               </div>
             </div>

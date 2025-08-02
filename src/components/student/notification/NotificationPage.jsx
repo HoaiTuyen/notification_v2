@@ -228,7 +228,7 @@ const NotificationsPage = () => {
   const onViewDetail = (id, e) => {
     e.stopPropagation();
     navigate(
-      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&page=${pagination.current}`
+      `/sinh-vien/notification-all/${id}?search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&page=${pagination.current}`
     );
   };
 
@@ -245,11 +245,11 @@ const NotificationsPage = () => {
       <div className="flex items-center text-xs text-gray-500 ml-4">
         <div className="flex items-center pr-3">
           <Clock1 className="h-3 w-3 mr-1" />
-          {dayjs(notification.createdAt).format("HH:mm")}
+          {dayjs(notification?.createdAt).format("HH:mm")}
         </div>
 
         <Calendar className="h-3 w-3 mr-1" />
-        {dayjs(notification.createdAt).format("DD/MM/YYYY")}
+        {dayjs(notification?.createdAt).format("DD/MM/YYYY")}
       </div>
     </div>
   );

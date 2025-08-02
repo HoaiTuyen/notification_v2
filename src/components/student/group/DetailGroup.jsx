@@ -104,26 +104,7 @@ const DetailGroupStudent = () => {
           status: parsed.status || "",
         };
 
-        // setMessages((prev) => {
-        //   const tempIndex = prev.findIndex(
-        //     (m) =>
-        //       m.id.startsWith("temp-") &&
-        //       m.content === newMsg.content &&
-        //       m.userId === newMsg.userId
-        //   );
-
-        //   if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-        //   if (tempIndex !== -1) {
-        //     const updated = [...prev];
-        //     updated[tempIndex] = newMsg;
-        //     return updated;
-        //   }
-
-        //   return [...prev, newMsg];
-        // });
         setMessages((prev) => {
-          // Tránh trùng lặp nếu WebSocket gửi lại
           if (prev.some((m) => m.id === newMsg.id)) return prev;
 
           return [...prev, newMsg];
@@ -1091,26 +1072,6 @@ const DetailGroupStudent = () => {
                   </div>
                 </CardContent>
 
-                {/* Message Input */}
-                {/* <div className="border-t p-4">
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      placeholder="Nhập tin nhắn..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="flex-1"
-                    />
-
-                    <Button
-                      onClick={handleSendMessageGroup}
-                      disabled={newMessage.trim() === ""}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div> */}
                 <div className="border-t p-4">
                   {isEditing && (
                     <div className="mb-2 text-sm text-gray-600">

@@ -214,7 +214,7 @@ const NotificationsPersonal = () => {
       );
     } else {
       navigate(
-        `/sinh-vien/notification/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&fromDate=${fromDate}&toDate=${toDate}&page=${pagination.current}`
+        `/sinh-vien/notification-all/${id}?slug=${type}&search=${debouncedSearchTerm}&type=${selectedType}&department=${selectedDepartment}&fromDate=${fromDate}&toDate=${toDate}&page=${pagination.current}`
       );
     }
   };

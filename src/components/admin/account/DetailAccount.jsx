@@ -80,21 +80,23 @@ const DetailAccount = ({ open, onClose, accountId }) => {
                 <Label className="mb-2">Username</Label>
                 <Input value={account.username} disabled />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="mb-2">
-                    {account.studentId ? "MSSV" : "MSGV"}
-                  </Label>
-                  <Input
-                    value={account.studentId || account.teacherId}
-                    disabled
-                  />
+              {account.role != "ADMIN" && account.role != "EMPLOYEE" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2">
+                      {account.studentId ? "MSSV" : "MSGV"}
+                    </Label>
+                    <Input
+                      value={account.studentId || account.teacherId}
+                      disabled
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-2">Họ và Tên</Label>
+                    <Input value={account.fullName} disabled />
+                  </div>
                 </div>
-                <div>
-                  <Label className="mb-2">Họ và Tên</Label>
-                  <Input value={account.fullName} disabled />
-                </div>
-              </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
