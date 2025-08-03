@@ -126,11 +126,12 @@ const HomeLecturerPage = () => {
   }, []);
 
   const filteredCourses = classSectionList.map((section, index) => {
+    console.log(section);
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
       code: section.subjectId,
       name: section.subjectName,
-      semester: section.semesterName,
+      semester: section.semesterName + " - " + section.academicYear,
       classes: section.courseSchedules.map((s, i) => ({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
         name: `Nhóm môn học ${section.id.groupId.toString().padStart(2, "0")}`,

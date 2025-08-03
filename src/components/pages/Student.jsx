@@ -159,35 +159,39 @@ const Student = () => {
           setUnreadCount((prev) => prev + 1);
         }
       );
-      // const chatMessageSub = stompClient.current.subscribe(
-      //   `/notification/chat_message/${groupStudents}`,
-      //   (message) => {
-      //     const parsed = JSON.parse(message.body);
-      //     console.log(parsed);
-      //     const newMsg = {
-      //       id: parsed.messageId,
-      //       sender: parsed.fullName,
-      //       content: parsed.message,
-      //       timestamp: parsed.createdAt,
-      //       avatar: parsed.avatarUrl,
-      //       userId: parsed.userId,
-      //       type: "CHAT_MESSAGE",
-      //       isTeacher: parsed.isTeacher || false,
-      //     };
-      //     console.log(newMsg);
-
-      //     // setNotificationList((prev) => {
-      //     //   if (prev.some((item) => item.id === newMsg.id)) return prev;
-      //     //   return [{ ...newMsg, isRead: false }, ...prev];
-      //     // });
-      //     // setUnreadCount((prev) => prev + 1);
-      //   }
-      // );
+      const relyGroupSub = stompClient.current.subscribe(
+        "/user/queue/reply",
+        (message) => {
+          const relyGroupSub = JSON.parse(message.body);
+          console.log("Received personal notification:", relyGroupSub);
+          toastHot.success(relyGroupSub.title);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === relyGroupSub.id)) return prev;
+            return [{ ...relyGroupSub, isRead: false }, ...prev];
+          });
+          setUnreadCount((prev) => prev + 1);
+        }
+      );
+      const GroupMessage = stompClient.current.subscribe(
+        "/queue/group_message",
+        (message) => {
+          const GroupMessage = JSON.parse(message.body);
+          console.log("Received personal notification:", GroupMessage);
+          toastHot.success("Bạn có thông báo mới");
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === GroupMessage.id)) return prev;
+            return [{ ...GroupMessage, isRead: false }, ...prev];
+          });
+          setUnreadCount((prev) => prev + 1);
+        }
+      );
       subscriptions = [
         generalSub,
         scheduleSub,
         personalSub,
         groupSub,
+        relyGroupSub,
+        GroupMessage,
         // chatMessageSub,
       ];
     }

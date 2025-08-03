@@ -72,10 +72,13 @@ const NotificationDropdown = ({
     const groupId = !!item.groupId;
     let link = groupId
       ? `/sinh-vien/group-study/${item.groupId}`
-      : `/sinh-vien/notification/${item.id}`;
+      : `/sinh-vien/notification-all/${item.id}`;
     if (item.type === "NHOM_HOC_TAP") {
       link = `/sinh-vien/group-study/${item.groupId}`;
     }
+    // } else if (item.type === "CA_NHAN") {
+    //   link = `/sinh-vien/notification-personal/${item.id}`;
+    // }
     if (!item.isRead) {
       const res = await handleMakeNotificationRead(userId, item.id, item.type);
 

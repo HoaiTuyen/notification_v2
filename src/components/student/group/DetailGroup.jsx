@@ -104,13 +104,29 @@ const DetailGroupStudent = () => {
           status: parsed.status || "",
         };
 
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === newMsg.id)) return prev;
+        // setMessages((prev) => {
+        //   if (prev.some((m) => m.id === newMsg.id)) return prev;
 
+        //   return [...prev, newMsg];
+        // });
+        setMessages((prev) => {
+          const existingIndex = prev.findIndex((m) => m.id === newMsg.id);
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = newMsg;
+            return updated;
+          }
           return [...prev, newMsg];
         });
       }
     );
+    // const groupMessage = stompClient.current.subscribe(
+    //   `/notification/chat_message/${groupStudyId}`,
+    //   (message) => {
+    //     const parsed = JSON.parse(message.body);
+
+    //   }
+    // );
 
     return () => sub.unsubscribe();
   }, [connected, stompClient.current, groupStudyId]);
@@ -1051,13 +1067,25 @@ const DetailGroupStudent = () => {
                                           isOwnMessage
                                             ? "justify-start"
                                             : "justify-end"
-                                        }`}
+                                        } items-center gap-2`}
                                       >
+                                        {!isOwnMessage &&
+                                          message.status === "DA_CHINH_SUA" && (
+                                            <span className="text-xs italic text-gray-500">
+                                              (đã chỉnh sửa)
+                                            </span>
+                                          )}
                                         <p className="text-xs text-gray-500">
                                           {dayjs(message.timestamp).format(
                                             "HH:mm"
                                           )}
                                         </p>
+                                        {isOwnMessage &&
+                                          message.status === "DA_CHINH_SUA" && (
+                                            <span className="text-xs italic text-gray-500">
+                                              (đã chỉnh sửa)
+                                            </span>
+                                          )}
                                       </div>
                                     </div>
                                   </div>

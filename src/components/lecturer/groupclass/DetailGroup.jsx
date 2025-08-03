@@ -506,27 +506,18 @@ const DetailGroupLecturer = () => {
         };
 
         // setMessages((prev) => {
-        //   const tempIndex = prev.findIndex(
-        //     (m) =>
-        //       m.id.startsWith("temp-") &&
-        //       m.content === newMsg.content &&
-        //       m.userId === newMsg.userId
-        //   );
-
+        //   // Tránh trùng lặp nếu WebSocket gửi lại
         //   if (prev.some((m) => m.id === newMsg.id)) return prev;
-
-        //   if (tempIndex !== -1) {
-        //     const updated = [...prev];
-        //     updated[tempIndex] = newMsg;
-        //     return updated;
-        //   }
 
         //   return [...prev, newMsg];
         // });
         setMessages((prev) => {
-          // Tránh trùng lặp nếu WebSocket gửi lại
-          if (prev.some((m) => m.id === newMsg.id)) return prev;
-
+          const existingIndex = prev.findIndex((m) => m.id === newMsg.id);
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = newMsg;
+            return updated;
+          }
           return [...prev, newMsg];
         });
       }
@@ -1407,13 +1398,7 @@ const DetailGroupLecturer = () => {
                                     <AvatarImage
                                       src={message.avatar || "/placeholder.svg"}
                                     />
-                                    <AvatarFallback
-                                      className={
-                                        message.isTeacher
-                                          ? "bg-green-500"
-                                          : "bg-blue-500"
-                                      }
-                                    >
+                                    <AvatarFallback className="bg-blue-500 text-white">
                                       {getInitials(message.sender)}
                                     </AvatarFallback>
                                   </Avatar>
@@ -1500,23 +1485,31 @@ const DetailGroupLecturer = () => {
                                           </p>
                                         )}
                                       </div>
+
                                       <div
-                                        className={`flex  ${
+                                        className={`flex ${
                                           isOwnMessage
                                             ? "justify-start"
                                             : "justify-end"
-                                        }`}
+                                        } items-center gap-2`}
                                       >
+                                        {!isOwnMessage &&
+                                          message.status === "DA_CHINH_SUA" && (
+                                            <span className="text-xs italic text-gray-500">
+                                              (đã chỉnh sửa)
+                                            </span>
+                                          )}
                                         <p className="text-xs text-gray-500">
                                           {dayjs(message.timestamp).format(
                                             "HH:mm"
                                           )}
                                         </p>
-                                        {message.status === "DA_CHINH_SUA" && (
-                                          <span className="text-xs italic text-gray-500 ml-2">
-                                            (đã chỉnh sửa)
-                                          </span>
-                                        )}
+                                        {isOwnMessage &&
+                                          message.status === "DA_CHINH_SUA" && (
+                                            <span className="text-xs italic text-gray-500">
+                                              (đã chỉnh sửa)
+                                            </span>
+                                          )}
                                       </div>
                                     </div>
                                   </div>

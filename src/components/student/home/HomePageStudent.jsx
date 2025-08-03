@@ -151,13 +151,13 @@ const HomePageStudent = () => {
             color="text-primary"
           />
           <StatCard
-            title="Thông báo đã đọc"
+            title="Tổng số thông báo"
             value={stats.notifications}
             icon={Bell}
             color="text-green-500"
           />
           <StatCard
-            title="Thông báo"
+            title="Thông báo chưa đọc"
             value={stats.unreadNotifications}
             icon={Bell}
             color="text-red-500"

@@ -87,6 +87,7 @@ const ClassName = () => {
         res = await handleSearchClass(keyword, page - 1, pagination.pageSize);
       } else {
         res = await handleListClass(page - 1, pagination.pageSize);
+        console.log(res);
       }
       if (res?.data && res?.status === 200) {
         setClasses(res.data.classes);

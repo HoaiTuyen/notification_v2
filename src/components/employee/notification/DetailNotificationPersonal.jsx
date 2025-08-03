@@ -170,19 +170,19 @@ export default function EmployeeNotificationDetailPersonal() {
                       <Calendar className="h-4 w-4 mr-1" />
                       {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
                     </div>
-
+                    {/* Loại thông báo */}
+                    {notification.notificationTypeName && (
+                      <Badge className="bg-yellow-100 text-yellow-800">
+                        Loại thông báo: {notification.notificationTypeName}
+                      </Badge>
+                    )}
                     {/* Niên khóa */}
                     {notification.academicYearName && (
                       <Badge className="bg-green-100 text-green-800">
                         Niên khóa: {notification.academicYearName}
                       </Badge>
                     )}
-                    {/* Loại thông báo */}
-                    {notification.notificationTypeName && (
-                      <Badge className="bg-yellow-100 text-yellow-800">
-                        {notification.notificationTypeName}
-                      </Badge>
-                    )}
+
                     {/* Khoa */}
                     {notification.departmentName && (
                       <Badge className="bg-purple-100 text-purple-800">

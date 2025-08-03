@@ -263,7 +263,6 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     onChange={(e) => {
                       setForm({ ...form, description: e.target.value });
                     }}
-                    required
                     className="max-h-[100px] overflow-y-auto"
                   />
                 </div>

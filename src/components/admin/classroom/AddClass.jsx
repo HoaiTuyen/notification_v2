@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
 import { handleListAcademic } from "../../../controller/AcademicController";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
+  console.log(classRoom);
   const { setLoading } = useLoading();
   const [academicYears, setAcademicYears] = useState([]);
 
@@ -165,6 +166,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
         setLoading(false);
       } else {
         setLoading(true);
+        console.log(form);
         const resAdd = await handleAddClass(form);
         console.log(resAdd);
 
@@ -263,7 +265,6 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
                     onChange={(e) => {
                       setForm({ ...form, description: e.target.value });
                     }}
-                    required
                     className="max-h-[100px] overflow-y-auto"
                   />
                 </div>

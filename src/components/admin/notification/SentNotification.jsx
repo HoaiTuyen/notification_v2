@@ -312,16 +312,6 @@ const SentNotifications = () => {
                               <h3 className="font-semibold line-clamp-2 overflow-hidden">
                                 {notification.title}
                               </h3>
-                              {notification.notificationType && (
-                                <Badge className="bg-slate-200	text-slate-800">
-                                  {notification.notificationType || ""}
-                                </Badge>
-                              )}
-                              {notification.departmentName && (
-                                <Badge className="bg-blue-100 text-blue-700">
-                                  {notification.departmentName || ""}
-                                </Badge>
-                              )}
                             </div>
 
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
