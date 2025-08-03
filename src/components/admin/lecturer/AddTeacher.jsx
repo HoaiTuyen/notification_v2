@@ -141,7 +141,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     let message = "";
     const trimmed = value?.trim?.() || "";
 
-    const idRegex = /^[A-Z][A-Z0-9]*$/;
+    const idRegex = /^[A-Z][A-Z0-9_]*$/;
     const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -159,12 +159,12 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     switch (field) {
       case "id":
         if (!trimmed) {
-          message = "Mã sinh viên không được để trống";
+          message = "Mã giảng viên không được để trống";
         } else if (trimmed.length < 10) {
-          message = "Mã sinh viên phải ít nhất 10 ký tự";
+          message = "Mã giảng viên phải ít nhất 10 ký tự";
         } else if (!idRegex.test(trimmed)) {
           message =
-            "Mã sinh viên phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa và số";
+            "Mã giảng viên phải bắt đầu bằng chữ in hoa và chỉ gồm chữ in hoa, số và dấu gạch dưới";
         }
         break;
 
@@ -271,6 +271,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   }}
                   onBlur={(e) => validateField("id", e.target.value)}
                   required
+                  disabled={checkEdit}
                   pattern="^[A-Z0-9_]+$"
                   title="Chỉ bao gồm chữ in hoa, số hoặc dấu gạch dưới"
                 />

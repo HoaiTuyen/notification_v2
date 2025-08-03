@@ -30,7 +30,7 @@ const useValidateFormBase = (type = "student") => {
   const minBirthDate = new Date(today.getFullYear() - 100, 0, 1);
 
   const validateForm = (form) => {
-    const idRegex = /^[A-Za-z][A-Za-z0-9]*$/;
+    const idRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
     const nameRegex = /^[\p{L} ]+$/u;
 
     const requiredMsg =
@@ -56,7 +56,7 @@ const useValidateFormBase = (type = "student") => {
     }
     if (!idRegex.test(form.id.trim())) {
       toast.error(
-        `${fieldLabels.id} phải bắt đầu bằng chữ, các kí tự còn lại chứa chữ hoặc số`
+        `${fieldLabels.id} phải bắt đầu bằng chữ, các kí tự còn lại chứa chữ, số và dấu gạch dưới`
       );
       return false;
     }

@@ -312,6 +312,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                         setErrors((prev) => ({ ...prev, id: "" }));
                       }
                     }}
+                    disabled={checkEdit}
                     onBlur={(e) => validateField("id", e.target.value)}
                     required
                     pattern="^[A-Z][A-Za-z0-9]*$"
