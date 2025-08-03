@@ -553,6 +553,33 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
             </div>
+            {notify.academicYearName ||
+            notify.departmentName ||
+            notify.notificationTypeName ? (
+              <div className="space-y-2 p-4 bg-gray-50 border rounded text-sm text-gray-800">
+                {notify.academicYearName && (
+                  <div>
+                    <strong>Niên khóa:</strong> {notify.academicYearName}
+                  </div>
+                )}
+                {notify.departmentName && (
+                  <div>
+                    <strong>Khoa:</strong> {notify.departmentName}
+                  </div>
+                )}
+                {notify.notificationTypeName && (
+                  <div>
+                    <strong>Loại thông báo:</strong>{" "}
+                    {notify.notificationTypeName}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 p-4 bg-gray-50 border rounded text-sm text-gray-800">
+                <strong>Toàn trường</strong>
+              </div>
+            )}
+
             {notify?.scope === "CA_NHAN" && notify?.students?.length > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-md space-y-2">
                 <div>

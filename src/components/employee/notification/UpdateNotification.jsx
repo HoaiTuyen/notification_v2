@@ -275,62 +275,6 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2">Loại thông báo</Label>
-                <Select
-                  value={formData.notificationType}
-                  onValueChange={(value) =>
-                    handleInputChange("notificationType", value)
-                  }
-                >
-                  <SelectTrigger
-                    className={errors.notificationType ? "border-red-500" : ""}
-                  >
-                    <SelectValue placeholder="Chọn loại thông báo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {notificationTypes.map((type) => (
-                      <SelectItem key={type.id} value={String(type.id)}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.notificationType && (
-                  <p className="text-sm text-red-600">
-                    {errors.notificationType}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Label className="mb-2">Khoa</Label>
-                <Select
-                  value={formData.departmentId}
-                  onValueChange={(value) =>
-                    handleInputChange("departmentId", value)
-                  }
-                >
-                  <SelectTrigger
-                    className={errors.departmentId ? "border-red-500" : ""}
-                  >
-                    <SelectValue placeholder="Chọn khoa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dep) => (
-                      <SelectItem key={dep.id} value={String(dep.id)}>
-                        {dep.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.departmentId && (
-                  <p className="text-sm text-red-600">{errors.departmentId}</p>
-                )}
-              </div>
-            </div>
-
             <div>
               <Label className="mb-2">Nội dung thông báo(*)</Label>
               <Textarea
@@ -346,7 +290,59 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
                 <p className="text-sm text-red-600">{errors.content}</p>
               )}
             </div>
+            {notify.academicYearName ||
+            notify.departmentName ||
+            notify.notificationTypeName ? (
+              <div className="space-y-2 p-4 bg-gray-50 border rounded text-sm text-gray-800">
+                {notify.academicYearName && (
+                  <div>
+                    <strong>Niên khóa:</strong> {notify.academicYearName}
+                  </div>
+                )}
+                {notify.departmentName && (
+                  <div>
+                    <strong>Khoa:</strong> {notify.departmentName}
+                  </div>
+                )}
+                {notify.notificationTypeName && (
+                  <div>
+                    <strong>Loại thông báo:</strong>{" "}
+                    {notify.notificationTypeName}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 p-4 bg-gray-50 border rounded text-sm text-gray-800">
+                <strong>Toàn trường</strong>
+              </div>
+            )}
 
+            {notify?.scope === "CA_NHAN" && notify?.students?.length > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-md space-y-2">
+                <div>
+                  <Label className="mb-2">
+                    Danh sách sinh viên nhận thông báo:
+                  </Label>
+                  <ul className="list-disc list-inside text-sm mt-1 text-blue-900">
+                    {notify.students.map((id) => (
+                      <li key={id}>{id}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="sendEmail"
+                    type="checkbox"
+                    checked={sendEmail}
+                    onChange={() => setSendEmail((prev) => !prev)}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="sendEmail" className="text-sm text-blue-800">
+                    Gửi email cho sinh viên
+                  </label>
+                </div>
+              </div>
+            )}
             {fileDisplayNames.map((name, index) => (
               <div key={index} className="space-y-1">
                 <div className="flex justify-between">
