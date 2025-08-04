@@ -67,7 +67,7 @@ const DetailAccount = ({ open, onClose, accountId }) => {
             <div className="flex justify-center">
               <Avatar className="w-20 h-20">
                 <AvatarImage src={account.image} alt="avatar" />
-                <AvatarFallback>{getInitials(account.fullName)}</AvatarFallback>
+                <AvatarFallback>No Image</AvatarFallback>
               </Avatar>
             </div>
 
