@@ -20,28 +20,108 @@ import { useLoading } from "../../../../context/LoadingProvider";
 import * as XLSX from "xlsx";
 const generateSampleExcel = () => {
   const sampleData = [
-    ["STT", "Mã lớp", "Tên lớp", "Mô tả", "Mã khoa", "Tên khoa"],
+    ["STT", "Mã lớp", "Tên lớp", "Mô tả", "Mã khoa", "Tên Khoa"],
     [
       "1",
-      "D21_TH12",
-      "D21_TH12",
-      "Niên khoá 2021 - 2025",
+      "D22_TH01",
+      "D22_TH01",
+      "Niên khoá 2022 - 2026",
       "CNTT",
       "Công nghệ thông tin",
     ],
     [
       "2",
-      "D21_TH13",
-      "D21_TH13",
-      "Niên khoá 2021 - 2025",
+      "D22_TH02",
+      "D22_TH02",
+      "Niên khoá 2022 - 2026",
       "CNTT",
       "Công nghệ thông tin",
+    ],
+    [
+      "3",
+      "D22_TH03",
+      "D22_TH03",
+      "Niên khoá 2022 - 2026",
+      "CNTT",
+      "Công nghệ thông tin",
+    ],
+    [
+      "4",
+      "D22_TH04",
+      "D22_TH04",
+      "Niên khoá 2022 - 2026",
+      "CNTT",
+      "Công nghệ thông tin",
+    ],
+    [
+      "5",
+      "D22_TH05",
+      "D22_TH05",
+      "Niên khoá 2022 - 2026",
+      "CNTT",
+      "Công nghệ thông tin",
+    ],
+    [
+      "6",
+      "D22_TH06",
+      "D22_TH06",
+      "Niên khoá 2022 - 2026",
+      "CNTT",
+      "Công nghệ thông tin",
+    ],
+    [
+      "7",
+      "D22_TP01",
+      "D22_TP01",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
+    ],
+    [
+      "8",
+      "D22_TP02",
+      "D22_TP02",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
+    ],
+    [
+      "9",
+      "D22_TP03",
+      "D22_TP03",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
+    ],
+    [
+      "10",
+      "D22_TP04",
+      "D22_TP04",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
+    ],
+    [
+      "11",
+      "D22_TP05",
+      "D22_TP05",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
+    ],
+    [
+      "12",
+      "D22_TP06",
+      "D22_TP06",
+      "Niên khoá 2022 - 2026",
+      "CNTP",
+      "Công nghệ thực phẩm",
     ],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(sampleData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Danh sách lớp");
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách môn học");
   XLSX.writeFile(wb, "file_mau.xlsx");
 };
 const ImportClassOfDepartmentModal = ({ open, onClose, onSuccess }) => {
@@ -170,7 +250,14 @@ const ImportClassOfDepartmentModal = ({ open, onClose, onSuccess }) => {
               Tải file mẫu
             </Button>
           </div>
-
+          <div className="mt-4">
+            <Button
+              onClick={() => generateSampleExcel()}
+              className="bg-green-500 hover:bg-green-600 cursor-pointer"
+            >
+              Tải file mẫu
+            </Button>
+          </div>
           {showPreviewModal && (
             <PreviewModalClassByDepartment
               open={showPreviewModal}

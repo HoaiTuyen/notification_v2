@@ -18,6 +18,137 @@ import {
 import { toast } from "react-toastify";
 import PreviewStudentByClass from "./PreviewStudentByClass";
 import { useLoading } from "../../../../context/LoadingProvider";
+import * as XLSX from "xlsx";
+const generateSampleExcel = () => {
+  const sampleData = [
+    [
+      "STT",
+      "Mã số sinh viên",
+      "Họ",
+      "Tên",
+      "Email",
+      "Ngày sinh",
+      "Giới tính",
+      "Trạng thái",
+      "Tên lớp",
+    ],
+    [
+      "1",
+      "DH52110001",
+      "Nguyễn Văn",
+      "A",
+      "a@example.com",
+      "01/01/2000",
+      "Nam",
+      "ĐANG_HỌC",
+      "D22_TH01",
+    ],
+    [
+      "2",
+      "DH52110002",
+      "Trần Thị",
+      "B",
+      "b@example.com",
+      "02/02/2000",
+      "Nữ",
+      "ĐANG_HỌC",
+      "D22_TH01",
+    ],
+    [
+      "3",
+      "DH52110003",
+      "Lê Văn",
+      "C",
+      "c@example.com",
+      "03/03/2000",
+      "Nam",
+      "ĐANG_HỌC",
+      "D22_TH02",
+    ],
+    [
+      "4",
+      "DH52110004",
+      "Phạm Thị",
+      "D",
+      "d@example.com",
+      "04/04/2000",
+      "Nữ",
+      "ĐANG_HỌC",
+      "D22_TH02",
+    ],
+    [
+      "5",
+      "DH52110005",
+      "Hoàng Văn",
+      "E",
+      "e@example.com",
+      "05/05/2000",
+      "Nam",
+      "ĐANG_HỌC",
+      "D22_TH03",
+    ],
+    [
+      "6",
+      "DH52110006",
+      "Đỗ Thị",
+      "F",
+      "f@example.com",
+      "06/06/2000",
+      "Nữ",
+      "ĐANG_HỌC",
+      "D22_TH03",
+    ],
+    [
+      "7",
+      "DH52110007",
+      "Bùi Văn",
+      "G",
+      "g@example.com",
+      "07/07/2000",
+      "Nam",
+      "ĐANG_HỌC",
+      "D22_TP01",
+    ],
+    [
+      "8",
+      "DH52110008",
+      "Vũ Thị",
+      "H",
+      "h@example.com",
+      "08/08/2000",
+      "Nữ",
+      "ĐANG_HỌC",
+      "D22_TP01",
+    ],
+    [
+      "9",
+      "DH52110009",
+      "Đặng Văn",
+      "I",
+      "i@example.com",
+      "09/09/2000",
+      "Nam",
+      "ĐANG_HỌC",
+      "D22_TP02",
+    ],
+    [
+      "10",
+      "DH52110010",
+      "Ngô Thị",
+      "K",
+      "k@example.com",
+      "10/10/2000",
+      "Nữ",
+      "ĐANG_HỌC",
+      "D22_TP02",
+    ],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(sampleData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách môn học");
+  XLSX.writeFile(wb, "file_mau.xlsx");
+};
 const ImportStudentOfClassModal = ({ open, onClose, onSuccess }) => {
   const { setLoading } = useLoading();
   const [file, setFile] = useState(null);
@@ -133,11 +264,18 @@ const ImportStudentOfClassModal = ({ open, onClose, onSuccess }) => {
           </div>
           <div className="mt-4">
             <p className="text-sm text-muted-foreground">
-              Lưu ý: File nhập vào cần có các cột: Mã SV, Họ và tên, Email ,
-              Ngày sinh, Giới tính, Trạng thái, Tên lớp
+              Lưu ý: File nhập vào cần có các cột: Mã số sinh viên, Họ, Tên,
+              Email, Ngày sinh, Giới tính, Trạng thái, Tên lớp
             </p>
           </div>
-
+          <div className="mt-4">
+            <Button
+              onClick={() => generateSampleExcel()}
+              className="bg-green-500 hover:bg-green-600 cursor-pointer"
+            >
+              Tải file mẫu
+            </Button>
+          </div>
           {showPreviewModal && (
             <PreviewStudentByClass
               open={showPreviewModal}
