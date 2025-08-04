@@ -178,7 +178,7 @@ const EmployeeSentNotificationsPersonal = () => {
             <div>
               <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
             </div>
-            <Button
+            {/* <Button
               variant="outline"
               className="ml-2 cursor-pointer hover:bg-gray-100"
               onClick={() => setOpenReport(true)}
@@ -188,7 +188,7 @@ const EmployeeSentNotificationsPersonal = () => {
             </Button>
             {openReport && (
               <Reports open={openReport} onClose={() => setOpenReport(false)} />
-            )}
+            )} */}
           </div>
 
           {/* Statistics */}
@@ -252,9 +252,7 @@ const EmployeeSentNotificationsPersonal = () => {
                     <Spin size="large" />
                   </div>
                 ) : dataNotify.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Không có thông báo nào
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground"></div>
                 ) : (
                   dataNotify.map((notification) => {
                     return (
@@ -343,22 +341,24 @@ const EmployeeSentNotificationsPersonal = () => {
               notify={selectNotify}
             />
           )}
-          <div className="flex justify-center mt-4">
-            <Pagination
-              current={pagination.current}
-              pageSize={pagination.pageSize}
-              showSizeChanger={false}
-              total={pagination.total}
-              onChange={(page) => {
-                const params = new URLSearchParams({
-                  search: debouncedSearchTerm,
-                  type: selectType,
-                  page: page.toString(),
-                });
-                setSearchParams(params);
-              }}
-            />
-          </div>
+          {pagination.total >= 10 && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={pagination.current}
+                pageSize={pagination.pageSize}
+                showSizeChanger={false}
+                total={pagination.total}
+                onChange={(page) => {
+                  const params = new URLSearchParams({
+                    search: debouncedSearchTerm,
+                    type: selectType,
+                    page: page.toString(),
+                  });
+                  setSearchParams(params);
+                }}
+              />
+            </div>
+          )}
         </div>
         {openModalDelete && (
           <DeleteNotification

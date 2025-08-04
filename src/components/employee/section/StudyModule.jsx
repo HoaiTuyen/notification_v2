@@ -120,6 +120,7 @@ const StudyModule = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(res);
       }
       if (res?.data?.classSections) {
         setPagination({

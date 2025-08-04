@@ -187,7 +187,7 @@ const SentNotificationsPersonal = () => {
             <div>
               <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
             </div>
-            <Button
+            {/* <Button
               variant="outline"
               className="ml-2 cursor-pointer hover:bg-gray-100"
               onClick={() => setOpenReport(true)}
@@ -197,7 +197,7 @@ const SentNotificationsPersonal = () => {
             </Button>
             {openReport && (
               <Reports open={openReport} onClose={() => setOpenReport(false)} />
-            )}
+            )} */}
           </div>
 
           {/* Statistics */}

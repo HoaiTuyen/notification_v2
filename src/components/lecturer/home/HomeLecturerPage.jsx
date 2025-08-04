@@ -68,6 +68,7 @@ const HomeLecturerPage = () => {
       });
 
       const currentSemesterId = currentSemester?.id;
+      console.log(currentSemesterId);
       setSemesterId(currentSemesterId);
       const classRes = await handleListClassOfTeacher(teacherId);
       // Gọi song song 3 API

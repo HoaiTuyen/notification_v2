@@ -294,7 +294,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   }}
                   onBlur={(e) => validateField("firstName", e.target.value)}
                   required
-                  pattern="^[\p{L} ]+$"
+                  pattern="^[A-Za-zÀ-ỹà-ỹ\s]+$"
                   title="Họ chỉ được chứa chữ cái và khoảng trắng"
                 />
                 <p className="text-red-500 min-h-[20px] text-sm">
@@ -316,7 +316,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   }}
                   onBlur={(e) => validateField("lastName", e.target.value)}
                   required
-                  pattern="^[\p{L}]+$"
+                  pattern="^[A-Za-zÀ-ỹà-ỹ\s]+$"
                   title="Tên chỉ được chứa chữ cái, không có số hoặc ký tự đặc biệt"
                 />
                 <p className="text-red-500 min-h-[20px] text-sm">

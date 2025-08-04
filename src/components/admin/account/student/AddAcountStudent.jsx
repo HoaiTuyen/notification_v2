@@ -266,30 +266,29 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {/* <div className="grid gap-2 ">
-                <Label htmlFor="image">Ảnh</Label>
-                <div className="flex items-center gap-4">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Cấp lại mật khẩu</Label>
                   <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
+                    id="username"
+                    value={form.password}
+                    disabled={!checkEdit}
+                    type="password"
+                    onChange={(e) => {
+                      setForm({ ...form, password: e.target.value });
+                      if (errors.password) {
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }
+                    }}
+                    maxLength={50}
+                    onBlur={() => validateField("password", form.password)}
                   />
-                  {imagePreview && (
-                    // <div className="mt-2">
-                    //   <img
-                    //     src={imagePreview}
-                    //     alt="Preview"
-                    //     className="w-20 h-20 object-cover rounded"
-                    //   />
-                    // </div>
-                    <Avatar className="rounded-lg">
-                      <AvatarImage src={imagePreview} alt={form.username} />
-                    </Avatar>
-                  )}
+                  <p className="text-sm min-h-[20px] text-red-500">
+                    {errors.password || "\u00A0"}
+                  </p>
                 </div>
-              </div> */}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="">Trạng thái(*)</Label>
                   <Select

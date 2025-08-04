@@ -75,8 +75,8 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
 
     if (field === "username") {
       if (!value.trim()) error = "Username không được để trống";
-      else if (!/^[A-Za-z][A-Za-z0-9]{4,}$/.test(value))
-        error = "Phải bắt đầu bằng chữ, ít nhất 5 ký tự";
+      else if (!/^[A-Za-z0-9_]+$/.test(value))
+        error = "Chỉ được chứa chữ, số và dấu gạch dưới (_)";
     }
 
     if (field === "password" && !checkEdit) {
@@ -217,8 +217,8 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                     }}
                     onBlur={() => validateField("username", form.username)}
                     required
-                    pattern="^[A-Za-z][A-Za-z0-9]{4,}$"
-                    title="Username phải bắt đầu bằng chữ, tối thiểu 5 ký tự"
+                    pattern="^[A-Za-z0-9_]+$"
+                    title="Chỉ được chứa chữ, số và dấu gạch dưới (_)"
                   />
 
                   <p className="text-red-500 min-h-[20px] text-sm">
@@ -263,6 +263,28 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                     </p>
                   </div>
                 )}
+              </div>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Cấp lại mật khẩu</Label>
+                  <Input
+                    id="username"
+                    value={form.password}
+                    disabled={!checkEdit}
+                    type="password"
+                    onChange={(e) => {
+                      setForm({ ...form, password: e.target.value });
+                      if (errors.password) {
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }
+                    }}
+                    maxLength={50}
+                    onBlur={() => validateField("password", form.password)}
+                  />
+                  <p className="text-sm min-h-[20px] text-red-500">
+                    {errors.password || "\u00A0"}
+                  </p>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {/* <div className="grid gap-2 ">

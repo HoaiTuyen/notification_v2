@@ -153,7 +153,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
           ? {}
           : { username: form.username, password: form.password }),
       };
-
+      console.log("payload", payload);
       if (checkEdit) {
         const reqEdit = await handleUpdateStudent(payload);
         if (reqEdit?.status === 204) {
@@ -166,6 +166,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
           return;
         }
       } else {
+        console.log("payload", payload);
         const response = await handleAddStudent(payload);
         if (response?.status === 201) {
           toast.success(response.message || "Thêm sinh viên thành công");
@@ -185,6 +186,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     value: cls.id,
     label: cls.name,
   }));
+  console.log("classOptions", classOptions);
 
   const validateField = (field, value) => {
     let message = "";

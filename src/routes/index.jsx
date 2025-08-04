@@ -58,7 +58,7 @@ import ClassDetail from "../components/lecturer/classcharge/ClassDetail";
 import EmployeeCreateNotification from "../components/employee/notification/CreateNotification";
 import EmployeeSentNotifications from "../components/employee/notification/SentNotification";
 import EmployeeNotificationDetail from "../components/employee/notification/DetailNotification";
-import EmployeeProfilePage from "../components/employee/ProfileEmployee";
+import EmployeeProfilePage from "../components/employee/SettingEmployee";
 import EmployeeStudentAccount from "../components/employee/account/student/EmployeeStudentAccount";
 import EmployeeLecturerAccount from "../components/employee/account/lecturer/EmployeeLecturerAccount";
 import EmployeeClassName from "../components/employee/classroom/EmployeeClassRoom";
@@ -76,6 +76,7 @@ import ChangePasswordEmployee from "../components/employee/ChangePassword";
 import EmployeeListClassOfDepartment from "../components/employee/department/listClassByDepartment/ListClassByDepartment";
 import EmployeeSentNotificationsPersonal from "../components/employee/notification/SentNotificationPersonal";
 import EmployeeNotificationDetailPersonal from "../components/employee/notification/DetailNotificationPersonal";
+import SettingEmployee from "../components/employee/SettingEmployee";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -200,8 +201,9 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="profile" replace />} />
-            <Route path="profile" element={<EmployeeProfilePage />} />
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomePageEmployee />} />
+            <Route path="setting" element={<SettingEmployee />} />
             <Route
               path="notification-all"
               element={<EmployeeCreateNotification />}

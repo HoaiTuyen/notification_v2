@@ -122,12 +122,12 @@ const Group = () => {
               <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
             </Button> */}
 
-          <Button
+          {/* <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
             <Plus className=" h-4 w-4" /> Tạo nhóm học tập
-          </Button>
+          </Button> */}
           {openModal && (
             <AddGroup
               open={openModal}

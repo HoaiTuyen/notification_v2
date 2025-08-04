@@ -186,145 +186,152 @@ const HomePageEmployee = () => {
       </div>
     );
   }
+  // return (
+  //   <div className="h-full w-full bg-white p-0 overflow-auto">
+  //     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">
+  //       <Card className="">
+  //         <CardHeader className="flex flex-row items-center justify-between space-y-0">
+  //           <CardTitle className="text-sm font-medium">
+  //             Tổng sinh viên
+  //           </CardTitle>
+  //           <Users className="h-4 w-4 text-blue-600" />
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="text-2xl font-bold">{countStudent}</div>
+  //         </CardContent>
+  //       </Card>
+
+  //       <Card>
+  //         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  //           <CardTitle className="text-sm font-medium">
+  //             Tổng giảng viên
+  //           </CardTitle>
+  //           <GraduationCap className="h-4 w-4 text-green-600" />
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="text-2xl font-bold">{countLecturer}</div>
+  //           {/* <div className="flex items-center text-xs text-green-600">
+  //             <TrendingUp className="mr-1 h-3 w-3" />
+  //             +3 giảng viên mới
+  //           </div> */}
+  //         </CardContent>
+  //       </Card>
+
+  //       <Card>
+  //         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  //           <CardTitle className="text-sm font-medium">Thông báo</CardTitle>
+  //           <BellRing className="h-4 w-4 text-purple-600" />
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="text-2xl font-bold">{totalNotification}</div>
+  //         </CardContent>
+  //       </Card>
+
+  //       <Card>
+  //         <CardHeader className="flex flex-row items-center justify-between space-y-0">
+  //           <CardTitle className="text-sm font-medium">
+  //             Tổng số tài khoản
+  //           </CardTitle>
+  //           <Bell className="h-4 w-4 text-yellow-600" />
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="text-2xl font-bold">{countAccount}</div>
+  //         </CardContent>
+  //       </Card>
+  //     </div>
+  //     <Tabs defaultValue="trends" className="space-y-6 px-10">
+  //       <TabsContent value="trends" className="space-y-6">
+  //         <div className="grid grid-cols-2 gap-6">
+  //           <Card>
+  //             <CardHeader>
+  //               <CardTitle>Xu hướng thông báo theo ngày</CardTitle>
+  //               <CardDescription>
+  //                 Thống kê số lượng thông báo mỗi ngày gần đây
+  //               </CardDescription>
+  //             </CardHeader>
+  //             <CardContent className="h-[400px]">
+  //               <ResponsiveContainer width="100%" height="100%">
+  //                 <AreaChart data={dailyNotifications}>
+  //                   <defs>
+  //                     <linearGradient
+  //                       id="colorNotify"
+  //                       x1="0"
+  //                       y1="0"
+  //                       x2="0"
+  //                       y2="1"
+  //                     >
+  //                       <stop
+  //                         offset="5%"
+  //                         stopColor="#0088FE"
+  //                         stopOpacity={0.8}
+  //                       />
+  //                       <stop
+  //                         offset="95%"
+  //                         stopColor="#0088FE"
+  //                         stopOpacity={0}
+  //                       />
+  //                     </linearGradient>
+  //                   </defs>
+  //                   <XAxis dataKey="date" />
+  //                   <YAxis />
+  //                   <CartesianGrid strokeDasharray="3 3" />
+  //                   <Tooltip />
+  //                   <Area
+  //                     type="monotone"
+  //                     dataKey="totalNotificationDay"
+  //                     stroke="#0088FE"
+  //                     fillOpacity={1}
+  //                     fill="url(#colorNotify)"
+  //                     name="Tổng TB/ngày"
+  //                   />
+  //                 </AreaChart>
+  //               </ResponsiveContainer>
+  //             </CardContent>
+  //           </Card>
+
+  //           <Card className="col-span-1">
+  //             <CardHeader>
+  //               <CardTitle>Chi tiết loại thông báo</CardTitle>
+  //               <CardDescription>Thống kê cụ thể cho từng loại</CardDescription>
+  //             </CardHeader>
+  //             <CardContent>
+  //               <div className="space-y-4">
+  //                 {notificationTypeStats.map((type, index) => (
+  //                   <div
+  //                     key={index}
+  //                     className="flex items-center justify-between p-4 border rounded-lg"
+  //                   >
+  //                     <div className="flex items-center space-x-3">
+  //                       <div
+  //                         className="w-4 h-4 rounded-full"
+  //                         style={{ backgroundColor: type.color }}
+  //                       />
+  //                       <div>
+  //                         <p className="font-medium">{type.name}</p>
+  //                         <p className="text-sm text-gray-500">
+  //                           {type.value}% tổng số
+  //                         </p>
+  //                       </div>
+  //                     </div>
+  //                     <div className="text-right">
+  //                       <p className="text-lg font-bold">{type.raw}</p>
+  //                       <p className="text-sm text-gray-500">thông báo</p>
+  //                     </div>
+  //                   </div>
+  //                 ))}
+  //               </div>
+  //             </CardContent>
+  //           </Card>
+  //         </div>
+  //       </TabsContent>
+  //     </Tabs>
+  //   </div>
+  // );
   return (
-    <div className="h-full w-full bg-white p-0 overflow-auto">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">
-        <Card className="">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">
-              Tổng sinh viên
-            </CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{countStudent}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tổng giảng viên
-            </CardTitle>
-            <GraduationCap className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{countLecturer}</div>
-            {/* <div className="flex items-center text-xs text-green-600">
-              <TrendingUp className="mr-1 h-3 w-3" />
-              +3 giảng viên mới
-            </div> */}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Thông báo</CardTitle>
-            <BellRing className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalNotification}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">
-              Tổng số tài khoản
-            </CardTitle>
-            <Bell className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{countAccount}</div>
-          </CardContent>
-        </Card>
-      </div>
-      <Tabs defaultValue="trends" className="space-y-6 px-10">
-        <TabsContent value="trends" className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Xu hướng thông báo theo ngày</CardTitle>
-                <CardDescription>
-                  Thống kê số lượng thông báo mỗi ngày gần đây
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={dailyNotifications}>
-                    <defs>
-                      <linearGradient
-                        id="colorNotify"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#0088FE"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#0088FE"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <Tooltip />
-                    <Area
-                      type="monotone"
-                      dataKey="totalNotificationDay"
-                      stroke="#0088FE"
-                      fillOpacity={1}
-                      fill="url(#colorNotify)"
-                      name="Tổng TB/ngày"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-1">
-              <CardHeader>
-                <CardTitle>Chi tiết loại thông báo</CardTitle>
-                <CardDescription>Thống kê cụ thể cho từng loại</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {notificationTypeStats.map((type, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className="w-4 h-4 rounded-full"
-                          style={{ backgroundColor: type.color }}
-                        />
-                        <div>
-                          <p className="font-medium">{type.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {type.value}% tổng số
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold">{type.raw}</p>
-                        <p className="text-sm text-gray-500">thông báo</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+    <div className="h-full w-full bg-white p-0 overflow-auto flex items-center justify-center">
+      <h1 className="text-2xl font-bold">
+        Chào mừng bạn đến với hệ thống thông báo
+      </h1>
     </div>
   );
 };

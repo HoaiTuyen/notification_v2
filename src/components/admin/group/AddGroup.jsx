@@ -39,6 +39,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
 
   const [listTeacher, setListTeacher] = useState([]);
   const [form, setForm] = useState({
+    id: group?.id || "",
     name: group?.name || "",
     userId: userId,
   });
@@ -133,11 +134,13 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
   useEffect(() => {
     if (open && group?.id) {
       setForm({
+        id: group?.id || "",
         name: group?.name || "",
         userId: userId || "",
       });
     } else {
       setForm({
+        id: group?.id,
         name: "",
         userId: userId || "",
       });

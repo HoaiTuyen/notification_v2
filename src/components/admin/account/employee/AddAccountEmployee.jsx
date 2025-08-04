@@ -273,6 +273,28 @@ const AddAccountEmployee = ({ open, onClose, onSuccess, users }) => {
                   </div>
                 )}
               </div>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Cấp lại mật khẩu</Label>
+                  <Input
+                    id="username"
+                    value={form.password}
+                    disabled={!checkEdit}
+                    type="password"
+                    onChange={(e) => {
+                      setForm({ ...form, password: e.target.value });
+                      if (errors.password) {
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }
+                    }}
+                    maxLength={50}
+                    onBlur={() => validateField("password", form.password)}
+                  />
+                  <p className="text-sm min-h-[20px] text-red-500">
+                    {errors.password || "\u00A0"}
+                  </p>
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="">Trạng thái(*)</Label>

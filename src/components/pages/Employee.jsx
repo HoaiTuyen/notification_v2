@@ -35,7 +35,7 @@ import { handleGetDetailUser } from "../../controller/AccountController";
 import { handleTeacherDetail } from "../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 const EmployeeDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -49,12 +49,12 @@ const EmployeeDashboard = () => {
   };
 
   const items = [
-    // { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
-    {
-      key: "profile",
-      icon: <User size={16} />,
-      label: "Thông tin cá nhân",
-    },
+    { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
+    // {
+    //   key: "profile",
+    //   icon: <User size={16} />,
+    //   label: "Thông tin cá nhân",
+    // },
     {
       key: "notification",
       icon: <MessageSquare size={16} />,
@@ -136,10 +136,15 @@ const EmployeeDashboard = () => {
       icon: <img src="/img/menu/department.png" alt="icon" width={16} />,
       label: "Quản lý khoa",
     },
+    // {
+    //   key: "change-password",
+    //   icon: <Key size={16} />,
+    //   label: "Thay đổi mật khẩu",
+    // },
     {
-      key: "change-password",
+      key: "setting",
       icon: <Key size={16} />,
-      label: "Thay đổi mật khẩu",
+      label: "Cài đặt",
     },
     {
       key: "logout",
