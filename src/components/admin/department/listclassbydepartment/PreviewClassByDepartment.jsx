@@ -18,7 +18,7 @@ const PreviewModalClassByDepartment = ({ open, onClose, data = [] }) => {
       <DialogContent className="!max-w-7xl  w-screen h-[90vh] rounded-lg p-6">
         {/* Thay max-w-full thành max-w-5xl */}
         <DialogHeader>
-          <DialogTitle>Xem trước danh sách lớp học</DialogTitle>
+          <DialogTitle>Xem trước danh sách lớp thuộc khoa</DialogTitle>
         </DialogHeader>
         <div className="h-[70vh] w-full overflow-auto mt-4 rounded-lg border">
           <div className="w-full overflow-x-auto">

@@ -30,7 +30,7 @@ export const changePassword = (
 export const updateUser = (data) => {
   return api.put("/user/update", data);
 };
-export const searchUser = (keyword, role, page = 0, pageSize = 50) => {
+export const searchUser = (keyword, role, page, pageSize) => {
   return api.get("/user/list_users", {
     params: {
       keyword: keyword,

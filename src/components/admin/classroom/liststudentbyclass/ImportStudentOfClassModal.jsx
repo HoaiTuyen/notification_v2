@@ -94,7 +94,7 @@ const ImportStudentOfClassModal = ({ open, onClose, onSuccess }) => {
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Nhập danh sách sinh viên</DialogTitle>
+          <DialogTitle>Nhập danh sách sinh viên thuộc lớp</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-8">

@@ -25,6 +25,14 @@ const generateSampleExcel = () => {
     ["STT", "Mã môn học", "Tên môn học", "Số tín chỉ"],
     ["1", "GS09821", "Toán cao cấp A1", "3"],
     ["2", "GS87651", "Lập trình web", "3"],
+    ["3", "GS12345", "Cấu trúc dữ liệu", "3"],
+    ["4", "GS23456", "Cơ sở dữ liệu", "3"],
+    ["5", "GS34567", "Hệ điều hành", "4"],
+    ["6", "GS45678", "Mạng máy tính", "3"],
+    ["7", "GS56789", "Trí tuệ nhân tạo", "3"],
+    ["8", "GS67890", "Nhập môn công nghệ phần mềm", "2"],
+    ["9", "GS78901", "Phân tích thiết kế hệ thống", "3"],
+    ["10", "GS89012", "Lập trình hướng đối tượng", "3"],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(sampleData);

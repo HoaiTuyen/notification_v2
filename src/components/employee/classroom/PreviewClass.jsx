@@ -30,6 +30,10 @@ const PreviewModalClass = ({ open, onClose, data = [] }) => {
                   <th className="border p-2">Mã lớp</th>
                   <th className="border p-2">Tên lớp</th>
                   <th className="border p-2">Mô tả</th>
+                  <th className="border p-2">Mã giảng viên phụ trách</th>
+                  <th className="border p-2">Họ và tên giảng viên phụ trách</th>
+                  <th className="border p-2">Mã niên khoá</th>
+                  <th className="border p-2">Tên niên khoá</th>
                   {hasErrors && (
                     <th className="border p-2 text-red-600">Lỗi</th>
                   )}
@@ -52,6 +56,18 @@ const PreviewModalClass = ({ open, onClose, data = [] }) => {
                     </td>
                     <td className="border p-2 text-center align-middle">
                       {classroom.description}
+                    </td>
+                    <td className="border p-2 text-center align-middle">
+                      {classroom.teacherId}
+                    </td>
+                    <td className="border p-2 text-center align-middle">
+                      {classroom.teacherName}
+                    </td>
+                    <td className="border p-2 text-center align-middle">
+                      {classroom.academicYearId}
+                    </td>
+                    <td className="border p-2 text-center align-middle">
+                      {classroom.academicYearName}
                     </td>
 
                     {hasErrors && (

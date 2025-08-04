@@ -48,7 +48,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     e.preventDefault();
     const idRegex = /^[A-Z][A-Z0-9]*$/;
 
-    const nameRegex = /^[\p{L}][\p{L}0-9 ]*$/u;
+    const nameRegex = /^[\p{L}][\p{L}0-9 /]*$/u;
 
     // Validate mã môn học
     if (!form.id.trim()) {
@@ -85,13 +85,22 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     }
 
     // Validate số tín chỉ
+    if (
+      credit === null ||
+      credit === undefined ||
+      credit.toString().trim() === ""
+    ) {
+      toast.error("Vui lòng nhập số tín chỉ");
+      return;
+    }
     const creditNumber = parseInt(form.credit, 10);
+
     if (isNaN(creditNumber)) {
       toast.error("Số tín chỉ không hợp lệ");
       return;
     }
-    if (creditNumber < 1) {
-      toast.error("Số tín chỉ phải lớn hơn hoặc bằng 1");
+    if (creditNumber < 0) {
+      toast.error("Số tín chỉ phải lớn hơn hoặc bằng 0");
       return;
     }
     if (creditNumber > 15) {
@@ -139,8 +148,9 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     if (field === "name") {
       if (!value.trim()) error = "Tên môn học không được để trống";
       else if (value.length < 3) error = "Tên môn học ít nhất 3 ký tự";
-      else if (!/^[\p{L}][\p{L}0-9 ]*$/u.test(value))
-        error = "Tên môn học chỉ được chứa chữ cái, số và khoảng trắng";
+      else if (!/^[\p{L}][\p{L}0-9 /]*$/u.test(value))
+        error =
+          "Tên môn học chỉ được chứa chữ cái, số, khoảng trắng và dấu '/'";
       else {
         const words = value.trim().split(/\s+/);
         const firstWord = words[0];
@@ -151,10 +161,19 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     }
 
     if (field === "credit") {
+      if (
+        value === null ||
+        value === undefined ||
+        value.toString().trim() === ""
+      ) {
+        error = "Số tín chỉ không được để trống";
+        setErrors((prev) => ({ ...prev, [field]: error }));
+        return;
+      }
       const num = parseInt(value, 10);
 
       if (isNaN(num)) error = "Số tín chỉ không hợp lệ";
-      else if (num < 1) error = "Tín chỉ phải >= 1";
+      else if (num < 0) error = "Tín chỉ phải >= 0";
       else if (num > 15) error = "Tín chỉ không được vượt quá 15";
     }
 
@@ -249,9 +268,9 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
                       }
                     }}
                     required
-                    min={1}
+                    min={0}
                     max={15}
-                    title="Số tín chỉ phải từ 1 đến 15"
+                    title="Số tín chỉ phải từ 0 đến 15"
                     onBlur={(e) => validateField("credit", e.target.value)}
                   />
                   <p className="text-red-500 min-h-[20px] text-sm">

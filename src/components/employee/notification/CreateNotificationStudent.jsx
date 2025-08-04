@@ -122,9 +122,9 @@ const EmployeeCreateNotificationStudent = () => {
       };
 
       // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
-      if (field === "studentIds" && !isValidStudentCode(value)) {
-        updated.isMail = false;
-      }
+      // if (field === "studentIds" && !isValidStudentCode(value)) {
+      //   updated.isMail = false;
+      // }
 
       return updated;
     });
@@ -183,11 +183,11 @@ const EmployeeCreateNotificationStudent = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValidStudentCode = (code) => {
-    if (typeof code !== "string") return false;
-    const regex = /^DH\d{8,}$/i;
-    return regex.test(code.trim());
-  };
+  // const isValidStudentCode = (code) => {
+  //   if (typeof code !== "string") return false;
+  //   const regex = /^DH\d{8,}$/i;
+  //   return regex.test(code.trim());
+  // };
   const handleBlur = (field, value) => {
     const countWords = (text) =>
       text.trim().split(/\s+/).filter(Boolean).length;
@@ -270,9 +270,9 @@ const EmployeeCreateNotificationStudent = () => {
   useEffect(() => {
     fetchStudents();
   }, []);
-  const isSingleValidStudent =
-    formData.studentIds.length === 1 &&
-    isValidStudentCode(formData.studentIds[0]);
+  // const isSingleValidStudent =
+  //   formData.studentIds.length === 1 &&
+  //   isValidStudentCode(formData.studentIds[0]);
 
   return (
     <div className="h-full w-full bg-white p-0 overflow-auto">
@@ -343,7 +343,7 @@ const EmployeeCreateNotificationStudent = () => {
                           <Checkbox
                             id="isMail"
                             checked={formData.isMail}
-                            disabled={!isSingleValidStudent}
+                            disabled={formData.studentIds.length === 0}
                             onCheckedChange={(checked) =>
                               handleInputChange("isMail", checked === true)
                             }
@@ -351,7 +351,7 @@ const EmployeeCreateNotificationStudent = () => {
                           <label
                             htmlFor="isMail"
                             className={`text-sm ${
-                              !isSingleValidStudent
+                              formData.studentIds.length === 0
                                 ? "text-gray-400"
                                 : "text-muted-foreground"
                             }`}
@@ -359,7 +359,7 @@ const EmployeeCreateNotificationStudent = () => {
                             Gửi email đến sinh viên có mã trên
                           </label>
                         </div>
-                        {formData.studentIds.length > 0 &&
+                        {/* {formData.studentIds.length > 0 &&
                           !isSingleValidStudent && (
                             <p className="text-sm text-red-600">
                               Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
@@ -369,7 +369,7 @@ const EmployeeCreateNotificationStudent = () => {
                           <p className="text-sm text-red-600">
                             {errors.studentIds}
                           </p>
-                        )}
+                        )} */}
                       </div>
                     </div>
 
