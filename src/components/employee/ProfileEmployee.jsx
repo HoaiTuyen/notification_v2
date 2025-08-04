@@ -108,6 +108,10 @@ const EmployeeProfilePage = () => {
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
+      toast.error("Ảnh phải có kích thước nhỏ hơn 5MB.");
+      return;
+    }
     setFile(selectedFile);
     setTempImage(URL.createObjectURL(selectedFile));
   };
@@ -230,6 +234,9 @@ const EmployeeProfilePage = () => {
                         <Camera className="mr-2 h-4 w-4" />
                         Thay đổi ảnh
                       </Button>
+                      <p className="text-sm text-red-600 mt-1">
+                        Lưu ý: Chỉ chấp nhận ảnh dưới 5MB.
+                      </p>
                       <input
                         type="file"
                         accept="image/*"

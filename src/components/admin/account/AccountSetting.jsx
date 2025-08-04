@@ -82,7 +82,7 @@ const ProfilePage = () => {
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
     if (selectedFile.size > maxSizeBytes) {
-      toast.error(`Chỉ chấp nhận ảnh ≤ ${maxSizeMB}MB.`);
+      toast.error(`Chỉ chấp nhận ảnh có kích thước nhỏ hơn ${maxSizeMB}MB.`);
       // Reset input để cho phép chọn lại cùng file
       e.target.value = null;
       return;

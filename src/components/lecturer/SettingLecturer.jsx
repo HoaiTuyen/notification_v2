@@ -232,6 +232,11 @@ const TeacherProfile = () => {
                         <span>Thay đổi ảnh</span>
                       </Button>
                     )}
+                    {isEditing && (
+                      <p className="text-sm text-red-600 mt-1">
+                        Lưu ý: Chỉ chấp nhận ảnh dưới 5MB.
+                      </p>
+                    )}
 
                     <input
                       ref={inputRef}
@@ -246,9 +251,9 @@ const TeacherProfile = () => {
                     <h3 className="text-lg font-semibold">
                       {profileData.firstName} {profileData.lastName}
                     </h3>
-                    {/* <p className="text-sm text-muted-foreground">
-                      Khoa: {profileData.departmentName || "Trống"}
-                    </p> */}
+                    <p className="text-sm text-muted-foreground">
+                      MSGV: {profileData.id || "Trống"}
+                    </p>
                   </div>
                 </div>
 

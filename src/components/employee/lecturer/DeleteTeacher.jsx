@@ -42,7 +42,7 @@ const DeleteTeacher = ({ onOpen, onClose, teacher, onSuccess }) => {
               Mã giảng viên: {teacher.id}
             </p>
             <p className="font-medium">
-              Tên giảng viên: {teacher.lastName} {teacher.firstName}
+              Tên giảng viên: {teacher.firstName} {teacher.lastName}
             </p>
           </div>
         )}

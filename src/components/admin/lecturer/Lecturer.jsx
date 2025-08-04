@@ -295,11 +295,9 @@ const Lecturer = () => {
                         </TableCell>
                         <TableCell
                           title={teacher.firstName}
-                          className="text-center"
+                          className="text-center max-w-[150px] truncate"
                         >
-                          <div className="max-w-[150px] truncate ">
-                            {teacher.firstName} {teacher.lastName}
-                          </div>
+                          {teacher.firstName} {teacher.lastName}
                         </TableCell>
                         <TableCell
                           title={teacher.email}

@@ -48,7 +48,8 @@ import {
 } from "../../controller/StudentController";
 import { useLoading } from "../../context/LoadingProvider";
 const StudentProfilePage = () => {
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useLoading();
+
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userId, setUserId] = useState("");
@@ -56,6 +57,8 @@ const StudentProfilePage = () => {
   const [tempImage, setTempImage] = useState(null);
   const [file, setFile] = useState(null);
   const inputRef = useRef(null);
+  const [initialProfileData, setInitialProfileData] = useState(null); // Lưu dữ liệu ban đầu
+  const [initialUserImage, setInitialUserImage] = useState(null);
 
   const fetchUserDetail = async () => {
     try {
@@ -70,6 +73,8 @@ const StudentProfilePage = () => {
         setUserImage(req.data.image);
         const studentDetail = await handleStudentDetail(req.data.studentId);
         setProfileData(studentDetail.data);
+        setInitialProfileData(studentDetail.data); // Lưu dữ liệu ban đầu
+        setInitialUserImage(req.data.image);
       }
     } catch (e) {
       console.log(e);
@@ -103,9 +108,23 @@ const StudentProfilePage = () => {
       toast.error(error || "Lỗi khi tải ảnh lên.");
     }
   };
+  const handleCancel = () => {
+    setProfileData(initialProfileData);
+    setUserImage(initialUserImage);
+    setTempImage(null); // ✅ Reset ảnh tạm
+    setIsEditing(false);
+    setFile(null);
+    if (inputRef.current) {
+      inputRef.current.value = null;
+    }
+  };
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
+      toast.error("Ảnh phải có kích thước nhỏ hơn 5MB.");
+      return;
+    }
     setFile(selectedFile);
     setTempImage(URL.createObjectURL(selectedFile));
   };
@@ -130,13 +149,7 @@ const StudentProfilePage = () => {
       setLoading(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <Spin size="large" tip="Đang tải dữ liệu..." />
-      </div>
-    );
-  }
+
   function filterStudents(status) {
     switch (status) {
       case "ĐANG_HỌC":
@@ -176,7 +189,7 @@ const StudentProfilePage = () => {
                 Thông tin cá nhân
               </h2>
             </div>
-            <Button
+            {/* <Button
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
               className={
                 isEditing
@@ -192,6 +205,43 @@ const StudentProfilePage = () => {
                 "Chỉnh sửa"
               )}
             </Button>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => {
+                handleCancel();
+              }}
+            >
+              Hủy
+            </Button> */}
+            <div className="flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handleCancel();
+                    }}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 cursor-pointer"
+                    onClick={handleSave}
+                  >
+                    Lưu thay đổi
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Chỉnh sửa
+                </Button>
+              )}
+            </div>
           </div>
 
           <Tabs defaultValue="personal" className="space-y-4">
@@ -234,6 +284,11 @@ const StudentProfilePage = () => {
                           style={{ display: "none" }}
                           onChange={handleFileSelect}
                         />
+                        {isEditing && (
+                          <p className="text-sm text-red-600 mt-1">
+                            Lưu ý: Chỉ chấp nhận ảnh dưới 5MB.
+                          </p>
+                        )}
                         {/* {file && (
                           <div className="flex">
                             <Button
