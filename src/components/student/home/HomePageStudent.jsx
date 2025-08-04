@@ -44,7 +44,6 @@ const HomePageStudent = () => {
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
 
-  // Fetch studentId and semester first
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
@@ -55,8 +54,18 @@ const HomePageStudent = () => {
         ]);
 
         const studentId = userRes?.data?.studentId;
-        const semesterId = semesterRes?.data?.semesters?.[0]?.id;
+        const today = dayjs();
 
+        const currentSemester = semesterRes?.data?.semesters?.find(
+          (semester) => {
+            const start = dayjs(semester.startDate);
+            const end = dayjs(semester.endDate);
+            return today.isAfter(start) && today.isBefore(end);
+          }
+        );
+
+        const semesterId = currentSemester?.id;
+        console.log("semesterId", semesterId);
         if (studentId) setStudentId(studentId);
         if (semesterId) setSemesterId(semesterId);
 

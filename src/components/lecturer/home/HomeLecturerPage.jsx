@@ -30,6 +30,7 @@ import {
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { handleListSemester } from "../../../controller/SemesterController";
 import { Spin } from "antd";
+import dayjs from "dayjs";
 
 const HomeLecturerPage = () => {
   const navigate = useNavigate();
@@ -58,7 +59,15 @@ const HomeLecturerPage = () => {
       const semesters = semesterRes?.data?.semesters || [];
       if (!semesters.length) return;
 
-      const currentSemesterId = semesters[0].id;
+      const today = dayjs();
+
+      const currentSemester = semesters.find((semester) => {
+        const start = dayjs(semester.startDate);
+        const end = dayjs(semester.endDate);
+        return today.isAfter(start) && today.isBefore(end);
+      });
+
+      const currentSemesterId = currentSemester?.id;
       setSemesterId(currentSemesterId);
       const classRes = await handleListClassOfTeacher(teacherId);
       // Gọi song song 3 API
