@@ -14,7 +14,7 @@ Dự án này được phát triển nhằm mục đích quản lý và gửi th
 
 ## Một vài yêu cầu nhỏ
 
-- Đây là bản quyền sáng tạo của bố mày và cấm không được copy dưới mọi hình thức khi chưa có quyền của tác giả.
+- Đây là bản quyền sáng tạo của mình và cấm không được copy dưới mọi hình thức khi chưa có quyền của tác giả.
 -
 
 ## Công nghệ sử dụng
